@@ -15,6 +15,12 @@
     <h1>
         <i class="{{ $dataType->icon }}"></i>
         {{ __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular') }}
+        <a href="{{ route('voyager.prestamos.index') }}" class="btn btn-dark">
+            <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Volver</span>
+        </a>
+        <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
+            <i class="icon voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo Cliente</span>
+        </a>
     </h1>
     @include('voyager::multilingual.language-selector')
 @stop
@@ -258,7 +264,6 @@
         })
         
         function calcularCuota(monto, interes, tiempo, pmensual, mesinicio){
-
             if(!mesinicio){
                 swal({
                     title: "Ingresa el mes d inicio",
@@ -283,7 +288,7 @@
             for(let i = 1; i <= tiempo; i++) {
                 //Formato fechas
                 fechas[i] = mes_actual.format('MMMM-YY');
-                fecha[i] = mes_actual.format('DD-MM-YY');
+                fecha[i] = mes_actual.format('YYYY-MM-DD');
                 mes_actual.add(1, 'month');
                 if (i == 1) {
                     mimonto = parseFloat(monto).toFixed(2)
@@ -310,7 +315,7 @@
                 `;
                 llenarTabla.appendChild(row)
                 mitotal+=pmensual
-                miplan.push({'mes': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})
+                miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})
             }
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -322,7 +327,6 @@
 
             swal({
                 title: "Plan creado correctamente",
-                // text: "Plan creado correctamente",
                 icon: "success",
             });
         }
@@ -334,6 +338,7 @@
 
         btnGuardar.addEventListener('click', () => {
             const micliente = $("#cliente_id option:selected").text()
+            const miestado = $("#estado_id option:selected").text()
             const miobserv = $("#observacion").val()
             const mimonto = $("#monto").val()
             const miplan = localStorage.getItem("miplan")
@@ -341,6 +346,13 @@
             if(!miplan){
                 swal({
                     title: "Crea una plan de pagos",
+                    icon: "error",
+                });
+                return true;
+            }
+            if(miestado == ''){
+                swal({
+                    title: "Selecciona un estado inicial",
                     icon: "error",
                 });
                 return true;
@@ -374,6 +386,9 @@
                             console.log("cancel")
                         break;
                         case "confir":
+                            $("#btnGuardar").text("enviado datos...")
+                            $("#btnGuardar").prop( "disabled", true )
+                            $("#btnGuardar").prop( "readonly", true )
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
                                 tipo_id:  $("#tipo_id").val(),
@@ -386,7 +401,6 @@
                                 user_id:  "{{ Auth::user()->id }}",
                                 mes_inicio:  $("#mes_inicio").val()
                             })
-                            // console.log(respt.data)
                             location.href = "/admin/prestamos"
                         break;
                     }

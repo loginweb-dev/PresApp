@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -46,8 +47,23 @@ Route::post('prestamos/store', function (Request $request) {
             'deuda' => $micount[$i]->deuda,
             'pagado' => 0,
             'prestamo_id' => $new->id,
-            'observacion' => null
+            'observacion' => null,
+            'fecha' => Carbon::parse($micount[$i]->fecha)->format('Y-m-d')
         ]);
     }
+    return $new;
+});
+
+
+// planes-------------------------------------------------------
+Route::get('plan/{id}', function ($id) {
+    return App\PrestamoPlane::find($id);
+});
+Route::post('plan/update', function (Request $request) {
+    $new = App\PrestamoPlane::find($request->id);
+    $new->pagado = 1;
+    $new->observacion = $request->observacion;
+    $new->pasarela_id = $request->pasarela_id;
+    $new->save();
     return $new;
 });

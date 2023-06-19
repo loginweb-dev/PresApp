@@ -8,7 +8,10 @@
             <i class="{{ $dataType->icon }}"></i> {{ $dataType->getTranslatedAttribute('display_name_plural') }}
             @can('add', app($dataType->model_name))
                 <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-dark btn-add-new">
-                    <i class="voyager-plus"></i> <span>{{ __('voyager::generic.add_new') }}</span>
+                    <i class="voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo Prestamo</span>
+                </a>
+                <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
+                    <i class="icon voyager-person"></i> <span class="hidden-xs hidden-sm">Ver Clientes</span>
                 </a>
             @endcan
         </h1>
@@ -84,9 +87,7 @@
                                                 <input type="checkbox" class="select_all">
                                             </th>
                                         @endif
-
-                                        @foreach($dataType->browseRows as $row)
-                                      
+                                        @foreach($dataType->browseRows as $row)                                      
                                         <th>
                                             @if ($isServerSide && in_array($row->field, $sortableColumns))
                                                 <a href="{{ $row->sortByUrl($orderBy, $sortOrder) }}">

@@ -28,5 +28,5 @@ Route::group(['prefix' => 'admin'], function () {
     });
 
     Route::post('/prestamo/store', [PrestamoController::class, 'prestamo_store'])->name('prestamo_store');
-    
+    Route::get('/pdf/prestamo/{id}', [PrestamoController::class, 'pdf_prestamo'])->name('pdf_prestamo');
 });

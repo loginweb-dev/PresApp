@@ -3,7 +3,8 @@
 @section('page_title', __('voyager::generic.view').' '.$dataType->getTranslatedAttribute('display_name_singular'))
 
 @section('page_header')
-    <h1 class="">
+    <h1 class="page-title">
+        HOLA
         <i class="{{ $dataType->icon }}"></i> {{ __('voyager::generic.viewing') }} {{ ucfirst($dataType->getTranslatedAttribute('display_name_singular')) }} &nbsp;
 
         @can('edit', $dataTypeContent)
@@ -23,14 +24,8 @@
             @endif
         @endcan
         @can('browse', $dataTypeContent)
-        <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-dark">
-            <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Volver</span>
-        </a>
-        <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-dark">
-            <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
-        </a>
-        <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-dark">
-            <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
+        <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-warning">
+            <i class="glyphicon glyphicon-list"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::generic.return_to_list') }}</span>
         </a>
         @endcan
     </h1>
@@ -40,7 +35,7 @@
 @section('content')
     <div class="page-content read container-fluid">
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-md-12">
 
                 <div class="panel panel-bordered" style="padding-bottom:5px;">
                     <!-- form start -->
@@ -50,12 +45,11 @@
                             $dataTypeContent->{$row->field} = $dataTypeContent->{$row->field.'_read'};
                         }
                         @endphp
-                        {{-- <div class="panel-heading" style="border-bottom:0;">
+                        <div class="panel-heading" style="border-bottom:0;">
                             <h3 class="panel-title">{{ $row->getTranslatedAttribute('display_name') }}</h3>
-                        </div> --}}
+                        </div>
 
-                        <small class="">{{ $row->getTranslatedAttribute('display_name') }}: </small>
-                        <div class="panel-body" style="padding-top:0; font-weight: bold;">
+                        <div class="panel-body" style="padding-top:0;">
                             @if (isset($row->details->view_read))
                                 @include($row->details->view_read, ['row' => $row, 'dataType' => $dataType, 'dataTypeContent' => $dataTypeContent, 'content' => $dataTypeContent->{$row->field}, 'view' => 'read', 'options' => $row->details])
                             @elseif (isset($row->details->view))
@@ -145,75 +139,6 @@
 
                 </div>
             </div>
-
-            <div class="col-sm-9">
-                @php
-                    $miplan = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->with("pasarelas")->get();
-                    $pasarelas = App\Pasarela::all();
-                    $countcsp = 0;
-                    $countcnp = 0;
-                @endphp
-                <div class="panel panel-bordered">
-                    <div class="panel-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-bordered table-striped" id="lista-tabla">
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>MES</th>
-                                        <th>NRO</th>
-                                        <th>MONTO</th>
-                                        <th>INTERES</th>
-                                        <th>CAPITAL</th>
-                                        <th>CUOTA</th>
-                                        <th>DEUDA</th>
-                                        <th>PAGADO</th>
-                                        <th>ACCION</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{-- style="background-color:#FF0000" --}}
-                                    @foreach ($miplan as $item)
-                                        <tr>
-                                            <td>{{ $item->id }}</td>
-                                            <td>
-                                                {{ $item->mes }}
-                                                <br>
-                                                {{ $item->fecha }}
-                                            </td>
-                                            <td>{{ $item->nro }}</td>
-                                            <td>{{ $item->monto }}</td>
-                                            <td>{{ $item->interes }}</td>
-                                            <td>{{ $item->capital }}</td>
-                                            <td>{{ $item->cuota }}</td>
-                                            <td>{{ $item->deuda }}</td>
-                                            <td>
-                                                <span class="badge badge-secondary">{{ $item->pagado ? "SI" : "NO" }}</span>
-                                            </td>
-                                            <td>
-                                                @if ($item->pagado)
-                                                    @php $countcsp++ @endphp
-                                                   {{ $item->pasarelas->nombre }}
-                                                    <br>
-                                                    {{ $item->observacion }}
-                                                @else
-                                                    @php $countcnp++ @endphp
-                                                    <a href="#" class="btn btn-dark" onclick="pagar('{{ $item->id }}')">Pagar
-                                                </a>
-                                                @endif
-                                              
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                               
-                            </table>
-                            <p>Cuatas Pagadas:  {{ $countcsp }}</p>
-                            <p>Cuatas No pagadas: {{ $countcnp }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -233,53 +158,6 @@
                                value="{{ __('voyager::generic.delete_confirm') }} {{ strtolower($dataType->getTranslatedAttribute('display_name_singular')) }}">
                     </form>
                     <button type="button" class="btn btn-default pull-right" data-dismiss="modal">{{ __('voyager::generic.cancel') }}</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    <div class="modal modal-primary fade" tabindex="-1" id="modal_pagar" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('voyager::generic.close') }}"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><i class="voyager-plus"></i> Nuevo Pago</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">             
-                        <div class="form-group col-xs-6">
-                            <label for="">Pasarela</label>
-                            <select name="" id="pasarela_id" class="form-control">
-                                @foreach ($pasarelas as $item)
-                                <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group col-xs-6">
-                            <label for="">Cuota</label>
-                            <input type="text" name="" id="mcuota" class="form-control" readonly>
-                        </div>
-
-                        <div class="form-group col-xs-6">
-                            <label for="">Interes</label>
-                            <input type="text" name="" id="minteres" class="form-control" readonly>
-                        </div>
-
-                        <div class="form-group col-xs-6">
-                            <label for="">Capital</label>
-                            <input type="text" name="" id="mcapital" class="form-control" readonly>
-                        </div>
-                        <div class="form-group col-xs-12">
-                            <label for="">Observaciones</label>
-                            <textarea name="" id="mobserv" class="form-control">Sin observación</textarea>
-                        </div>
-                        <input type="hidden" name="" id="plan_id" class="form-control" hidden>
-                </div>                          
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn btn-dark btn-sm pull-right" onclick="mipago()">
-                        <i class="icon voyager-pen"></i>Guardar
-                    </a>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -311,39 +189,5 @@
             $('#delete_modal').modal('show');
         });
 
-        async function pagar(id){
-            $('#modal_pagar').modal('show');
-            var mipago = await axios("/api/plan/"+id)
-            $('#mcuota').val(mipago.data.cuota);
-            $('#minteres').val(mipago.data.interes);
-            $('#mcapital').val(mipago.data.capital);
-            $('#plan_id').val(id);
-        }
-        async function mipago(){            
-            swal({
-                icon: "info",
-                title:  "Esta segur@ de realizar el pago #"+$('#plan_id').val(),                
-                buttons: {
-                    cancel: "Cancelar",
-                    confir: "Confirmar",
-                },
-                }).then(async (value) => {
-                    switch (value) {
-                        case "cancel":
-                            console.log("cerrar")
-                            $('#modal_pagar').modal('hide');
-                        break;
-                        case "confir":
-                            var mipago = await axios.post("/api/plan/update", {
-                                id: $('#plan_id').val(),
-                                pasarela_id: $('#pasarela_id').val(),
-                                observacion: $('#mobserv').val()
-                            })
-                            location.reload()
-                        break;
-                    }
-                }
-            );            
-        }
     </script>
 @stop

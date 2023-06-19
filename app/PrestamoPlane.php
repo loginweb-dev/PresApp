@@ -4,10 +4,21 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class PrestamoPlane extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['mes', 'nro','monto','interes','capital','cuota','deuda','pagado', 'observacion', 'prestamo_id'];
+    protected $fillable = ['mes', 'nro','monto','interes','capital','cuota','deuda','pagado', 'observacion', 'prestamo_id', 'fecha', 'pasarela_id'];
+
+    // protected $appends=['published'];
+	// public function getPublishedAttribute(){
+	// 	return Carbon::createFromTimeStamp(strtotime($this->attributes['created_at']) )->diffForHumans();
+	// }
+
+    public function pasarelas()
+    {
+        return $this->belongsTo(\App\Pasarela::class, 'pasarela_id');
+    }
 
 }
