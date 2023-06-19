@@ -1,0 +1,2 @@
+- ## Manual de usuario
+    - [Inicio](/{{route}}/{{version}}/overview)
