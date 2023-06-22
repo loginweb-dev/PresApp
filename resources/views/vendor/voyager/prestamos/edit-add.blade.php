@@ -241,6 +241,14 @@
             $('[data-toggle="tooltip"]').tooltip();
         });
 
+        $("#tipo_id").change(async function (e) { 
+            e.preventDefault();
+            
+            var midata = await axios("/api/tipo/"+this.value)
+            // console.log(midata.data)
+            $("#interes").val(midata.data.monto_interes)
+
+        });
         const llenarTabla = document.querySelector('#lista-tabla tbody');
         localStorage.removeItem("miplan")
         btnCalcular.addEventListener('click', () => {
@@ -251,6 +259,8 @@
             const pmensual = document.getElementById('cuota');
             const mitipo = document.getElementById('tipo_id');
             const mesinicio = document.getElementById('mes_inicio');
+
+ 
             if (mitipo.value == 1) {
                 calcularCuota(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value);
                 
@@ -464,6 +474,7 @@
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
                                 tipo_id:  $("#tipo_id").val(),
+                                estado_id:  $("#estado_id").val(),                                
                                 observacion:  $("#observacion").val(),
                                 miplan: miplan,
                                 cuota:  $("#cuota").val(),

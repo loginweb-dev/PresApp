@@ -68,3 +68,14 @@ Route::post('plan/update', function (Request $request) {
     $new->save();
     return $new;
 });
+
+// tipos-------------------------------------------------------
+Route::get('tipo/{id}', function ($id) {
+    return App\PrestamoTipo::find($id);
+});
+
+// reportes-------------------------------------------------------
+Route::get('reportes/calcular/{mes}', function ($mes) {
+    $midata = [];
+    return $midata;
+});

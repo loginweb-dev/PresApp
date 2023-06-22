@@ -23,9 +23,9 @@ Route::get('/', function () {
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
 
-    Route::get('/reportes', function () {
-        return view('reportes');
-    });
+    // Route::get('/reportes', function () {
+    //     return view('reportes');
+    // });
 
     Route::post('/prestamo/store', [PrestamoController::class, 'prestamo_store'])->name('prestamo_store');
     Route::get('/pdf/prestamo/{id}', [PrestamoController::class, 'pdf_prestamo'])->name('pdf_prestamo');

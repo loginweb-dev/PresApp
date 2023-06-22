@@ -6,7 +6,7 @@
 
 <a name="section-1"></a>
 ## Panel administrativo
-[Click aqui](http://localhost:8000/admin)
+[Click aqui](https://presapp.iptvbolivia.com/admin )
 Ingresa con tus credenciales
 
 
