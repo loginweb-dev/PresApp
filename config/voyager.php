@@ -199,7 +199,9 @@ return [
         'https://unpkg.com/sweetalert/dist/sweetalert.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/es.js'
+        'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/es.js',
+        'https://cdn.jsdelivr.net/npm/chart.js',
+        'js/michart.js',
         
     ],
 

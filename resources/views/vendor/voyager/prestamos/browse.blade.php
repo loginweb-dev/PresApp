@@ -11,7 +11,7 @@
                     <i class="voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo Prestamo</span>
                 </a>
                 <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
-                    <i class="icon voyager-person"></i> <span class="hidden-xs hidden-sm">Ver Clientes</span>
+                    <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Ver Clientes</span>
                 </a>
             @endcan
         </h1>
@@ -87,6 +87,8 @@
                                                 <input type="checkbox" class="select_all">
                                             </th>
                                         @endif
+                                        <th class="actions text-right dt-not-orderable">{{ __('voyager::generic.actions') }}</th>
+
                                         @foreach($dataType->browseRows as $row)                                      
                                         <th>
                                             @if ($isServerSide && in_array($row->field, $sortableColumns))
@@ -105,7 +107,6 @@
                                             @endif
                                         </th>
                                         @endforeach
-                                        <th class="actions text-right dt-not-orderable">{{ __('voyager::generic.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -117,6 +118,13 @@
                                                         <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
                                                     </td>
                                                 @endif
+                                                <td class="no-sort no-click bread-actions">
+                                                    @foreach($actions as $action)
+                                                        @if (!method_exists($action, 'massAction'))
+                                                            @include('voyager::bread.partials.actions', ['action' => $action])
+                                                        @endif
+                                                    @endforeach
+                                                </td>
                                                 @foreach($dataType->browseRows as $row)
                                                     @php
                                                     if ($data->{$row->field.'_browse'}) {
@@ -258,13 +266,7 @@
                                                         @endif
                                                     </td>
                                                 @endforeach
-                                                <td class="no-sort no-click bread-actions">
-                                                    @foreach($actions as $action)
-                                                        @if (!method_exists($action, 'massAction'))
-                                                            @include('voyager::bread.partials.actions', ['action' => $action])
-                                                        @endif
-                                                    @endforeach
-                                                </td>
+                                          
                                             </tr>
                                         @else
                                                 

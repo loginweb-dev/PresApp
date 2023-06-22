@@ -16,10 +16,10 @@
         <i class="{{ $dataType->icon }}"></i>
         {{ __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular') }}
         <a href="{{ route('voyager.prestamos.index') }}" class="btn btn-dark">
-            <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Volver</span>
+            <i class="icon voyager-angle-left"></i> <span class="hidden-xs hidden-sm">Volver</span>
         </a>
         <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
-            <i class="icon voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo Cliente</span>
+            <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Nuevo Cliente</span>
         </a>
     </h1>
     @include('voyager::multilingual.language-selector')
@@ -61,7 +61,7 @@
                                 $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
                             @endphp
                             <div class="form-group col-xs-12">
-                                <a href="#" id="btnCalcular" class="btn btn-dark btn-block"><i class="icon voyager-activity"></i> Calcular o Simular</a>
+                                <a href="#" id="btnCalcular" class="btn btn-warning btn-block"><i class="icon voyager-activity"></i> Calcular o Simular</a>
 
                             </div>
                             @foreach($dataTypeRows as $row)
@@ -253,8 +253,10 @@
             const mesinicio = document.getElementById('mes_inicio');
             if (mitipo.value == 1) {
                 calcularCuota(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value);
-            } else if(mitipo.value == 1){
-                calcularCuota2(monto.value, interes.value, tiempo.value, pmensual.value);
+                
+            } else if(mitipo.value == 2){
+                calcularCuota2(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value);
+               
             }  else{
                 swal({
                     title: "Selecciona un tipo de prestamos",
@@ -324,7 +326,6 @@
             `;
             llenarTabla.appendChild(row)
             localStorage.setItem("miplan", JSON.stringify(miplan))
-
             swal({
                 title: "Plan creado correctamente",
                 icon: "success",
@@ -332,8 +333,77 @@
         }
 
 
-        function calcularCuota2(monto, interes, tiempo, pmensual){
-   
+        function calcularCuota2(monto, interes, tiempo, pmensual, mesinicio){
+            if(!mesinicio){
+                swal({
+                    title: "Ingresa el mes d inicio",
+                    icon: "error",
+                });
+                return true;
+            }
+            while(llenarTabla.firstChild){
+                llenarTabla.removeChild(llenarTabla.firstChild);
+            }
+            let fechas = [];
+            let fecha = [];
+            var miplan = []
+            let mes_actual = moment(mesinicio);
+            var mideuda = 0
+            var mimonto = 0
+            var miaxu = 0
+            var mitotal = 0
+            var miinteres = parseFloat(interes * monto).toFixed(2)
+            var micapital = parseFloat(pmensual-miinteres).toFixed(2)            
+            for(let i = 1; i <= tiempo; i++) {
+                //Formato fechas
+                fechas[i] = mes_actual.format('MMMM-YY');
+                fecha[i] = mes_actual.format('YYYY-MM-DD');
+                mes_actual.add(1, 'month');
+                if (i == 1) {
+                    mimonto = parseFloat(monto).toFixed(2)
+                    mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2) 
+                    miaxu = parseFloat(mideuda).toFixed(2)         
+                } else if(i == tiempo){
+                    mimonto = parseFloat(miaxu).toFixed(2)                  
+                    miinteres = parseFloat(interes * mimonto).toFixed(2)  
+                    // console.log()
+                    pmensual = parseFloat(mimonto) + parseFloat(miinteres)
+                    micapital = parseFloat(pmensual-miinteres).toFixed(2)     
+                    
+                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)      
+                } else {
+                    mimonto = parseFloat(miaxu).toFixed(2)                                     
+                    miinteres = parseFloat(interes * mimonto).toFixed(2)   
+                    micapital = parseFloat(pmensual-miinteres).toFixed(2)  
+                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)  
+                    miaxu = parseFloat(mideuda).toFixed(2)  
+                }
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${fechas[i]}</td>
+                    <td>${i}</td>
+                    <td>${mimonto}</td>
+                    <td>${miinteres}</td>
+                    <td>${micapital}</td>
+                    <td>${pmensual}</td>
+                    <td>${mideuda}</td>
+                `;
+                llenarTabla.appendChild(row)
+                mitotal+=pmensual
+                miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})                
+            }
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td colspan='5' align='right'><h3>Total: </h3></td>
+                <td colspan='5' align='left'><h3>${mitotal.toFixed(2)}</h3></td>
+            `;
+            llenarTabla.appendChild(row)
+            localStorage.setItem("miplan", JSON.stringify(miplan))
+            swal({
+                title: "Plan creado correctamente",
+                icon: "success",
+            });
+
         }
 
         btnGuardar.addEventListener('click', () => {
@@ -389,6 +459,8 @@
                             $("#btnGuardar").text("enviado datos...")
                             $("#btnGuardar").prop( "disabled", true )
                             $("#btnGuardar").prop( "readonly", true )
+
+                            console.log(miplan)
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
                                 tipo_id:  $("#tipo_id").val(),
@@ -401,6 +473,7 @@
                                 user_id:  "{{ Auth::user()->id }}",
                                 mes_inicio:  $("#mes_inicio").val()
                             })
+                            // console.log(respt.data)
                             location.href = "/admin/prestamos"
                         break;
                     }

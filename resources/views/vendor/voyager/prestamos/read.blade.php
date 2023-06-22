@@ -24,12 +24,12 @@
         @endcan
         @can('browse', $dataTypeContent)
         <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-dark">
-            <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Volver</span>
+            <i class="icon voyager-angle-left"></i> <span class="hidden-xs hidden-sm">Volver</span>
         </a>
-        <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-dark">
+        <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-primary">
             <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
         </a>
-        <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-dark">
+        <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-success">
             <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
         </a>
         @endcan
@@ -188,17 +188,25 @@
                                             <td>{{ $item->cuota }}</td>
                                             <td>{{ $item->deuda }}</td>
                                             <td>
-                                                <span class="badge badge-secondary">{{ $item->pagado ? "SI" : "NO" }}</span>
+                                                @if ($item->pagado)
+                                                    {{-- <span class="badge badge-warning">{{ $item->pagado ? "SI" : "NO" }}</span> --}}
+                                                    <h2 class="text-center"><i class="icon voyager-thumbs-up"></i></h2>
+                                                    
+                                                @else
+                                                    {{-- <span class="badge badge-secondary">{{ $item->pagado ? "SI" : "NO" }}</span> --}}
+                                                    <h2 class="text-center"><i class="icon voyager-x"></i></h2>
+                                                @endif
                                             </td>
                                             <td>
                                                 @if ($item->pagado)
                                                     @php $countcsp++ @endphp
-                                                   {{ $item->pasarelas->nombre }}
+                                                   {{-- {{ $item->pasarelas->nombre }}
                                                     <br>
-                                                    {{ $item->observacion }}
+                                                    {{ $item->observacion }} --}}
+                                                    <a href="#" class="btn btn-sm btn-dark" onclick=""> <span>Detalle</span>
                                                 @else
                                                     @php $countcnp++ @endphp
-                                                    <a href="#" class="btn btn-dark" onclick="pagar('{{ $item->id }}')">Pagar
+                                                    <a href="#" class="btn btn-sm btn-warning" onclick="pagar('{{ $item->id }}')"> <span>Pagar</span>
                                                 </a>
                                                 @endif
                                               

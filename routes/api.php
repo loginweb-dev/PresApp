@@ -48,10 +48,11 @@ Route::post('prestamos/store', function (Request $request) {
             'pagado' => 0,
             'prestamo_id' => $new->id,
             'observacion' => null,
+            'pasarela_id' => null,
             'fecha' => Carbon::parse($micount[$i]->fecha)->format('Y-m-d')
         ]);
     }
-    return $new;
+    return true;
 });
 
 
