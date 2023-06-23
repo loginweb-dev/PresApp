@@ -29,7 +29,7 @@
         <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-primary">
             <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
         </a>
-        <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-success">
+        <a href="#" class="btn btn-success" data-toggle="modal" data-target="#modal_refinanciar">
             <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
         </a>
         @endcan
@@ -156,8 +156,8 @@
                 <div class="panel panel-bordered">
                     <div class="panel-body">
                         <div class="table-responsive">
-                            <table class="table table-hover table-bordered table-striped" id="lista-tabla">
-                                <thead class="thead-dark">
+                            <table class="table table-hover table-bordered">
+                                <thead>
                                     <tr>
                                         <th>#</th>
                                         <th>MES</th>
@@ -189,21 +189,15 @@
                                             <td>{{ $item->deuda }}</td>
                                             <td>
                                                 @if ($item->pagado)
-                                                    {{-- <span class="badge badge-warning">{{ $item->pagado ? "SI" : "NO" }}</span> --}}
-                                                    <h2 class="text-center"><i class="icon voyager-thumbs-up"></i></h2>
-                                                    
+                                                    <h2 class="text-center"><i class="icon voyager-thumbs-up"></i></h2>                                                    
                                                 @else
-                                                    {{-- <span class="badge badge-secondary">{{ $item->pagado ? "SI" : "NO" }}</span> --}}
                                                     <h2 class="text-center"><i class="icon voyager-x"></i></h2>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($item->pagado)
                                                     @php $countcsp++ @endphp
-                                                   {{-- {{ $item->pasarelas->nombre }}
-                                                    <br>
-                                                    {{ $item->observacion }} --}}
-                                                    <a href="#" class="btn btn-sm btn-dark" onclick=""> <span>Detalle</span>
+                                                    <a href="#" class="btn btn-sm btn-dark" onclick="detalle('{{ $item->id }}')"> <span>Detalle</span>
                                                 @else
                                                     @php $countcnp++ @endphp
                                                     <a href="#" class="btn btn-sm btn-warning" onclick="pagar('{{ $item->id }}')"> <span>Pagar</span>
@@ -259,21 +253,23 @@
                             <label for="">Pasarela</label>
                             <select name="" id="pasarela_id" class="form-control">
                                 @foreach ($pasarelas as $item)
-                                <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->nombre }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group col-xs-6">
+                            <label for="">Fecha</label>
+                            <input type="date" name="" id="fecha_pago" class="form-control">
+                        </div>
+                        <div class="form-group col-xs-4">
                             <label for="">Cuota</label>
                             <input type="text" name="" id="mcuota" class="form-control" readonly>
                         </div>
-
-                        <div class="form-group col-xs-6">
+                        <div class="form-group col-xs-4">
                             <label for="">Interes</label>
                             <input type="text" name="" id="minteres" class="form-control" readonly>
                         </div>
-
-                        <div class="form-group col-xs-6">
+                        <div class="form-group col-xs-4">
                             <label for="">Capital</label>
                             <input type="text" name="" id="mcapital" class="form-control" readonly>
                         </div>
@@ -282,7 +278,7 @@
                             <textarea name="" id="mobserv" class="form-control">Sin observación</textarea>
                         </div>
                         <input type="hidden" name="" id="plan_id" class="form-control" hidden>
-                </div>                          
+                    </div>                          
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-dark btn-sm pull-right" onclick="mipago()">
@@ -291,7 +287,26 @@
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+    </div>
+
+    <div class="modal modal-primary fade" tabindex="-1" id="modal_refinanciar" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label=""><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="voyager-helm"></i> Refinanciar</h4>
+                </div>
+                <div class="modal-body">
+                              
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-dark btn-sm pull-right" onclick="mipago()">
+                        <i class="icon voyager-pen"></i> Actualizar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('javascript')
@@ -327,7 +342,29 @@
             $('#mcapital').val(mipago.data.capital);
             $('#plan_id').val(id);
         }
-        async function mipago(){            
+
+        async function detalle(id){
+            $('#modal_detalle').modal('show');
+            var mipago = await axios("/api/plan/"+id)
+            console.log(mipago.data)
+            var misms = "Pasarela: "+mipago.data.pasarelas.nombre+"\n Detalle: "+mipago.data.observacion
+            // console.log(misms)
+            swal({
+                icon: "info",
+                title: "Fecha: "+mipago.data.fecha_pago,
+                text: misms
+
+            });
+        }
+
+        async function mipago(){      
+            if(!$("#fecha_pago").val()){
+                swal({
+                    icon: "error",
+                    title: "Ingresa la fecha de pago"
+                })
+                return true;
+            }      
             swal({
                 icon: "info",
                 title:  "Esta segur@ de realizar el pago #"+$('#plan_id').val(),                
@@ -344,8 +381,10 @@
                         case "confir":
                             var mipago = await axios.post("/api/plan/update", {
                                 id: $('#plan_id').val(),
+                                fecha_pago: $('#fecha_pago').val(),
                                 pasarela_id: $('#pasarela_id').val(),
-                                observacion: $('#mobserv').val()
+                                observacion: $('#mobserv').val(),
+                                user_id: "{{ Auth::user()->id }}"
                             })
                             location.reload()
                         break;

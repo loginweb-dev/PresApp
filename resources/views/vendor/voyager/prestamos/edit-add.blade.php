@@ -61,7 +61,7 @@
                                 $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
                             @endphp
                             <div class="form-group col-xs-12">
-                                <a href="#" id="btnCalcular" class="btn btn-warning btn-block"><i class="icon voyager-activity"></i> Calcular o Simular</a>
+                                <a href="#" id="btnCalcular" class="btn btn-warning btn-block"><i class="icon voyager-activity"></i> Crear plan mensual</a>
 
                             </div>
                             @foreach($dataTypeRows as $row)
@@ -276,6 +276,9 @@
         })
         
         function calcularCuota(monto, interes, tiempo, pmensual, mesinicio){
+
+
+
             if(!mesinicio){
                 swal({
                     title: "Ingresa el mes d inicio",
@@ -297,7 +300,18 @@
             var miinteres = parseFloat(interes * monto).toFixed(2)
             var micapital = parseFloat(pmensual-miinteres).toFixed(2)
             
-            for(let i = 1; i <= tiempo; i++) {
+            for(let i = 1; i <= tiempo; i++) {               
+                if(mideuda < 0){
+                    while(llenarTabla.firstChild){
+                        llenarTabla.removeChild(llenarTabla.firstChild);
+                    }
+                    swal({
+                        title: "Error el crear el plan, cambia los datos del formulario",
+                        icon: "error",
+                    });
+                    return true;
+                }
+
                 //Formato fechas
                 fechas[i] = mes_actual.format('MMMM-YY');
                 fecha[i] = mes_actual.format('YYYY-MM-DD');
@@ -365,6 +379,18 @@
             var miinteres = parseFloat(interes * monto).toFixed(2)
             var micapital = parseFloat(pmensual-miinteres).toFixed(2)            
             for(let i = 1; i <= tiempo; i++) {
+
+                if(mideuda < 0){
+                    while(llenarTabla.firstChild){
+                        llenarTabla.removeChild(llenarTabla.firstChild);
+                    }
+                    swal({
+                        title: "Error el crear el plan, cambia los datos del formulario",
+                        icon: "error",
+                    });
+                    return true;
+                }
+
                 //Formato fechas
                 fechas[i] = mes_actual.format('MMMM-YY');
                 fecha[i] = mes_actual.format('YYYY-MM-DD');
@@ -376,10 +402,8 @@
                 } else if(i == tiempo){
                     mimonto = parseFloat(miaxu).toFixed(2)                  
                     miinteres = parseFloat(interes * mimonto).toFixed(2)  
-                    // console.log()
                     pmensual = parseFloat(mimonto) + parseFloat(miinteres)
                     micapital = parseFloat(pmensual-miinteres).toFixed(2)     
-                    
                     mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)      
                 } else {
                     mimonto = parseFloat(miaxu).toFixed(2)                                     

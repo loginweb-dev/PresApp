@@ -113,17 +113,21 @@
             <div class="col-sm-8">
                 <div class="panel panel-bordered">
                     <h4></h4>
-                    <table class="table">
+                    <table class="table" id="lista-tabla">
                         <thead>                       
                             <tr>
                                 <th>#</th>
                                 <th>Tipo</th>
                                 <th>Cantidad</th>
-                                <th>Monto</th>
+                                <th>Fecha</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
+                    <div class="form-group">
+                        <canvas id="myChart"></canvas>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -232,41 +236,77 @@
 
 
         async function calcular() {
-
-                
-                // swal({
-                //     icon: "warning",
-                //     title:  "Esta segur@ de guardar el nuevo reporte ?",                
-                //     buttons: {
-                //         cancel: "Cancelar",
-                //         confir: "Confirmar",
-                //     },
-                //     }).then(async (value) => {
-                //         switch (value) {
-                //             case "cancel":
-                //                 console.log("cancel")
-                //             break;
-                //             case "confir":
-                        
-                //             break;
-                //         }
-                //     }
-                // );
-
-                if(!$("#mes").val()){
-                
-                    swal({
-                        title: "Ingresa el mes a calcular",
-                        icon: "error",
-                    });
-                    return true;
-                }
-                var midata = await axios("/api/reportes/calcular/8")
-                console.log(midata.data)
+            if(!$("#mes").val()){            
                 swal({
-                    title: "Reporte completado",
-                    icon: "info",
+                    title: "Ingresa el mes a calcular",
+                    icon: "error",
                 });
+                return true;
+            }            
+            const llenarTabla = document.querySelector('#lista-tabla tbody');
+            while(llenarTabla.firstChild){
+                llenarTabla.removeChild(llenarTabla.firstChild);
+            }
+            var midata = await axios("/api/reportes/calcular/"+$("#mes").val())
+
+            var prestamos = midata.data[0].prestamos
+            $("#capital_cantidad").val(prestamos.length)
+            var ptotal = 0
+            for (let index = 0; index < prestamos.length; index++) {
+                ptotal = ptotal + prestamos[index].monto       
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    
+                    <td>${index+1}</td>
+                    <td>Prestamos</td>
+                    <td>${prestamos[index].monto}</td>
+                    <td>${prestamos[index].created_at}</td>
+                `;
+                llenarTabla.appendChild(row)            
+            }
+            $("#capital_monto").val(ptotal)
+            console.log(prestamos)
+
+            var pagos = midata.data[0].pagos
+            $("#pago_cantidad").val(pagos.length)
+            var itotal = 0
+            for (let index = 0; index < pagos.length; index++) {
+                itotal = itotal + pagos[index].cuota       
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    
+                    <td>${index+1}</td>
+                    <td>Pagos</td>
+                    <td>${pagos[index].cuota}</td>
+                    <td>${pagos[index].fecha_pago}</td>
+                `;
+                llenarTabla.appendChild(row)            
+            }
+            $("#pago_monto").val(itotal)
+            console.log(itotal)
+
+            var gastos = midata.data[0].gastos
+            $("#gasto_cantidad").val(gastos.length)
+            var gtotal = 0
+            for (let index = 0; index < gastos.length; index++) {
+                gtotal = gtotal + gastos[index].monto       
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    
+                    <td>${index+1}</td>
+                    <td>Gastos</td>
+                    <td>${gastos[index].monto}</td>
+                    <td>${gastos[index].created_at}</td>
+                `;
+                llenarTabla.appendChild(row)            
+            }
+            $("#gasto_monto").val(gtotal)
+            console.log(gtotal)
+
+            swal({
+                title: "Reporte completado",
+                icon: "success",
+            });
 
         }
     </script>

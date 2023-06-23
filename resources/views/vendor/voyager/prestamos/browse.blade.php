@@ -7,12 +7,12 @@
         <h1 class="">
             <i class="{{ $dataType->icon }}"></i> {{ $dataType->getTranslatedAttribute('display_name_plural') }}
             @can('add', app($dataType->model_name))
-                <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-dark btn-add-new">
+                <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-primary btn-add-new">
                     <i class="voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo Prestamo</span>
                 </a>
-                <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
+                {{-- <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
                     <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Ver Clientes</span>
-                </a>
+                </a> --}}
             @endcan
         </h1>
 

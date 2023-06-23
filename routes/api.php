@@ -58,13 +58,16 @@ Route::post('prestamos/store', function (Request $request) {
 
 // planes-------------------------------------------------------
 Route::get('plan/{id}', function ($id) {
-    return App\PrestamoPlane::find($id);
+    return App\PrestamoPlane::where("id", $id)->with("pasarelas")->first();
 });
+
 Route::post('plan/update', function (Request $request) {
     $new = App\PrestamoPlane::find($request->id);
     $new->pagado = 1;
+    $new->fecha_pago = $request->fecha_pago;
     $new->observacion = $request->observacion;
     $new->pasarela_id = $request->pasarela_id;
+    $new->user_id = $request->user_id;
     $new->save();
     return $new;
 });
@@ -76,6 +79,16 @@ Route::get('tipo/{id}', function ($id) {
 
 // reportes-------------------------------------------------------
 Route::get('reportes/calcular/{mes}', function ($mes) {
-    $midata = [];
+    $from = date('2023-06-01');
+    $to = date('2023-06-30');
+
+    $prestamos = App\Prestamo::whereBetween('created_at', [$from, $to])->get();
+    $pagos = App\PrestamoPlane::whereBetween('fecha_pago', [$from, $to])->get();
+    $gastos = App\Gasto::whereBetween('created_at', [$from, $to])->get();
+    $midata = array([
+        'prestamos' => $prestamos,
+        'pagos' => $pagos,
+        'gastos' => $gastos
+    ]);
     return $midata;
 });
