@@ -134,6 +134,7 @@
                                 </thead>
                                 <tbody></tbody>
                             </table>
+                            <div id="table_detalles"></div>
                         </div>
                     </div>
                 </div>
@@ -260,12 +261,10 @@
 
         });
 
-        $("#monto").keyup(function (e) { 
-           
-                var miinteres = $("#interes").val() * $("#monto").val()
-                var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
-                $("#cuota").val(micmensual.toFixed(2))
-
+        $("#monto").keyup(function (e) {            
+            var miinteres = $("#interes").val() * $("#monto").val()
+            var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
+            $("#cuota").val(micmensual.toFixed(2))
         });
         
         btnCalcular.addEventListener('click', () => {
@@ -390,6 +389,7 @@
             `;
             llenarTabla.appendChild(row)
             localStorage.setItem("miplan", JSON.stringify(miplan))
+            $("#table_detalles").html("<h4>Tipo de prestamo: </h4><p>"+mitipo.data.nombre+" - "+mitipo.data.detalle+"</p>")
             swal({
                 title: "Plan creado correctamente",
                 icon: "success",
@@ -482,6 +482,7 @@
             `;
             llenarTabla.appendChild(row)
             localStorage.setItem("miplan", JSON.stringify(miplan))
+            $("#table_detalles").html("<h4>Tipo de prestamo: </h4><p>"+mitipo.data.nombre+" - "+mitipo.data.detalle+"</p>")
             swal({
                 title: "Plan creado correctamente",
                 icon: "success",

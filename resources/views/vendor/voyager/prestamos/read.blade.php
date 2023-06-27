@@ -26,6 +26,10 @@
         {{-- <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-dark">
             <i class="icon voyager-angle-left"></i> <span class="hidden-xs hidden-sm">Volver</span>
         </a> --}}
+        <a href="#" class="btn btn-success" data-toggle="modal" data-target="#modal_refinanciar">
+            <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Eventos</span>
+        </a>
+
         <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-primary">
             <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
         </a>
@@ -152,6 +156,7 @@
                     $pasarelas = App\Pasarela::all();
                     $countcsp = 0;
                     $countcnp = 0;
+                    $count_mora = 0;
                 @endphp
                 <div class="panel panel-bordered">
                     <div class="panel-body">
@@ -174,6 +179,7 @@
                                 <tbody>
                                     {{-- style="background-color:#FF0000" --}}
                                     @foreach ($miplan as $item)
+
                                         <tr>
                                             <td>{{ $item->id }}</td>
                                             <td>
@@ -181,7 +187,14 @@
                                                 <br>
                                                 {{ $item->fecha }}
                                             </td>
-                                            <td>{{ $item->nro }}</td>
+                                            <td>                                                
+                                                @if (date("Y-m-d") > $item->fecha && !$item->pagado)
+                                                    <span class="badge badge-pill badge-primary">{{ $item->nro }} en mora</span>
+                                                    @php $count_mora++ @endphp
+                                                @else
+                                                    {{ $item->nro }}
+                                                @endif                     
+                                            </td>
                                             <td>{{ $item->monto }}</td>
                                             <td>{{ $item->interes }}</td>
                                             <td>{{ $item->capital }}</td>
@@ -210,8 +223,20 @@
                                 </tbody>
                                
                             </table>
-                            <p>Cuatas Pagadas:  {{ $countcsp }}</p>
-                            <p>Cuatas No pagadas: {{ $countcnp }}</p>
+                            <h4>Cuatas Pagadas:  {{ $countcsp }} | Cuatas No pagadas: {{ $countcnp }} | En mora: {{ $count_mora }}</h4>
+                            @php
+                                $miupdate = App\Prestamo::find($dataTypeContent->getKey());
+                                if ($count_mora > 0) {
+                                    $miupdate->estado_id  = 2; //mora
+                                    $miupdate->save();                                             
+                                }else if($count_mora === 0){
+                                    $miupdate->estado_id  = 1; //activado
+                                    $miupdate->save();  
+                                }else if($countcsp === $miupdate->plazo){
+                                    $miupdate->estado_id  = 4; //completado
+                                    $miupdate->save();  
+                                }
+                            @endphp
                         </div>
                     </div>
                 </div>
@@ -297,10 +322,41 @@
                     <h4 class="modal-title"><i class="voyager-helm"></i> Refinanciar</h4>
                 </div>
                 <div class="modal-body">
-                              
+                    <div class="row">
+                        <div class="col-sm-6 form-group">
+                            <label for="" class="col-sm-12">Reglas</label>
+                            <div>
+                                <label class="col-sm-3 checkbox-inline">
+                                    <input id="" type="checkbox" value="">Mora
+                                </label>
+                                <label class="col-sm-3 checkbox-inline">
+                                  <input id="genMale" type="checkbox" value="genMale">Plazo
+                                </label>
+                                <label class="col-sm-3 checkbox-inline">
+                                  <input id="genFemale" type="checkbox" value="genFemale">Monto
+                                </label>
+                              </div>
+                        </div>
+                        <div class="col-sm-6 form-group">
+                            <label for="">Plan de pago</label>
+                            <select name="" id="" class="form-control">
+                                @foreach ($miplan as $item)
+                                    <option value="{{ $item->id }}">{{ $item->nro }} | {{ $item->mes }} | {{ $item->fecha }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-6 form-group">
+                            <label for="">Nuevo plazo</label>
+                            <input type="number" class="form-control">
+                        </div>
+                        <div class="col-sm-6 form-group">
+                            <label for="">Nuevo monto</label>
+                            <input type="number" class="form-control">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn btn-dark btn-sm pull-right" onclick="mipago()">
+                    <a href="#" class="btn btn-dark btn-sm pull-right" onclick="refinanciar()">
                         <i class="icon voyager-pen"></i> Actualizar
                     </a>
                 </div>
@@ -333,6 +389,29 @@
 
             $('#delete_modal').modal('show');
         });
+
+        
+        async function refinanciar(){
+            swal({
+                icon: "warning",
+                // title: "Cliente: "+micliente,
+                title:  "Esta segur@ de refinanziar el prestamo ?",                
+                buttons: {
+                    cancel: "Cancelar",
+                    confir: "Confirmar",
+                },
+                }).then(async (value) => {
+                    switch (value) {
+                        case "cancel":
+                            console.log("cancel")
+                        break;
+                        case "confir":
+                            location.reload()
+                        break;
+                    }
+                }
+            );
+        }
 
         async function pagar(id){
             $('#modal_pagar').modal('show');
