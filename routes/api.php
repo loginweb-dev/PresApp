@@ -32,7 +32,8 @@ Route::post('prestamos/store', function (Request $request) {
         'cuota' => $request->cuota,
         'observacion' => $request->observacion,
         'mes_inicio' => $request->mes_inicio,
-        'estado_id' => $request->estado_id
+        'estado_id' => $request->estado_id,
+        'fecha_prestamos' => $request->fecha_prestamos
     ]);
 
     $micount =  json_decode($request->miplan);

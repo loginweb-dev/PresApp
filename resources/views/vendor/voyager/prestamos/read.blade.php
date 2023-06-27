@@ -23,13 +23,13 @@
             @endif
         @endcan
         @can('browse', $dataTypeContent)
-        <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-dark">
+        {{-- <a href="{{ route('voyager.'.$dataType->slug.'.index') }}" class="btn btn-dark">
             <i class="icon voyager-angle-left"></i> <span class="hidden-xs hidden-sm">Volver</span>
-        </a>
+        </a> --}}
         <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-primary">
             <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
         </a>
-        <a href="#" class="btn btn-success" data-toggle="modal" data-target="#modal_refinanciar">
+        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
             <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
         </a>
         @endcan

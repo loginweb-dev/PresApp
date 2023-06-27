@@ -15,12 +15,12 @@
     <h1>
         <i class="{{ $dataType->icon }}"></i>
         {{ __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular') }}
-        <a href="{{ route('voyager.prestamos.index') }}" class="btn btn-dark">
+        {{-- <a href="{{ route('voyager.prestamos.index') }}" class="btn btn-dark">
             <i class="icon voyager-angle-left"></i> <span class="hidden-xs hidden-sm">Volver</span>
-        </a>
-        <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
+        </a> --}}
+        {{-- <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
             <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Nuevo Cliente</span>
-        </a>
+        </a> --}}
     </h1>
     @include('voyager::multilingual.language-selector')
 @stop
@@ -61,8 +61,7 @@
                                 $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
                             @endphp
                             <div class="form-group col-xs-12">
-                                <a href="#" id="btnCalcular" class="btn btn-warning btn-block"><i class="icon voyager-activity"></i> Crear plan mensual</a>
-
+                                <a href="#" id="btnCalcular" class="btn btn-primary btn-block"><i class="icon voyager-activity"></i> Crear plan mensual</a>
                             </div>
                             @foreach($dataTypeRows as $row)
                                 <!-- GET THE DISPLAY OPTIONS -->
@@ -122,7 +121,7 @@
                     <div class="panel-body">
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered table-striped" id="lista-tabla">
-                                <thead class="thead-dark">
+                                <thead>
                                     <tr>
                                         <th>MES</th>
                                         <th>NRO</th>
@@ -251,6 +250,24 @@
         });
         const llenarTabla = document.querySelector('#lista-tabla tbody');
         localStorage.removeItem("miplan")
+        // $("#cuota").prop("readonly", true)
+
+        $("#plazo").keyup(function (e) { 
+            
+                var miinteres = $("#interes").val() * $("#monto").val()
+                var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
+                $("#cuota").val(micmensual.toFixed(2))
+
+        });
+
+        $("#monto").keyup(function (e) { 
+           
+                var miinteres = $("#interes").val() * $("#monto").val()
+                var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
+                $("#cuota").val(micmensual.toFixed(2))
+
+        });
+        
         btnCalcular.addEventListener('click', () => {
             const monto = document.getElementById('monto');
             const tiempo = document.getElementById('plazo');
@@ -262,10 +279,10 @@
 
  
             if (mitipo.value == 1) {
-                calcularCuota(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value);
+                calcularCuota(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value);
                 
             } else if(mitipo.value == 2){
-                calcularCuota2(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value);
+                calcularCuota2(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value);
                
             }  else{
                 swal({
@@ -275,17 +292,37 @@
             }
         })
         
-        function calcularCuota(monto, interes, tiempo, pmensual, mesinicio){
-
-
-
+        async function calcularCuota(monto, interes, tiempo, pmensual, mesinicio, tipo_id){
             if(!mesinicio){
                 swal({
-                    title: "Ingresa el mes d inicio",
+                    title: "Ingresa el mes de inicio",
                     icon: "error",
                 });
                 return true;
             }
+            // montos
+            var mitipo = await axios("/api/tipo/"+tipo_id)
+            if (parseFloat(monto) < parseFloat(mitipo.data.monto_minimo) || parseFloat(monto) > parseFloat(mitipo.data.monto_maximo)) {
+                swal({
+                    title: "El monto no se ajusta al tipo prestamo, intente con otro monto",
+                    text: mitipo.data.nombre+"\n "+mitipo.data.detalle+"\n Monto minimo: "+mitipo.data.monto_minimo+"\n Monto maximo:"+mitipo.data.monto_maximo,
+                    icon: "error",
+                });
+                return true;
+            }
+
+            // plazos
+            if (parseInt(tiempo) < parseInt(mitipo.data.plazo_minimo) || parseInt(tiempo) > parseInt(mitipo.data.plazo_maximo)) {
+                swal({
+                    title: "El plazo no se ajusta al tipo prestamo, intente con otro plazo",
+                    text: mitipo.data.nombre+"\n "+mitipo.data.detalle+"\n Plazo minimo: "+mitipo.data.plazo_minimo+"\n Plazo maximo:"+mitipo.data.plazo_maximo,
+                    icon: "error",
+                });
+                return true;
+            }
+         
+
+
             while(llenarTabla.firstChild){
                 llenarTabla.removeChild(llenarTabla.firstChild);
             }
@@ -300,17 +337,20 @@
             var miinteres = parseFloat(interes * monto).toFixed(2)
             var micapital = parseFloat(pmensual-miinteres).toFixed(2)
             
+            // var micmensual = (parseFloat(monto) + (miinteres*parseInt(tiempo))) / parseInt(tiempo)
+            // $("#cuota").val(micmensual.toFixed(2))
+            // $("#cuota").prop("readonly", false)
             for(let i = 1; i <= tiempo; i++) {               
-                if(mideuda < 0){
-                    while(llenarTabla.firstChild){
-                        llenarTabla.removeChild(llenarTabla.firstChild);
-                    }
-                    swal({
-                        title: "Error el crear el plan, cambia los datos del formulario",
-                        icon: "error",
-                    });
-                    return true;
-                }
+                // if(mideuda < 0){
+                //     while(llenarTabla.firstChild){
+                //         llenarTabla.removeChild(llenarTabla.firstChild);
+                //     }
+                //     swal({
+                //         title: "Error el crear el plan, cambia los datos del formulario",
+                //         icon: "error",
+                //     });
+                //     return true;
+                // }
 
                 //Formato fechas
                 fechas[i] = mes_actual.format('MMMM-YY');
@@ -356,8 +396,7 @@
             });
         }
 
-
-        function calcularCuota2(monto, interes, tiempo, pmensual, mesinicio){
+        async function calcularCuota2(monto, interes, tiempo, pmensual, mesinicio, tipo_id){
             if(!mesinicio){
                 swal({
                     title: "Ingresa el mes d inicio",
@@ -365,6 +404,16 @@
                 });
                 return true;
             }
+            var mitipo = await axios("/api/tipo/"+tipo_id)
+            if (parseFloat(monto) < parseFloat(mitipo.data.monto_minimo) || parseFloat(monto) > parseFloat(mitipo.data.monto_maximo)) {
+                swal({
+                    title: "El monto no se ajusta al tipo prestamo, intente con otro monto",
+                    text: mitipo.data.nombre+"\n "+mitipo.data.detalle+"\n Monto minimo: "+mitipo.data.monto_minimo+"\n Monto maximo:"+mitipo.data.monto_maximo,
+                    icon: "error",
+                });
+                return true;
+            }
+
             while(llenarTabla.firstChild){
                 llenarTabla.removeChild(llenarTabla.firstChild);
             }
@@ -380,16 +429,16 @@
             var micapital = parseFloat(pmensual-miinteres).toFixed(2)            
             for(let i = 1; i <= tiempo; i++) {
 
-                if(mideuda < 0){
-                    while(llenarTabla.firstChild){
-                        llenarTabla.removeChild(llenarTabla.firstChild);
-                    }
-                    swal({
-                        title: "Error el crear el plan, cambia los datos del formulario",
-                        icon: "error",
-                    });
-                    return true;
-                }
+                // if(mideuda < 0){
+                //     while(llenarTabla.firstChild){
+                //         llenarTabla.removeChild(llenarTabla.firstChild);
+                //     }
+                //     swal({
+                //         title: "Error el crear el plan, cambia los datos del formulario",
+                //         icon: "error",
+                //     });
+                //     return true;
+                // }
 
                 //Formato fechas
                 fechas[i] = mes_actual.format('MMMM-YY');
@@ -402,7 +451,7 @@
                 } else if(i == tiempo){
                     mimonto = parseFloat(miaxu).toFixed(2)                  
                     miinteres = parseFloat(interes * mimonto).toFixed(2)  
-                    pmensual = parseFloat(mimonto) + parseFloat(miinteres)
+                    pmensual = parseFloat(parseFloat(mimonto) + parseFloat(miinteres)).toFixed(2)
                     micapital = parseFloat(pmensual-miinteres).toFixed(2)     
                     mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)      
                 } else {
@@ -423,13 +472,13 @@
                     <td>${mideuda}</td>
                 `;
                 llenarTabla.appendChild(row)
-                mitotal+=pmensual
+                mitotal = parseFloat(mitotal + pmensual).toFixed(2)
                 miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})                
             }
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td colspan='5' align='right'><h3>Total: </h3></td>
-                <td colspan='5' align='left'><h3>${mitotal.toFixed(2)}</h3></td>
+                <td colspan='5' align='left'><h3>${mitotal}</h3></td>
             `;
             llenarTabla.appendChild(row)
             localStorage.setItem("miplan", JSON.stringify(miplan))
@@ -446,6 +495,7 @@
             const miobserv = $("#observacion").val()
             const mimonto = $("#monto").val()
             const miplan = localStorage.getItem("miplan")
+            const fecha_prestamos = $("#fecha_prestamos").val()
 
             if(!miplan){
                 swal({
@@ -471,6 +521,13 @@
             if(miobserv.length < 10){
                 swal({
                     title: "Ingresa una descripción del prestamos, con 10 caracteres minimo (cant. actual: "+miobserv.length+")",
+                    icon: "error",
+                });
+                return true;
+            }
+            if(fecha_prestamos == ''){
+                swal({
+                    title: "Ingres@ la fecha del prestamo",
                     icon: "error",
                 });
                 return true;
@@ -506,7 +563,8 @@
                                 interes:  $("#interes").val(),
                                 monto:  $("#monto").val(),
                                 user_id:  "{{ Auth::user()->id }}",
-                                mes_inicio:  $("#mes_inicio").val()
+                                mes_inicio:  $("#mes_inicio").val(),
+                                fecha_prestamos:  $("#fecha_prestamos").val()
                             })
                             // console.log(respt.data)
                             location.href = "/admin/prestamos"
