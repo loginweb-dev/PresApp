@@ -21,4 +21,9 @@ class PrestamoPlane extends Model
         return $this->belongsTo(\App\Pasarela::class, 'pasarela_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\user::class, 'user_id');
+    }
+
 }

@@ -14,8 +14,8 @@ class PrestamoController extends Controller
 
     public function pdf_prestamo($id)
     {
-        
-        $pdf = Pdf::loadView('pdf.prestamo', ['id' => $id]);
+        $prest = \App\Prestamo::find($id);
+        $pdf = Pdf::loadView('pdf.prestamo', ['prest' => $prest]);
         return $pdf->stream();
     }
 }

@@ -492,7 +492,7 @@
 
         btnGuardar.addEventListener('click', () => {
             const micliente = $("#cliente_id option:selected").text()
-            const miestado = $("#estado_id option:selected").text()
+            // const miestado = $("#estado_id option:selected").text()
             const miobserv = $("#observacion").val()
             const mimonto = $("#monto").val()
             const miplan = localStorage.getItem("miplan")
@@ -505,13 +505,13 @@
                 });
                 return true;
             }
-            if(miestado == ''){
-                swal({
-                    title: "Selecciona un estado inicial",
-                    icon: "error",
-                });
-                return true;
-            }
+            // if(miestado == ''){
+            //     swal({
+            //         title: "Selecciona un estado inicial",
+            //         icon: "error",
+            //     });
+            //     return true;
+            // }
             if(micliente == ''){
                 swal({
                     title: "Selecciona un cliente",
@@ -556,7 +556,7 @@
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
                                 tipo_id:  $("#tipo_id").val(),
-                                estado_id:  $("#estado_id").val(),                                
+                                estado_id:  1,                                
                                 observacion:  $("#observacion").val(),
                                 miplan: miplan,
                                 cuota:  $("#cuota").val(),

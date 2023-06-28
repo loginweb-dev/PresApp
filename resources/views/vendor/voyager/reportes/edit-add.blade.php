@@ -113,21 +113,21 @@
             <div class="col-sm-8">
                 <div class="panel panel-bordered">
                     <h4></h4>
-                    <table class="table" id="lista-tabla">
+                    <table class="table table-bordered table-hover" id="lista-tabla">
                         <thead>                       
                             <tr>
-                                <th>#</th>
-                                <th>Tipo</th>
+                                <th>ID</th>
+                                <th>Clase</th>
                                 <th>Cantidad</th>
                                 <th>Fecha</th>
+                                <th>Editor</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <canvas id="myChart"></canvas>
-                    </div>
-                    
+                    </div> --}}                    
                 </div>
             </div>
         </div>
@@ -231,6 +231,8 @@
 
 
   
+            $("#user_id").val("{{ Auth::user()->id }}")
+            $("#user_id").prop("readonly", true)
 
         });
 
@@ -247,8 +249,8 @@
             while(llenarTabla.firstChild){
                 llenarTabla.removeChild(llenarTabla.firstChild);
             }
-            var midata = await axios("/api/reportes/calcular/"+$("#mes").val())
-
+            var midata = await axios("/api/reportes/calcular/"+$("#mes").val()+"/editor/{{ Auth::user()->id }}")
+            console.log(midata.data)
             var prestamos = midata.data[0].prestamos
             $("#capital_cantidad").val(prestamos.length)
             var ptotal = 0
@@ -257,10 +259,11 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     
-                    <td>${index+1}</td>
+                    <td>${prestamos[index].id}</td>
                     <td>Prestamos</td>
                     <td>${prestamos[index].monto}</td>
-                    <td>${prestamos[index].created_at}</td>
+                    <td>${prestamos[index].fecha_prestamos}</td>
+                    <td>${prestamos[index].user.name}</td>
                 `;
                 llenarTabla.appendChild(row)            
             }
@@ -275,10 +278,11 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     
-                    <td>${index+1}</td>
+                    <td>${pagos[index].id}</td>
                     <td>Pagos</td>
                     <td>${pagos[index].cuota}</td>
                     <td>${pagos[index].fecha_pago}</td>
+                    <td>${pagos[index].user.name}</td>
                 `;
                 llenarTabla.appendChild(row)            
             }
@@ -293,10 +297,11 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     
-                    <td>${index+1}</td>
+                    <td>${gastos[index].id}</td>
                     <td>Gastos</td>
                     <td>${gastos[index].monto}</td>
-                    <td>${gastos[index].created_at}</td>
+                    <td>${gastos[index].fecha}</td>
+                    <td>${gastos[index].user.name}</td>
                 `;
                 llenarTabla.appendChild(row)            
             }

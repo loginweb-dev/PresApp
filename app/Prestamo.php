@@ -15,4 +15,8 @@ class Prestamo extends Model
 	// public function getPublishedAttribute(){
 	// 	return Carbon::createFromTimeStamp(strtotime($this->attributes['created_at']) )->diffForHumans();
 	// }
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\user::class, 'user_id');
+    }
 }

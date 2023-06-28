@@ -79,13 +79,22 @@ Route::get('tipo/{id}', function ($id) {
 });
 
 // reportes-------------------------------------------------------
-Route::get('reportes/calcular/{mes}', function ($mes) {
-    $from = date('2023-06-01');
-    $to = date('2023-06-30');
+Route::get('reportes/calcular/{mes}/editor/{user_id}', function ($mes, $user_id) {
+    // return $user_id;
+    
+    $from = date("Y-m-01", strtotime($mes));
+    $to = date("Y-m-t", strtotime($mes));
 
-    $prestamos = App\Prestamo::whereBetween('created_at', [$from, $to])->get();
-    $pagos = App\PrestamoPlane::whereBetween('fecha_pago', [$from, $to])->get();
-    $gastos = App\Gasto::whereBetween('created_at', [$from, $to])->get();
+    $miuser = App\Models\User::find($user_id);
+    if ($miuser->role_id === 1) {
+        $prestamos = App\Prestamo::whereBetween('fecha_prestamos', [$from, $to])->with("user")->get();
+        $pagos = App\PrestamoPlane::whereBetween('fecha_pago', [$from, $to])->with("user")->get();
+        $gastos = App\Gasto::whereBetween('fecha', [$from, $to])->with("user")->get();
+    }else{
+        $prestamos = App\Prestamo::whereBetween('fecha_prestamos', [$from, $to])->where("user_id", $user_id)->with("user")->get();
+        $pagos = App\PrestamoPlane::whereBetween('fecha_pago', [$from, $to])->where("user_id", $user_id)->with("user")->get();
+        $gastos = App\Gasto::whereBetween('fecha', [$from, $to])->where("user_id", $user_id)->with("user")->get();
+    }
     $midata = array([
         'prestamos' => $prestamos,
         'pagos' => $pagos,
