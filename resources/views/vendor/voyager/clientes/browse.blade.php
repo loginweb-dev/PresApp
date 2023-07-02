@@ -11,9 +11,9 @@
                 <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-success btn-add-new">
                     <i class="voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo cliente</span>
                 </a>
-                {{-- <a href="{{ route('voyager.prestamos.index') }}" class="btn btn-primary">
-                    <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Ver Prestamos</span>
-                </a> --}}
+                <a href="{{ route('voyager.cliente-tipos.index') }}" class="btn btn-dark">
+                    <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Tipos</span>
+                </a>
             @endcan
             @foreach($actions as $action)
                 @if (method_exists($action, 'massAction'))

@@ -10,7 +10,11 @@
                 <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-success btn-add-new">
                     <i class="voyager-plus"></i> <span>{{ __('voyager::generic.add_new') }}</span>
                 </a>
+                
             @endcan
+            <a href="{{ route('voyager.gasto-tipos.index') }}" class="btn btn-dark">
+                <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Tipos</span>
+            </a>
             @can('delete', app($dataType->model_name))
                 @include('voyager::partials.bulk-delete')
             @endcan
@@ -31,6 +35,7 @@
                     @include('voyager::bread.partials.actions', ['action' => $action, 'data' => null])
                 @endif
             @endforeach
+            
             @include('voyager::multilingual.language-selector')
         </h1>
 

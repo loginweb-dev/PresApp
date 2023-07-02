@@ -288,7 +288,7 @@
                         </div>
                         <div class="form-group col-xs-4">
                             <label for="">Cuota</label>
-                            <input type="text" name="" id="mcuota" class="form-control" readonly>
+                            <input type="text" name="" id="mcuota" class="form-control">
                         </div>
                         <div class="form-group col-xs-4">
                             <label for="">Interes</label>
@@ -309,6 +309,9 @@
                     <a href="#" class="btn btn-dark btn-sm pull-right" onclick="mipago()">
                         <i class="icon voyager-pen"></i>Guardar
                     </a>
+                    {{-- <a href="#" class="btn btn-danger                                                                                                                                                                                                                                                                                                                                                       btn-sm" onclick="mipago()">
+                        <i class="icon voyager-pen"></i>consultar
+                    </a> --}}
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->

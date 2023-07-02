@@ -29,7 +29,7 @@
     <div class="page-content edit-add container-fluid">
         <div class="row">
             
-            <div class="col-md-5">
+            <div class="col-md-4">
                 <div class="panel panel-bordered">
                 
                     <!-- form start -->
@@ -116,25 +116,38 @@
                 
             </div>
 
-            <div class="col-md-7">
+            <div class="col-md-8">
                 <div class="panel panel-bordered">
                     <div class="panel-body">
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered table-striped" id="lista-tabla">
                                 <thead>
                                     <tr>
-                                        <th>MES</th>
                                         <th>NRO</th>
+                                        <th>MES</th>                                       
                                         <th>MONTO</th>
                                         <th>INTERES</th>
                                         <th>CAPITAL</th>
                                         <th>CUOTA</th>
                                         <th>DEUDA</th>
+                                        {{-- <th>%</th> --}}
+                                        {{-- <th>ADELANTO.</th>
+                                        <th>DEUDA P.</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
-                            <div id="table_detalles"></div>
+                            
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-7">
+                            
+                                <div id="table_detalles"></div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div id="totales"></div>
+  
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,6 +185,10 @@
     <script>
         var params = {};
         var $file;
+
+        const llenarTabla = document.querySelector('#lista-tabla tbody');
+        var eprest = "valido"
+        localStorage.removeItem("miplan")
 
         function deleteHandler(tag, isMulti) {
           return function() {
@@ -244,27 +261,20 @@
         $("#tipo_id").change(async function (e) { 
             e.preventDefault();
             
-            var midata = await axios("/api/tipo/"+this.value)
-            // console.log(midata.data)
-            $("#interes").val(midata.data.monto_interes)
-
+            var mitipo = await axios("/api/tipo/"+this.value)
+            $("#interes").val(mitipo.data.monto_interes)
+            $("#table_detalles").html("<h4>Tipo de prestamo: </h4><p>"+mitipo.data.nombre+" - "+mitipo.data.detalle+"</p><h4>Redondeo: {{ setting('prestamos.redondear') }}</h4>")
+            calularCP()
+            eprest = "valido"
+            toastr.info("Actualizando datos..")
         });
-        const llenarTabla = document.querySelector('#lista-tabla tbody');
-        localStorage.removeItem("miplan")
-        // $("#cuota").prop("readonly", true)
 
         $("#plazo").keyup(function (e) { 
-            
-                var miinteres = $("#interes").val() * $("#monto").val()
-                var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
-                $("#cuota").val(micmensual.toFixed(2))
-
+            calularCP()
         });
 
-        $("#monto").keyup(function (e) {            
-            var miinteres = $("#interes").val() * $("#monto").val()
-            var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
-            $("#cuota").val(micmensual.toFixed(2))
+        $("#monto").keyup(function (e) {     
+            calularCP()
         });
         
         btnCalcular.addEventListener('click', () => {
@@ -275,14 +285,12 @@
             const pmensual = document.getElementById('cuota');
             const mitipo = document.getElementById('tipo_id');
             const mesinicio = document.getElementById('mes_inicio');
-
- 
+            eprest = "valido"
             if (mitipo.value == 1) {
                 calcularCuota(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value);
                 
             } else if(mitipo.value == 2){
-                calcularCuota2(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value);
-               
+                calcularCuota2(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value);               
             }  else{
                 swal({
                     title: "Selecciona un tipo de prestamos",
@@ -318,13 +326,14 @@
                     icon: "error",
                 });
                 return true;
-            }
-         
+            }        
 
-
+            //limpiar table
             while(llenarTabla.firstChild){
                 llenarTabla.removeChild(llenarTabla.firstChild);
             }
+
+            //procesamiento
             let fechas = [];
             let fecha = [];
             var miplan = []
@@ -333,67 +342,68 @@
             var mimonto = 0
             var miaxu = 0
             var mitotal = 0
-            var miinteres = parseFloat(interes * monto).toFixed(2)
-            var micapital = parseFloat(pmensual-miinteres).toFixed(2)
-            
-            // var micmensual = (parseFloat(monto) + (miinteres*parseInt(tiempo))) / parseInt(tiempo)
-            // $("#cuota").val(micmensual.toFixed(2))
-            // $("#cuota").prop("readonly", false)
+            var mitotalI = 0
+            var miinteres = parseFloat(interes * monto)
+            var micapital = parseFloat(pmensual-miinteres)
+            var miaxu2 = 0 //%
             for(let i = 1; i <= tiempo; i++) {               
-                // if(mideuda < 0){
-                //     while(llenarTabla.firstChild){
-                //         llenarTabla.removeChild(llenarTabla.firstChild);
-                //     }
-                //     swal({
-                //         title: "Error el crear el plan, cambia los datos del formulario",
-                //         icon: "error",
-                //     });
-                //     return true;
-                // }
-
-                //Formato fechas
                 fechas[i] = mes_actual.format('MMMM-YY');
                 fecha[i] = mes_actual.format('YYYY-MM-DD');
                 mes_actual.add(1, 'month');
                 if (i == 1) {
-                    mimonto = parseFloat(monto).toFixed(2)
-                    mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2) 
-                    miaxu = parseFloat(mideuda).toFixed(2)         
+                    mimonto = parseFloat(monto)
+                    mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                    miaxu = parseFloat(mideuda)     
+                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
                 } else if(i == tiempo){
-                    mimonto = parseFloat(miaxu).toFixed(2)
+                    mimonto = parseFloat(miaxu)
                     pmensual = parseFloat(mimonto) + parseFloat(miinteres) 
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)                    
+                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))    
+                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)      
                 } else {
-                    mimonto = parseFloat(miaxu).toFixed(2)
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)  
-                    miaxu = parseFloat(mideuda).toFixed(2)  
+                    mimonto = parseFloat(miaxu)
+                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                    miaxu = parseFloat(mideuda)
+                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
                 }
+                miaxu2 = 100 - miaxu2
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${fechas[i]}</td>
                     <td>${i}</td>
-                    <td>${mimonto}</td>
-                    <td>${miinteres}</td>
-                    <td>${micapital}</td>
-                    <td>${pmensual}</td>
-                    <td>${mideuda}</td>
+                    <td>${fechas[i]}</td>                    
+                    <td>${mimonto.toFixed(2)}</td>
+                    <td>${miinteres.toFixed(2)}</td>
+                    <td>${micapital.toFixed(2)}</td>
+                    <td>${pmensual.toFixed(2)}</td>
+                    <td>${mideuda.toFixed(2)}</td>
                 `;
                 llenarTabla.appendChild(row)
+
+                if (mideuda < 0) {
+                    row.style.backgroundColor = "#C95D58"
+                    eprest = "invalido"
+                }
+                
                 mitotal+=pmensual
+                mitotalI+=miinteres
                 miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})
             }
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td colspan='5' align='right'><h3>Total: </h3></td>
-                <td colspan='5' align='left'><h3>${mitotal.toFixed(2)}</h3></td>
-            `;
-            llenarTabla.appendChild(row)
-            localStorage.setItem("miplan", JSON.stringify(miplan))
-            $("#table_detalles").html("<h4>Tipo de prestamo: </h4><p>"+mitipo.data.nombre+" - "+mitipo.data.detalle+"</p>")
-            swal({
-                title: "Plan creado correctamente",
-                icon: "success",
-            });
+
+            // totales
+            var mitotalG = (mitotalI*100) / monto
+            localStorage.setItem("miplan", JSON.stringify(miplan))            
+            $("#totales").html("<h4>Cuotas: "+mitotal.toFixed(2)+"</h4>"+"<h4>Interes: "+mitotalI.toFixed(2)+"</h4>"+"<h4>Ganancia en %: "+mitotalG.toFixed(2)+"</h4><h4>Estado: "+eprest+"</h4><a href='/admin/pdf/prestamo/1' class='btn btn-block btn-warning'>Imprimir</a>")
+
+            if (eprest == "valido") {
+                swal({
+                    title: "Plan creado correctamente",
+                    icon: "success",
+                });
+            }else{
+                toastr.error("Error en el plan..")
+            }
+
         }
 
         async function calcularCuota2(monto, interes, tiempo, pmensual, mesinicio, tipo_id){
@@ -425,68 +435,73 @@
             var mimonto = 0
             var miaxu = 0
             var mitotal = 0
-            var miinteres = parseFloat(interes * monto).toFixed(2)
-            var micapital = parseFloat(pmensual-miinteres).toFixed(2)            
+            var mitotal = 0
+            var mitotalI = 0
+            var miinteres = parseFloat(interes * monto)
+            var micapital = parseFloat(pmensual-miinteres)       
+            var miaxu2 = 0 //%
             for(let i = 1; i <= tiempo; i++) {
-
-                // if(mideuda < 0){
-                //     while(llenarTabla.firstChild){
-                //         llenarTabla.removeChild(llenarTabla.firstChild);
-                //     }
-                //     swal({
-                //         title: "Error el crear el plan, cambia los datos del formulario",
-                //         icon: "error",
-                //     });
-                //     return true;
-                // }
-
-                //Formato fechas
                 fechas[i] = mes_actual.format('MMMM-YY');
                 fecha[i] = mes_actual.format('YYYY-MM-DD');
                 mes_actual.add(1, 'month');
                 if (i == 1) {
-                    mimonto = parseFloat(monto).toFixed(2)
-                    mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2) 
-                    miaxu = parseFloat(mideuda).toFixed(2)         
+                    mimonto = parseFloat(monto)
+                    mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                    miaxu = parseFloat(mideuda)
+                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)       
                 } else if(i == tiempo){
-                    mimonto = parseFloat(miaxu).toFixed(2)                  
-                    miinteres = parseFloat(interes * mimonto).toFixed(2)  
-                    pmensual = parseFloat(parseFloat(mimonto) + parseFloat(miinteres)).toFixed(2)
-                    micapital = parseFloat(pmensual-miinteres).toFixed(2)     
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)      
+                    mimonto = parseFloat(miaxu)                
+                    miinteres = parseFloat(interes * mimonto)
+                    pmensual = parseFloat(parseFloat(mimonto) + parseFloat(miinteres))
+                    micapital = parseFloat(pmensual-miinteres)     
+                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
                 } else {
-                    mimonto = parseFloat(miaxu).toFixed(2)                                     
-                    miinteres = parseFloat(interes * mimonto).toFixed(2)   
-                    micapital = parseFloat(pmensual-miinteres).toFixed(2)  
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)).toFixed(2)  
-                    miaxu = parseFloat(mideuda).toFixed(2)  
+                    mimonto = parseFloat(miaxu)                                    
+                    miinteres = parseFloat(interes * mimonto)
+                    micapital = parseFloat(pmensual-miinteres) 
+                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))  
+                    miaxu = parseFloat(mideuda) 
+                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
                 }
+                miaxu2 = 100 - miaxu2
+
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${fechas[i]}</td>
+                row.innerHTML = `                    
                     <td>${i}</td>
-                    <td>${mimonto}</td>
-                    <td>${miinteres}</td>
-                    <td>${micapital}</td>
-                    <td>${pmensual}</td>
-                    <td>${mideuda}</td>
+                    <td>${fechas[i]}</td>
+                    <td>${mimonto.toFixed(2)}</td>
+                    <td>${miinteres.toFixed(2)}</td>
+                    <td>${micapital.toFixed(2)}</td>
+                    <td>${pmensual.toFixed(2)}</td>
+                    <td>${mideuda.toFixed(2)}</td>
                 `;
                 llenarTabla.appendChild(row)
-                mitotal = parseFloat(mitotal + pmensual).toFixed(2)
+                
+                if (mideuda < 0) {
+                    row.style.backgroundColor = "#C95D58"
+                    eprest = "invalido"
+                }
+
+                mitotal = parseFloat(mitotal) + parseFloat(pmensual)
+                mitotal+=pmensual
+                mitotalI+=miinteres
                 miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})                
             }
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td colspan='5' align='right'><h3>Total: </h3></td>
-                <td colspan='5' align='left'><h3>${mitotal}</h3></td>
-            `;
-            llenarTabla.appendChild(row)
+
             localStorage.setItem("miplan", JSON.stringify(miplan))
-            $("#table_detalles").html("<h4>Tipo de prestamo: </h4><p>"+mitipo.data.nombre+" - "+mitipo.data.detalle+"</p>")
-            swal({
-                title: "Plan creado correctamente",
-                icon: "success",
-            });
+            var mitotalG = (mitotalI*100) / monto
+            
+            $("#totales").html("<h4>Cuotas: "+mitotal.toFixed(2)+"</h4>"+"<h4>Interes: "+mitotalI.toFixed(2)+"</h4>"+"<h4>Ganancia en %: "+mitotalG.toFixed(2)+"</h4><h4>Estado: "+eprest+"</h4><a href='/admin/pdf/prestamo/1' class='btn btn-block btn-warning'>Imprimir</a>")
+            
+            if (eprest=="valido") {
+                swal({
+                    title: "Plan creado correctamente",
+                    icon: "success",
+                });
+            }else{
+                toastr.error("Error en el plan..")
+            }
 
         }
 
@@ -498,6 +513,14 @@
             const miplan = localStorage.getItem("miplan")
             const fecha_prestamos = $("#fecha_prestamos").val()
 
+            if(eprest == 'invalido'){
+                swal({
+                    title: "Plan de pago invalido",
+                    icon: "error",
+                });
+                return true;
+            }
+
             if(!miplan){
                 swal({
                     title: "Crea una plan de pagos",
@@ -505,13 +528,7 @@
                 });
                 return true;
             }
-            // if(miestado == ''){
-            //     swal({
-            //         title: "Selecciona un estado inicial",
-            //         icon: "error",
-            //     });
-            //     return true;
-            // }
+
             if(micliente == ''){
                 swal({
                     title: "Selecciona un cliente",
@@ -574,5 +591,20 @@
                 }
             );
         })
+
+
+        function calularCP() { 
+            var miinteres = $("#interes").val() * $("#monto").val()
+            var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
+            
+            var miseting = "{{ setting('prestamos.redondear') }}"
+            if (miseting == "nor") {
+                $("#cuota").val(micmensual.toFixed(2))    
+            } else if(miseting == "rmx"){
+                $("#cuota").val(Math.ceil(micmensual.toFixed(2)))    
+            } else if(miseting == "rmi"){
+                $("#cuota").val(Math.round(micmensual.toFixed(2)))    
+            }
+         }
     </script>
 @stop

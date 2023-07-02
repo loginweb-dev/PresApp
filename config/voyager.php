@@ -137,6 +137,10 @@ return [
                 'icon_class'   => 'voyager-home',
                 'target_blank' => true,
             ],
+            // 'Usuarios' => [
+            //     'route'        => '/admin/users',
+            //     'icon_class'   => 'voyager-person',
+            // ],
             'voyager::generic.logout' => [
                 'route'      => 'voyager.logout',
                 'icon_class' => 'voyager-power',
