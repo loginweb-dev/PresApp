@@ -145,8 +145,9 @@
                                 <div id="table_detalles"></div>
                             </div>
                             <div class="col-sm-5">
-                                <div id="totales"></div>
-  
+                                {{-- <div id="totales"></div> --}}
+                                <h4>Totales: </h4>
+                                <table class="table" id="totales"></table>
                             </div>
                         </div>
                     </div>
@@ -182,6 +183,7 @@
 
 @section('javascript')
 {{-- <script src="{{ asset('js/moment.js') }}"></script> --}}
+<script src=" https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js "></script>
     <script>
         var params = {};
         var $file;
@@ -189,6 +191,7 @@
         const llenarTabla = document.querySelector('#lista-tabla tbody');
         var eprest = "valido"
         localStorage.removeItem("miplan")
+        var md = window.markdownit();
 
         function deleteHandler(tag, isMulti) {
           return function() {
@@ -262,11 +265,28 @@
             e.preventDefault();
             
             var mitipo = await axios("/api/tipo/"+this.value)
+            console.log(mitipo.data)
             $("#interes").val(mitipo.data.monto_interes)
-            $("#table_detalles").html("<h4>Tipo de prestamo: </h4><p>"+mitipo.data.nombre+" - "+mitipo.data.detalle+"</p><h4>Redondeo: {{ setting('prestamos.redondear') }}</h4>")
+            $("#table_detalles").html("<h4>"+mitipo.data.nombre+"</h4>"+md.render(mitipo.data.detalle)+"</p><h4>Redondeo: {{ setting('prestamos.redondear') }}</h4><h4>Requisitos: "+md.render(mitipo.data.requisitos)+"</h4>")
             calularCP()
             eprest = "valido"
             toastr.info("Actualizando datos..")
+        });
+
+        $("#cliente_id").change(async function (e) { 
+            e.preventDefault();
+
+            console.log(this.value)
+            var midata = await axios("/api/cliente/prestamo/"+this.value)
+            
+            // console.log(cliente.data)
+            if (midata.data) {
+                eprest = "invalido"
+                swal({
+                    title: midata.data.cliente.nombre_completo+", ya tiene un (1) prestamo activo, elije otro o crea uno nuevo.",
+                    icon: "error",
+                });
+            }
         });
 
         $("#plazo").keyup(function (e) { 
@@ -393,7 +413,7 @@
             // totales
             var mitotalG = (mitotalI*100) / monto
             localStorage.setItem("miplan", JSON.stringify(miplan))            
-            $("#totales").html("<h4>Cuotas: "+mitotal.toFixed(2)+"</h4>"+"<h4>Interes: "+mitotalI.toFixed(2)+"</h4>"+"<h4>Ganancia en %: "+mitotalG.toFixed(2)+"</h4><h4>Estado: "+eprest+"</h4><a href='/admin/pdf/prestamo/1' class='btn btn-block btn-warning'>Imprimir</a>")
+            $("#totales").append("<tr><td>Cuotas: </td><td>"+mitotal.toFixed(2)+"</td></tr><tr><td>Interes: </td><td>"+mitotalI.toFixed(2)+"</td></tr><tr><td>Ganancia en %: </td><td>"+mitotalG.toFixed(2)+"</td></tr><tr><td>Estado: </td><td>"+eprest+"</td></tr>")
 
             if (eprest == "valido") {
                 swal({
@@ -492,7 +512,7 @@
             localStorage.setItem("miplan", JSON.stringify(miplan))
             var mitotalG = (mitotalI*100) / monto
             
-            $("#totales").html("<h4>Cuotas: "+mitotal.toFixed(2)+"</h4>"+"<h4>Interes: "+mitotalI.toFixed(2)+"</h4>"+"<h4>Ganancia en %: "+mitotalG.toFixed(2)+"</h4><h4>Estado: "+eprest+"</h4><a href='/admin/pdf/prestamo/1' class='btn btn-block btn-warning'>Imprimir</a>")
+            $("#totales").append("<tr><td>Cuotas: </td><td>"+mitotal.toFixed(2)+"</td></tr><tr><td>Interes: </td><td>"+mitotalI.toFixed(2)+"</td></tr><tr><td>Ganancia en %: </td><td>"+mitotalG.toFixed(2)+"</td></tr><tr><td>Estado: </td><td>"+eprest+"</td></tr>")
             
             if (eprest=="valido") {
                 swal({
@@ -505,14 +525,12 @@
 
         }
 
-        btnGuardar.addEventListener('click', () => {
+        btnGuardar.addEventListener('click', async () => {
             const micliente = $("#cliente_id option:selected").text()
-            // const miestado = $("#estado_id option:selected").text()
             const miobserv = $("#observacion").val()
             const mimonto = $("#monto").val()
             const miplan = localStorage.getItem("miplan")
             const fecha_prestamos = $("#fecha_prestamos").val()
-
             if(eprest == 'invalido'){
                 swal({
                     title: "Plan de pago invalido",
@@ -520,7 +538,6 @@
                 });
                 return true;
             }
-
             if(!miplan){
                 swal({
                     title: "Crea una plan de pagos",
@@ -528,7 +545,6 @@
                 });
                 return true;
             }
-
             if(micliente == ''){
                 swal({
                     title: "Selecciona un cliente",
@@ -550,7 +566,6 @@
                 });
                 return true;
             }
-
             swal({
                 icon: "warning",
                 title: "Cliente: "+micliente,
@@ -568,8 +583,7 @@
                             $("#btnGuardar").text("enviado datos...")
                             $("#btnGuardar").prop( "disabled", true )
                             $("#btnGuardar").prop( "readonly", true )
-
-                            console.log(miplan)
+                            
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
                                 tipo_id:  $("#tipo_id").val(),
@@ -584,7 +598,18 @@
                                 mes_inicio:  $("#mes_inicio").val(),
                                 fecha_prestamos:  $("#fecha_prestamos").val()
                             })
-                            // console.log(respt.data)
+
+                            if(document.getElementById('documentos').files[0]){
+                                let data = new FormData();
+                                data.append('documentos', document.getElementById('documentos').files[0]);
+                                data.append('prestamo_id', respt.data.id);
+                                await axios.post('/api/upload', data).then(function (response) {
+                                    console.log(response.data);
+                                });                                
+                            }else{
+                                toastr.info("Prestamos sin documentos")
+                            }
+
                             location.href = "/admin/prestamos"
                         break;
                     }

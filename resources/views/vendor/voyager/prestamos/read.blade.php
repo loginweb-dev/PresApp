@@ -153,6 +153,7 @@
             <div class="col-sm-9">
                 @php
                     $miplan = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->with("pasarelas")->get();
+                    $miplan2 = App\Prestamo::find($dataTypeContent->getKey());
                     $pasarelas = App\Pasarela::all();
                     $countcsp = 0;
                     $countcnp = 0;
@@ -174,6 +175,7 @@
                                         <th>DEUDA</th>
                                         <th>PAGADO</th>
                                         <th>ACCION</th>
+                                        <th>MORA</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -195,11 +197,11 @@
                                                     {{ $item->nro }}
                                                 @endif                     
                                             </td>
-                                            <td>{{ $item->monto }}</td>
-                                            <td>{{ $item->interes }}</td>
-                                            <td>{{ $item->capital }}</td>
-                                            <td>{{ $item->cuota }}</td>
-                                            <td>{{ $item->deuda }}</td>
+                                            <td>{{ number_format($item->monto, 2, '.', '') }}</td>
+                                            <td>{{ number_format($item->interes, 2, '.', '') }}</td>
+                                            <td>{{ number_format($item->capital, 2, '.', '') }}</td>
+                                            <td>{{ number_format($item->cuota, 2, '.', '') }}</td>
+                                            <td>{{ number_format($item->deuda, 2, '.', '') }}</td>
                                             <td>
                                                 @if ($item->pagado)
                                                     <h2 class="text-center"><i class="icon voyager-thumbs-up"></i></h2>                                                    
@@ -286,17 +288,33 @@
                             <label for="">Fecha</label>
                             <input type="date" name="" id="fecha_pago" class="form-control">
                         </div>
+
                         <div class="form-group col-xs-4">
-                            <label for="">Cuota</label>
-                            <input type="text" name="" id="mcuota" class="form-control">
+                            <label for="">Monto actual</label>                            
+                            <input type="number" name="" id="mmonto" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group col-xs-4">
+                            <label for="">Numero</label>                            
+                            <input type="number" name="" id="mnumero" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group col-xs-4">
+                            <label for="">Deuda actual</label>                            
+                            <input type="number" name="" id="mdeuda" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group col-xs-4">
+                            <label for="">Cuota</label>                            
+                            <input type="number" name="" id="mcuota" class="form-control"  {{ Auth::user()->role_id==1 ? "": "readonly" }}>
                         </div>
                         <div class="form-group col-xs-4">
                             <label for="">Interes</label>
-                            <input type="text" name="" id="minteres" class="form-control" readonly>
+                            <input type="number" name="" id="minteres" class="form-control" {{ Auth::user()->role_id==1 ? "": "readonly" }}>
                         </div>
                         <div class="form-group col-xs-4">
                             <label for="">Capital</label>
-                            <input type="text" name="" id="mcapital" class="form-control" readonly>
+                            <input type="number" name="" id="mcapital" class="form-control" {{ Auth::user()->role_id==1 ? "": "readonly" }}>
                         </div>
                         <div class="form-group col-xs-12">
                             <label for="">Observaciones</label>
@@ -307,14 +325,16 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-dark btn-sm pull-right" onclick="mipago()">
-                        <i class="icon voyager-pen"></i>Guardar
+                        <i class="icon voyager-pen"></i>Guardar y enviar
                     </a>
-                    {{-- <a href="#" class="btn btn-danger                                                                                                                                                                                                                                                                                                                                                       btn-sm" onclick="mipago()">
-                        <i class="icon voyager-pen"></i>consultar
-                    </a> --}}
+                    @if (Auth::user()->role_id==1)
+                        <a href="#" class="btn btn-warning btn-sm pull-left" onclick="mipago_mora()">
+                            <i class="icon voyager-pen"></i>Guardar con mora
+                        </a>
+                    @endif
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
+            </div>
+        </div>
     </div>
 
     <div class="modal modal-primary fade" tabindex="-1" id="modal_refinanciar" role="dialog">
@@ -392,7 +412,6 @@
 
             $('#delete_modal').modal('show');
         });
-
         
         async function refinanciar(){
             swal({
@@ -419,10 +438,14 @@
         async function pagar(id){
             $('#modal_pagar').modal('show');
             var mipago = await axios("/api/plan/"+id)
+            $('#mmonto').val(mipago.data.monto);
+            $('#mnumero').val(mipago.data.nro);
+            $('#mdeuda').val(mipago.data.deuda);
             $('#mcuota').val(mipago.data.cuota);
             $('#minteres').val(mipago.data.interes);
             $('#mcapital').val(mipago.data.capital);
             $('#plan_id').val(id);
+            localStorage.setItem("miplan", JSON.stringify(mipago.data))
         }
 
         async function detalle(id){
@@ -473,6 +496,76 @@
                     }
                 }
             );            
+        }
+
+        $("#mcuota").change(function (e) { 
+            e.preventDefault();
+
+            recalcular()
+        });
+
+        $(selector).keyup(function (e) { 
+            recalcular()
+        });
+
+        function recalcular(){
+            if(parseFloat($("#mcuota").val()) < parseFloat($("#minteres").val())){
+                swal({
+                    title: "La cuota tiene que ser mayor o igual al interes",
+                    icon: "error",
+                });
+                return true
+            }
+            $("#mcapital").val($("#mcuota").val() - $("#minteres").val())
+            var miplan = JSON.parse(localStorage.getItem("miplan"))           
+            var mideuda = parseFloat(miplan.cuota) - $("#mcuota").val()
+            var newdeuda = parseFloat($("#mdeuda").val()) + parseFloat(mideuda)
+            $("#mdeuda").val(newdeuda)
+            $("#mobserv").val($("#mobserv").val()+", el monto adeudao es "+mideuda)
+
+            toastr.info("Cantidad faltante: "+mideuda)
+        }
+
+        function mipago_mora(){
+            if(!$("#fecha_pago").val()){
+                swal({
+                    icon: "error",
+                    title: "Ingresa la fecha de pago"
+                })
+                return true;
+            }      
+            swal({
+                icon: "info",
+                title:  "Esta segur@ de realizar el pago con mora ?",                
+                buttons: {
+                    cancel: "Cancelar",
+                    confir: "Confirmar",
+                },
+                }).then(async (value) => {
+                    switch (value) {
+                        case "cancel":
+                            console.log("cerrar")
+                            $('#modal_pagar').modal('hide');
+                        break;
+                        case "confir":
+                            var miplan = JSON.parse(localStorage.getItem("miplan")) 
+                            var mideuda = parseFloat(miplan.cuota) - $("#mcuota").val()
+                            var mipago = await axios.post("/api/plan/update/mora", {
+                                id: $('#plan_id').val(),
+                                fecha_pago: $('#fecha_pago').val(),
+                                pasarela_id: $('#pasarela_id').val(),
+                                observacion: $('#mobserv').val(),
+                                user_id: "{{ Auth::user()->id }}",
+                                mora: mideuda,
+                                deuda: $('#mdeuda').val(),
+                                capital: $('#mcapital').val(),
+                                cuota: $('#mcuota').val()
+                            })
+                            location.reload()
+                        break;
+                    }
+                }
+            );    
         }
     </script>
 @stop

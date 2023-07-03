@@ -53,9 +53,21 @@ Route::post('prestamos/store', function (Request $request) {
             'fecha' => Carbon::parse($micount[$i]->fecha)->format('Y-m-d')
         ]);
     }
-    return true;
+    return $new;
 });
 
+Route::post('upload', function (Request $request) {
+    if($request->file('documentos')) {
+        $destinationPath = 'storage/prestamos';
+        $myimage = $request->documentos->getClientOriginalName();
+        $destino = $request->documentos->move(public_path($destinationPath), $myimage);
+        
+        $prest = App\Prestamo::find($request->prestamo_id);
+        $prest->documentos = $destinationPath."/".$myimage;
+        $prest->save();
+    }
+    return true;
+});
 
 // planes-------------------------------------------------------
 Route::get('plan/{id}', function ($id) {
@@ -69,6 +81,21 @@ Route::post('plan/update', function (Request $request) {
     $new->observacion = $request->observacion;
     $new->pasarela_id = $request->pasarela_id;
     $new->user_id = $request->user_id;
+    $new->save();
+    return $new;
+});
+
+Route::post('plan/update/mora', function (Request $request) {
+    $new = App\PrestamoPlane::find($request->id);
+    $new->pagado = 2;
+    $new->fecha_pago = $request->fecha_pago;
+    $new->observacion = $request->observacion;
+    $new->pasarela_id = $request->pasarela_id;
+    $new->user_id = $request->user_id;
+    $new->mora = $request->mora;
+    $new->deuda = $request->deuda;
+    $new->capital = $request->capital;
+    $new->cuota = $request->cuota;
     $new->save();
     return $new;
 });
@@ -101,4 +128,9 @@ Route::get('reportes/calcular/{mes}/editor/{user_id}', function ($mes, $user_id)
         'gastos' => $gastos
     ]);
     return $midata;
+});
+
+// clientes -------------------------------------------------------
+Route::get('cliente/prestamo/{id}', function ($id) {
+    return App\Prestamo::where("cliente_id", $id)->where("estado_id", 1)->with("cliente")->first();
 });

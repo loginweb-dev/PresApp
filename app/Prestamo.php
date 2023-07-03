@@ -19,4 +19,8 @@ class Prestamo extends Model
     {
         return $this->belongsTo(\App\Models\user::class, 'user_id');
     }
+    public function cliente()
+    {
+        return $this->belongsTo(\App\Cliente::class, 'cliente_id');
+    }
 }
