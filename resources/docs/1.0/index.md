@@ -1,2 +1,4 @@
 - ## Manual de usuario
     - [Inicio](/{{route}}/{{version}}/overview)
+    - [Prestamos](/{{route}}/{{version}}/prestamos)
+    - [Pagos](/{{route}}/{{version}}/pagos)

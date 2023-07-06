@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -58,7 +59,7 @@ Route::post('prestamos/store', function (Request $request) {
 
 Route::post('upload', function (Request $request) {
     if($request->file('documentos')) {
-        $destinationPath = 'storage/prestamos';
+        $destinationPath = 'prestamos';
         $myimage = $request->documentos->getClientOriginalName();
         $destino = $request->documentos->move(public_path($destinationPath), $myimage);
         
@@ -71,7 +72,7 @@ Route::post('upload', function (Request $request) {
 
 // planes-------------------------------------------------------
 Route::get('plan/{id}', function ($id) {
-    return App\PrestamoPlane::where("id", $id)->with("pasarelas")->first();
+    return App\PrestamoPlane::where("id", $id)->with("pasarelas", "user")->first();
 });
 
 Route::post('plan/update', function (Request $request) {
@@ -96,8 +97,35 @@ Route::post('plan/update/mora', function (Request $request) {
     $new->deuda = $request->deuda;
     $new->capital = $request->capital;
     $new->cuota = $request->cuota;
+    $new->interes = $request->interes;
     $new->save();
-    return $new;
+
+    //actualizar siguiente pago
+    $minum = $request->id + 1;
+    $sigui = App\PrestamoPlane::find($minum);
+    $sigui->monto = $request->deuda;
+    $sigui->cuota = ($sigui->cuota + $request->mora);
+    if($request->tipo_id == 2){
+        $sigui->interes = ($sigui->deuda * 0.05);
+        $sigui->capital =  ($sigui->cuota + $request->mora) - ($sigui->deuda *0.05);
+        // $sigui->deuda = ($sigui->deuda + $request->mora);
+    }else if($request->tipo_id == 1){
+        $sigui->interes = ($sigui->monto_inicial *0.03);
+        $sigui->capital =  ($sigui->cuota + $request->mora) - ($sigui->monto_inicial *0.03);
+        // $sigui->deuda = ($sigui->deuda + $request->mora);
+    }    
+    $sigui->save();
+    return true;
+});
+
+Route::post('plan/refin', function (Request $request) {
+    // return $request;
+    // $midata = App\PrestamoPlane::where("pagado", 0)->where("prestamo_id", $request->prestamo_id)->get();
+    DB::table('prestamo_planes')->where('pagado', 0)->where("prestamo_id", $request->prestamo_id)->trashed();
+    // return $midata;
+    // $midata->trashed();
+
+    return $request;
 });
 
 // tipos-------------------------------------------------------

@@ -21,8 +21,12 @@
         {{-- <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
             <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Nuevo Cliente</span>
         </a> --}}
+        <a href="/docs/1.0/prestamos" class="btn btn-dark">
+            <i class="icon voyager-info-circled"></i> <span class="hidden-xs hidden-sm">Ayuda</span>
+        </a>
     </h1>
     @include('voyager::multilingual.language-selector')
+    
 @stop
 
 @section('content')
@@ -61,7 +65,7 @@
                                 $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
                             @endphp
                             <div class="form-group col-xs-12">
-                                <a href="#" id="btnCalcular" class="btn btn-primary btn-block"><i class="icon voyager-activity"></i> Crear plan mensual</a>
+                                <a href="#" id="btnCalcular" class="btn btn-primary btn-block"><i class="icon voyager-activity"></i> Crear plan pagos</a>
                             </div>
                             @foreach($dataTypeRows as $row)
                                 <!-- GET THE DISPLAY OPTIONS -->
@@ -130,9 +134,6 @@
                                         <th>CAPITAL</th>
                                         <th>CUOTA</th>
                                         <th>DEUDA</th>
-                                        {{-- <th>%</th> --}}
-                                        {{-- <th>ADELANTO.</th>
-                                        <th>DEUDA P.</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -145,7 +146,6 @@
                                 <div id="table_detalles"></div>
                             </div>
                             <div class="col-sm-5">
-                                {{-- <div id="totales"></div> --}}
                                 <h4>Totales: </h4>
                                 <table class="table" id="totales"></table>
                             </div>
@@ -267,7 +267,7 @@
             var mitipo = await axios("/api/tipo/"+this.value)
             console.log(mitipo.data)
             $("#interes").val(mitipo.data.monto_interes)
-            $("#table_detalles").html("<h4>"+mitipo.data.nombre+"</h4>"+md.render(mitipo.data.detalle)+"</p><h4>Redondeo: {{ setting('prestamos.redondear') }}</h4><h4>Requisitos: "+md.render(mitipo.data.requisitos)+"</h4>")
+            $("#table_detalles").html("<h4>"+mitipo.data.nombre+"</h4>"+md.render(mitipo.data.detalle)+"</p><p>Redondeo: {{ setting('prestamos.redondear') }}</p><p>Requisitos: "+md.render(mitipo.data.requisitos)+"</p>")
             calularCP()
             eprest = "valido"
             toastr.info("Actualizando datos..")
@@ -286,6 +286,9 @@
                     title: midata.data.cliente.nombre_completo+", ya tiene un (1) prestamo activo, elije otro o crea uno nuevo.",
                     icon: "error",
                 });
+            }else{
+                eprest = "valido"
+                toastr.success("Cliente correcto..")
             }
         });
 
@@ -352,6 +355,7 @@
             while(llenarTabla.firstChild){
                 llenarTabla.removeChild(llenarTabla.firstChild);
             }
+            $("#totales").empty()
 
             //procesamiento
             let fechas = [];
@@ -413,7 +417,7 @@
             // totales
             var mitotalG = (mitotalI*100) / monto
             localStorage.setItem("miplan", JSON.stringify(miplan))            
-            $("#totales").append("<tr><td>Cuotas: </td><td>"+mitotal.toFixed(2)+"</td></tr><tr><td>Interes: </td><td>"+mitotalI.toFixed(2)+"</td></tr><tr><td>Ganancia en %: </td><td>"+mitotalG.toFixed(2)+"</td></tr><tr><td>Estado: </td><td>"+eprest+"</td></tr>")
+            $("#totales").append("<tr><td>Cuotas: </td><td>"+mitotal.toFixed(2)+"</td></tr><tr><td>Interes: </td><td>"+mitotalI.toFixed(2)+"</td></tr><tr><td>Estado: </td><td>"+eprest+"</td></tr>")
 
             if (eprest == "valido") {
                 swal({
@@ -447,6 +451,8 @@
             while(llenarTabla.firstChild){
                 llenarTabla.removeChild(llenarTabla.firstChild);
             }
+            $("#totales").empty()
+
             let fechas = [];
             let fecha = [];
             var miplan = []
@@ -512,7 +518,7 @@
             localStorage.setItem("miplan", JSON.stringify(miplan))
             var mitotalG = (mitotalI*100) / monto
             
-            $("#totales").append("<tr><td>Cuotas: </td><td>"+mitotal.toFixed(2)+"</td></tr><tr><td>Interes: </td><td>"+mitotalI.toFixed(2)+"</td></tr><tr><td>Ganancia en %: </td><td>"+mitotalG.toFixed(2)+"</td></tr><tr><td>Estado: </td><td>"+eprest+"</td></tr>")
+            $("#totales").append("<tr><td>Cuotas: </td><td>"+mitotal.toFixed(2)+"</td></tr><tr><td>Interes: </td><td>"+mitotalI.toFixed(2)+"</td></tr><tr><td>Estado: </td><td>"+eprest+"</td></tr>")
             
             if (eprest=="valido") {
                 swal({
@@ -617,7 +623,6 @@
             );
         })
 
-
         function calularCP() { 
             var miinteres = $("#interes").val() * $("#monto").val()
             var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
@@ -630,6 +635,6 @@
             } else if(miseting == "rmi"){
                 $("#cuota").val(Math.round(micmensual.toFixed(2)))    
             }
-         }
+        }
     </script>
 @stop
