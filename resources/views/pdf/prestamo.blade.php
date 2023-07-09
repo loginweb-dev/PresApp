@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Aloha!</title>
+<title>Prestamo #{{ $prest->id }}</title>
 
 <style type="text/css">
     * {
@@ -23,9 +23,12 @@
 </head>
 <body>
 
+  
   <table width="100%">
     <tr>
-        <td valign="top"><img src="https://via.placeholder.com/150" alt="" width="150"/></td>
+        <td valign="top">          
+          <img src="#" class="img-rensponsive" />                
+        </td>
         <td align="right">
             <h3>{{ $prest->id }} - {{ $prest->observacion }}</h3>
             <pre>

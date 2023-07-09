@@ -639,8 +639,8 @@
                                 capital: $('#mcapital').val(),
                                 cuota: $('#mcuota').val(),
                                 interes: $('#minteres').val(),
-                                tipo_id = {{ $miplan2->tipo_id }},
-                                monto_inicial = {{ $miplan2->monto }}
+                                tipo_id: {{ $miplan2->tipo_id }},
+                                monto_inicial: {{ $miplan2->monto }}
                             })
                             location.reload()
                         break;
