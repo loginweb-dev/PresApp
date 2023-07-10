@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// prestamos -----------------------------------------------
 Route::post('prestamos/store', function (Request $request) {
     
     $new = App\Prestamo::create([
@@ -70,6 +71,8 @@ Route::post('upload', function (Request $request) {
     return true;
 });
 
+
+
 // planes-------------------------------------------------------
 Route::get('plan/{id}', function ($id) {
     return App\PrestamoPlane::where("id", $id)->with("pasarelas", "user")->first();
@@ -108,24 +111,39 @@ Route::post('plan/update/mora', function (Request $request) {
     if($request->tipo_id == 2){
         $sigui->interes = ($sigui->deuda * 0.05);
         $sigui->capital =  ($sigui->cuota + $request->mora) - ($sigui->deuda *0.05);
-        // $sigui->deuda = ($sigui->deuda + $request->mora);
     }else if($request->tipo_id == 1){
-        $sigui->interes = ($sigui->monto_inicial *0.03);
         $sigui->capital =  ($sigui->cuota + $request->mora) - ($sigui->monto_inicial *0.03);
-        // $sigui->deuda = ($sigui->deuda + $request->mora);
     }    
     $sigui->save();
     return true;
 });
 
 Route::post('plan/refin', function (Request $request) {
-    // return $request;
-    // $midata = App\PrestamoPlane::where("pagado", 0)->where("prestamo_id", $request->prestamo_id)->get();
-    DB::table('prestamo_planes')->where('pagado', 0)->where("prestamo_id", $request->prestamo_id)->trashed();
-    // return $midata;
-    // $midata->trashed();
+    DB::table('prestamo_planes')->where('pagado', 0)->where("prestamo_id", $request->prestamo_id)->delete();
 
-    return $request;
+    $micount =  json_decode($request->miplan);    
+    for ($i=0; $i < count($micount); $i++) { 
+        $minew = App\PrestamoPlane::create([
+            'mes' => $micount[$i]->mes,
+            'nro' => $micount[$i]->nro,
+            'monto' => $micount[$i]->monto,
+            'interes' => $micount[$i]->interes,
+            'capital' => $micount[$i]->capital,
+            'cuota' => $micount[$i]->cuota,
+            'deuda' => $micount[$i]->deuda,
+            'pagado' => 0,
+            'prestamo_id' => $request->prestamo_id,
+            'observacion' => null,
+            'pasarela_id' => null,
+            'fecha' => Carbon::parse($micount[$i]->fecha)->format('Y-m-d')
+        ]);
+        if ($i == 0) {
+            $mplane = App\PrestamoPlane::find($minew->id);
+            $mplane->refin = $request->new_monto;
+            $mplane->save();
+        }
+    }
+    return $micount;
 });
 
 // tipos-------------------------------------------------------
