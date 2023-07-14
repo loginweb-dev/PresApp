@@ -177,6 +177,10 @@ Route::get('reportes/calcular/{mes}/editor/{user_id}', function ($mes, $user_id)
 });
 
 // clientes -------------------------------------------------------
+Route::get('cliente/{id}', function ($id) {
+    return App\Cliente::find($id);
+});
+
 Route::get('cliente/prestamo/{id}', function ($id) {
     return App\Prestamo::where("cliente_id", $id)->where("estado_id", 1)->with("cliente")->first();
 });

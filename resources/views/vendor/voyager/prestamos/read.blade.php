@@ -4,8 +4,9 @@
 
 @section('page_header')
     <h1 class="">
-        <i class="{{ $dataType->icon }}"></i> {{ __('voyager::generic.viewing') }} {{ ucfirst($dataType->getTranslatedAttribute('display_name_singular')) }} &nbsp;
-
+        <i class="{{ $dataType->icon }}"></i> 
+        {{-- {{ __('voyager::generic.viewing') }} {{ ucfirst($dataType->getTranslatedAttribute('display_name_singular')) }} &nbsp; --}}
+        Kardex del prestamo
         @can('edit', $dataTypeContent)
             <a href="{{ route('voyager.'.$dataType->slug.'.edit', $dataTypeContent->getKey()) }}" class="btn btn-info">
                 <i class="glyphicon glyphicon-pencil"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::generic.edit') }}</span>
@@ -23,15 +24,22 @@
             @endif
         @endcan
         @can('browse', $dataTypeContent)
-        <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-success">
+        {{-- <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-dark">
             <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
+        </a> --}}
+        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
+            <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
         </a>
-        <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#modal_refinanciar">
-            <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
+
+        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
+            <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
         </a>
-        <a href="/docs/1.0/pagos" class="btn btn-dark">
+        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
+            <i class="icon voyager-person"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
+        </a>
+        {{-- <a href="/docs/1.0/pagos" class="btn btn-dark">
             <i class="icon voyager-info-circled"></i> <span class="hidden-xs hidden-sm">Ayuda</span>
-        </a>
+        </a> --}}
         @endcan
     </h1>
     @include('voyager::multilingual.language-selector')
@@ -161,12 +169,12 @@
                     $miplan3 = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->where("pagado", 0)->first();
                 @endphp
                 <div class="panel panel-bordered">
-                    <div class="panel-body">
+                    {{-- <div class="panel-body"> --}}
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
+                                        {{-- <th>#</th> --}}
                                         <th>ACCION</th>
                                         <th>MES</th>
                                         <th>NRO</th>
@@ -175,21 +183,22 @@
                                         <th>CAPITAL</th>
                                         <th>CUOTA</th>
                                         <th>DEUDA</th>
-                                        <th>PAGADO</th>                                        
+                                        <th>ESTADO</th>                                        
                                         <th>MORA</th>
                                         <th>REFIN</th>
+                                        <th>AMORT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($miplan as $item)
                                         <tr>
-                                            <td>{{ $item->id }}</td>
+                                            {{-- <td>{{ $item->id }}</td> --}}
                                             <td>
                                                 @if ($item->pagado)
-                                                    @php $countcsp++ @endphp
+                                                    {{-- @php $countcsp++ @endphp --}}
                                                     <a href="#" class="btn btn-sm btn-dark" onclick="detalle('{{ $item->id }}')"> <span>Detalle</span>
                                                 @else
-                                                    @php $countcnp++ @endphp
+                                                    {{-- @php $countcnp++ @endphp --}}
                                                     <a href="#" class="btn btn-sm btn-warning" onclick="pagar('{{ $item->id }}')"> <span>Pagar</span>
                                                 </a>
                                                 @endif                                              
@@ -204,7 +213,8 @@
                                                     <span class="badge badge-pill badge-primary">{{ $item->nro }} en mora</span>
                                                     @php $count_mora++ @endphp
                                                 @else
-                                                    {{ $item->nro }}
+                                                    {{ $item->nro }} <br>
+                                                    #{{ $item->id }}
                                                 @endif                     
                                             </td>
                                             <td>{{ number_format($item->monto, 2, '.', '') }}</td>
@@ -226,11 +236,13 @@
                         
                                             <td>{{ $item->mora }}</td>
                                             <td>{{ $item->refin }}</td>
+                                            <td>{{ $item->amort }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>                               
                             </table>
-                            <h4>Cuatas Pagadas:  {{ $countcsp }} | Cuatas No pagadas: {{ $countcnp }} | En mora: {{ $count_mora }}</h4>
+                            <h4>Totales</h4>
+                            <h4>Pagadas:  {{ $countcsp }} | No pagadas: {{ $countcnp }} | En mora: {{ $count_mora }} | Refin: {{ $count_mora }} | Amort: {{ $countcnp }}</h4>
                             @php
                                 $miupdate = App\Prestamo::find($dataTypeContent->getKey());
                                 if ($count_mora > 0) {
@@ -245,7 +257,7 @@
                                 }
                             @endphp
                         </div>
-                    </div>
+                    {{-- </div> --}}
                 </div>
             </div>
         </div>
@@ -272,15 +284,34 @@
         </div><!-- /.modal-dialog -->
     </div>
 
+    {{-- form pago plan --}}
     <div class="modal modal-primary fade" tabindex="-1" id="modal_pagar" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('voyager::generic.close') }}"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><i class="voyager-plus"></i> Nuevo Pago</h4>
+                    <h4 class="modal-title"><i class="voyager-plus"></i> Nuevo Pago #{{ $miplan3->nro." - ".$miplan2->tipo->nombre." - ".$miplan3->fecha }}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">      
+                        <div class="form-group col-xs-4">
+                            <label for="">Deuda actual</label>                            
+                            <input type="number" name="" id="mmonto" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group col-xs-4">
+                            <label for="">Interes</label>
+                            <input type="number" name="" id="minteres" class="form-control" readonly>
+                        </div>
+                        <div class="form-group col-xs-4">
+                            <label for="">Capital</label>
+                            <input type="number" name="" id="mcapital" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group col-xs-4">
+                            <label for="">Cuota</label>                            
+                            <input type="number" name="" id="mcuota" class="form-control" readonly>
+                        </div>
 
                         <div class="form-group col-xs-4">
                             <label for="">Pasarela</label>
@@ -290,44 +321,17 @@
                                 @endforeach
                             </select>
                         </div>
+
                         <div class="form-group col-xs-4">
                             <label for="">Fecha</label>
                             <input type="date" name="" id="fecha_pago" class="form-control">
                         </div>
-                        <div class="form-group col-xs-4">
-                            <label for="">Numero</label>                            
-                            <input type="number" name="" id="mnumero" class="form-control" readonly>
-                        </div>
 
-
-                        <div class="form-group col-xs-4">
-                            <label for="">Monto actual</label>                            
-                            <input type="number" name="" id="mmonto" class="form-control" readonly>
-                        </div>
-                        <div class="col-sm-4 form-group">
-                            <label for="">Tipo</label>
-                            <input type="number" class="form-control" id="mtipo" value="{{ $miplan2->interes }}" readonly>
-                        </div>
-                        <div class="form-group col-xs-4">
-                            <label for="">Cuota</label>                            
-                            <input type="number" name="" id="mcuota" class="form-control"  {{ Auth::user()->role_id==1 ? "": "readonly" }}>
-                        </div>
-
-                      
-                        <div class="form-group col-xs-4">
-                            <label for="">Interes</label>
-                            <input type="number" name="" id="minteres" class="form-control" readonly>
-                        </div>
-                        <div class="form-group col-xs-4">
-                            <label for="">Capital</label>
-                            <input type="number" name="" id="mcapital" class="form-control" readonly>
-                        </div>
-                        <div class="form-group col-xs-4">
-                            <label for="">Deuda</label>                            
-                            <input type="number" name="" id="mdeuda" class="form-control" readonly>
-                        </div>
-
-
+                        {{-- <div class="col-sm-4 form-group">
+                            <div style="margin-top: 25px;">                            
+                                <a href="#" class="btn btn-dark btn-block" onclick="btnplan2()">Calcular pago</a>
+                            </div>
+                        </div> --}}
                         <div class="form-group col-xs-12">
                             <label for="">Observaciones</label>
                             <textarea name="" id="mobserv" class="form-control">Sin observación</textarea>
@@ -336,33 +340,29 @@
                     </div>                          
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn btn-dark btn-sm pull-right" onclick="mipago()">
-                        <i class="icon voyager-pen"></i>Guardar y enviar
+                    <a href="#" class="btn btn-dark pull-right" onclick="mipago()">
+                        <i class="icon voyager-pen"></i>Pagar
                     </a>
-                    @if (Auth::user()->role_id==1)
-                        <a href="#" class="btn btn-warning btn-sm pull-left" onclick="mipago_mora()">
+                    {{-- @if (Auth::user()->role_id==1) --}}
+                        {{-- <a href="#" class="btn btn-warning btn-sm pull-left" onclick="mipago_mora()">
                             <i class="icon voyager-pen"></i>Guardar con mora
-                        </a>
-                    @endif
+                        </a> --}}
+                    {{-- @endif --}}
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- refinanciar  --}}
     <div class="modal modal-primary fade" tabindex="-1" id="modal_refinanciar" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label=""><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><i class="voyager-helm"></i> Plan de pago #{{ $miplan3->nro." - ".$miplan2->tipo->nombre." - ".$miplan3->fecha }}</h4>
+                    <h4 class="modal-title"><i class="voyager-helm"></i> Refinanziar prestamo</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        {{-- <div class="col-sm-12 form-group">
-                            <label for="" class="col-sm-12">Plan de pago #{{ $miplan3->nro." - ".$miplan2->tipo->nombre }}</label>                         
-                            <pre><code>{{ $miplan3 }}</code></pre>
-                        </div> --}}
-
                         <div class="col-sm-4 form-group">
                             <label for="">Monto inicial</label>
                             <input type="number" class="form-control" value="{{ $miplan2->monto }}" id="monto_actual" readonly>
@@ -401,11 +401,11 @@
                             <input type="number" class="form-control" id="new_cuota" value="{{ $miplan2->cuota }}">
                         </div>
                         <div class="col-sm-4 form-group">
-                            {{-- <label for="">Accion</label> --}}
                             <div style="margin-top: 20px;">                            
-                                <a href="#" class="btn btn-dark" onclick="btnplan()">Calcular plan</a>
+                                <a href="#" class="btn btn-dark" onclick="btnplan()">Re-calcular plan</a>
                             </div>
                         </div>
+               
                         <div class="col-sm-12 form-group">
                             <div class="table-responsive">
                                 <table class="table table-hover table-bordered" id="lista-tabla">
@@ -424,17 +424,187 @@
                                 </table>                                
                             </div>                        
                         </div>
+
+                        <div class="col-sm-12 form-group">
+                            <label for="">Observaciones</label>
+                            <textarea name="" id="" class="form-control"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <div class="col-sm-4">
-                        <input type="number" class="form-control" id="new_monto2" readonly>
+                        <input type="number" class="form-control" id="new_monto2" placeholder="nuevo monto" readonly>
                     </div>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="miestado" readonly>
+                        <input type="text" class="form-control" id="miestado" placeholder="estado" readonly>
                     </div>
-                    <a href="#" class="btn btn-primary pull-right" onclick="refinanciar()">
-                        <i class="icon voyager-pen"></i> Refinanciar
+                    <a href="#" class="btn btn-dark pull-right" onclick="refinanciar()">
+                        <i class="icon voyager-pen"></i> Refinanciar prestamo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- amortizar  --}}
+    <div class="modal modal-primary fade" tabindex="-1" id="modal_amortizacion" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label=""><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="voyager-helm"></i> Amortizacion a capital</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                  
+                        <div class="form-group col-xs-4">
+                            <label for="">Deuda actual</label>                            
+                            <input type="number" name="" id="" value="{{ $miplan3->monto }}" class="form-control" readonly>
+                        </div>
+                        
+                        <div class="col-sm-4 form-group">
+                            <label for="">Interes a la deuda</label>
+                            @php
+                                $ideuda = $miplan2->interes * $miplan3->monto;
+                                $icapital = $miplan3->monto - $ideuda;
+                            @endphp
+                            <input type="number" class="form-control" id="ainteres" value="{{ $ideuda }}" readonly>
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label for="">Capital de la deuda</label>
+                            <input type="number" class="form-control" id="acapital" value="{{ $icapital }}" readonly>
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label for="">Nueva deuda</label>
+                            <input type="text" class="form-control" id="andeuda" value="0" readonly>
+                        </div>
+
+
+                        <div class="col-sm-4 form-group">
+                            <label for="">Pago a capital</label>
+                            <input type="number" class="form-control" id="apago" value="0">
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <div style="margin-top: 20px;">                            
+                                <a href="#" class="btn btn-dark" onclick="btn_amort()">Calcular deuda</a>
+                            </div>
+                        </div>
+             
+                        <div class="col-sm-12 form-group">
+                           
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered" id="lista-tabla">
+                                    <thead>
+                                        <tr>
+                                            <th>NRO</th>
+                                            <th>MES</th>                                            
+                                            <th>MONTO</th>
+                                            <th>INTERES</th>
+                                            <th>CAPITAL</th>
+                                            <th>CUOTA</th>
+                                            <th>DEUDA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>                                
+                            </div>   
+                        </div>
+
+                        <div class="col-sm-12 form-group">
+                            <label for="">Detalle</label>
+                            <textarea name="" id=""  class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-dark pull-right" onclick="refinanciar()">
+                        <i class="icon voyager-pen"></i> Amortizar a capital
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- em mora  --}}
+    <div class="modal modal-primary fade" tabindex="-1" id="modal_mora" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label=""><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="voyager-helm"></i> Pago con mora #{{ $miplan3->nro." - ".$miplan2->tipo->nombre." - ".$miplan3->fecha." - ".$miplan2->plazo }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                    
+                        <div class="form-group col-xs-4">
+                            <label for="">Deuda actual</label>                            
+                            <input type="number" name="" id="" value="{{ $miplan3->monto }}" class="form-control" readonly>
+                        </div>
+                        
+                        <div class="col-sm-4 form-group">
+                            <label for="">Interes a la deuda</label>
+                            @php
+                                $ideuda = $miplan2->interes * $miplan3->monto;
+                                $icapital = $miplan3->monto - $ideuda;
+                            @endphp
+                            <input type="number" class="form-control" id="" value="{{ $miplan3->interes }}" readonly>
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <label for="">Capital de la deuda</label>
+                            <input type="number" class="form-control" id="" value="{{ $miplan3->capital }}" readonly>
+                        </div>
+
+                 
+
+                        <div class="col-sm-4 form-group">
+                            <label for="">Pago parcial</label>
+                            <input type="number" class="form-control" id="mora_pago" value="{{ $miplan3->cuota }}">
+                        </div>
+
+                        <div class="col-sm-4 form-group">
+                            <div style="margin-top: 20px;">                            
+                                <a href="#" class="btn btn-dark" onclick="btn_mora()">Re-calcular deuda</a>
+                            </div>
+                        </div>
+                
+                        <div class="col-sm-4 form-group">
+                            <label for="">deuda acumulada</label>
+                            <input type="text" class="form-control" id="mora_deuda" value="0" readonly>
+                        </div>
+
+                        <div class="col-sm-12 form-group">
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered" id="tabla-mora">
+                                    <thead>
+                                        <tr>
+                                            <th>NRO</th>
+                                            <th>MES</th>                                            
+                                            <th>MONTO</th>
+                                            <th>INTERES</th>
+                                            <th>CAPITAL</th>
+                                            <th>CUOTA</th>
+                                            <th>DEUDA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>                                
+                            </div>   
+                        </div>
+
+                        <div class="col-sm-12 form-group">
+                            <label for="">Detalle</label>
+                            <textarea name="" id=""  class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-dark pull-right" onclick="refinanciar()">
+                        <i class="icon voyager-pen"></i> Pagar con mora
                     </a>
                 </div>
             </div>
@@ -675,7 +845,6 @@
 
             //variables
             var monto = newmonto
-            var interes = 0.03
             var tiempo = $("#new_plazo").val()
             var pmensual = parseFloat($("#new_cuota").val())
             var mesinicio = "{{ $miplan3->fecha }}"
@@ -692,7 +861,7 @@
                 var miaxu = 0
                 var mitotal = 0
                 var mitotalI = 0
-                var miinteres = parseFloat(interes * monto)
+                var miinteres = parseFloat(0.03 * monto)
                 var micapital = parseFloat(pmensual-miinteres)
                 var miaxu2 = 0 //%
                 for(let i = 1; i <= tiempo; i++) {               
@@ -749,7 +918,7 @@
                 var mitotal = 0
                 var mitotal = 0
                 var mitotalI = 0
-                var miinteres = parseFloat(interes * monto)
+                var miinteres = parseFloat(0.05 * monto)
                 var micapital = parseFloat(pmensual-miinteres)       
                 var miaxu2 = 0 //%
                 for(let i = 1; i <= tiempo; i++) {
@@ -869,6 +1038,161 @@
                     }
                 }
             );
+        }
+
+        //calcular mora
+        const tabla_mora = document.querySelector('#tabla-mora tbody');
+        function btn_mora() {
+            // toastr.info("proceso exitoso..")                        
+            // var new_data  = {
+            //     interes: $("#minteres").val(),
+            //     capital: $("#mcapital").val(),
+            //     deuda: $("#mdeuda").val()
+            // }
+            // mcuota
+            // $("#minteres").val(new_data.interes)
+            // var new_interes =   parseFloat($("#new_monto").val())
+
+            
+            //limpiar table
+            while(tabla_mora.firstChild){
+                tabla_mora.removeChild(tabla_mora.firstChild);
+            }
+
+            //variables
+            var monto = $("#mora_pago").val()
+            var tiempo = ({{ $miplan2->plazo}} - {{ $miplan3->nro }})
+            var pmensual = {{ $miplan3->cuota }} 
+            var mesinicio = "{{ $miplan3->fecha }}"
+            var minro = {{ $miplan3->nro }} - 1
+
+            console.log({{ $miplan2->tipo_id }})
+            if ({{ $miplan2->tipo_id }} === 1) {                 
+                //procesamiento
+                let fechas = [];
+                let fecha = [];
+                var miplan = []
+                let mes_actual = moment(mesinicio);
+                var mideuda = 0
+                var mimonto = 0
+                var miaxu = 0
+                var mitotal = 0
+                var mitotalI = 0
+                var miinteres = parseFloat(0.03 * monto)
+                var micapital = parseFloat(pmensual-miinteres)
+                var miaxu2 = 0 //%
+                for(let i = 1; i <= tiempo; i++) {               
+                    fechas[i] = mes_actual.format('MMMM-YY');
+                    fecha[i] = mes_actual.format('YYYY-MM-DD');
+                    mes_actual.add(1, 'month');
+                    if (i == 1) {
+                        mimonto = parseFloat(monto)
+                        mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                        miaxu = parseFloat(mideuda)     
+                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
+                    } else if(i == tiempo){
+                        mimonto = parseFloat(miaxu)
+                        pmensual = parseFloat(mimonto) + parseFloat(miinteres) 
+                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))    
+                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)      
+                    } else {
+                        mimonto = parseFloat(miaxu)
+                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                        miaxu = parseFloat(mideuda)
+                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
+                    }
+                    miaxu2 = 100 - miaxu2
+                    minro = minro + 1
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${minro}</td>
+                        <td>${fechas[i]}</td>                    
+                        <td>${mimonto.toFixed(2)}</td>
+                        <td>${miinteres.toFixed(2)}</td>
+                        <td>${micapital.toFixed(2)}</td>
+                        <td>${pmensual.toFixed(2)}</td>
+                        <td>${mideuda.toFixed(2)}</td>
+                    `;
+                    tabla_mora.appendChild(row)
+
+                    // if (mideuda < 0) {
+                    //     row.style.backgroundColor = "#C95D58"
+                    //     eprest = "invalido"
+                    // }
+                    
+                    mitotal = parseFloat(mitotal) + parseFloat(pmensual)
+                    mitotalI = parseFloat(mitotalI + miinteres)
+                    miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': minro})
+                }             
+            } else if({{ $miplan2->tipo_id }} === 2){                
+                let fechas = [];
+                let fecha = [];
+                var miplan = []
+                let mes_actual = moment(mesinicio);
+                var mideuda = 0
+                var mimonto = 0
+                var miaxu = 0
+                var mitotal = 0
+                var mitotal = 0
+                var mitotalI = 0
+                var miinteres = parseFloat(0.05 * monto)
+                var micapital = parseFloat(pmensual-miinteres)       
+                var miaxu2 = 0 //%
+                for(let i = 1; i <= tiempo; i++) {
+                    fechas[i] = mes_actual.format('MMMM-YY');
+                    fecha[i] = mes_actual.format('YYYY-MM-DD');
+                    mes_actual.add(1, 'month');
+                    if (i == 1) {
+                        mimonto = parseFloat(monto)
+                        mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                        miaxu = parseFloat(mideuda)
+                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)       
+                    } else if(i == tiempo){
+                        mimonto = parseFloat(miaxu)                
+                        miinteres = parseFloat(interes * mimonto)
+                        pmensual = parseFloat(parseFloat(mimonto) + parseFloat(miinteres))
+                        micapital = parseFloat(pmensual-miinteres)     
+                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
+                    } else {
+                        mimonto = parseFloat(miaxu)                                    
+                        miinteres = parseFloat(interes * mimonto)
+                        micapital = parseFloat(pmensual-miinteres) 
+                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))  
+                        miaxu = parseFloat(mideuda) 
+                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
+                    }
+                    miaxu2 = 100 - miaxu2
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `                    
+                        <td>${i}</td>
+                        <td>${fechas[i]}</td>
+                        <td>${mimonto.toFixed(2)}</td>
+                        <td>${miinteres.toFixed(2)}</td>
+                        <td>${micapital.toFixed(2)}</td>
+                        <td>${pmensual.toFixed(2)}</td>
+                        <td>${mideuda.toFixed(2)}</td>
+                    `;
+                    llenarTabla.appendChild(row)
+                    
+                    if (mideuda < 0) {
+                        row.style.backgroundColor = "#C95D58"
+                        eprest = "invalido"
+                    }
+
+                    mitotal = parseFloat(mitotal) + parseFloat(pmensual)
+                    mitotal+=pmensual
+                    mitotalI+=miinteres
+                    miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})                
+                }
+            }
+        }
+
+        //calular amort
+        function btn_amort() {
+            var mindeuda = parseFloat($("#acapital").val()) - (parseFloat($("#apago").val()) - parseFloat($("#ainteres").val()))
+            $("#andeuda").val(mindeuda)
         }
     </script>
 @stop

@@ -7,7 +7,7 @@
         <h1 class="">
             <i class="{{ $dataType->icon }}"></i> {{ $dataType->getTranslatedAttribute('display_name_plural') }}
             @can('add', app($dataType->model_name))
-                <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-success btn-add-new">
+                <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-dark btn-add-new">
                     <i class="voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo Prestamo</span>
                 </a>
                 {{-- <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
@@ -46,7 +46,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-bordered">
-                    <div class="panel-body">
+                    {{-- <div class="panel-body"> --}}
                         @if ($isServerSide)
                             <form method="get" class="form-search">
                                 <div id="search-input">
@@ -295,7 +295,7 @@
                                 ])->links() }}
                             </div>
                         @endif
-                    </div>
+                    {{-- </div> --}}
                 </div>
             </div>
         </div>

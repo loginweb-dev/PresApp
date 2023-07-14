@@ -14,6 +14,8 @@
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
+        "larapack/hooks": "^1.0",
+        "larapack/voyager-hooks": "^1.2",
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
         "spatie/laravel-backup": "^6.16",

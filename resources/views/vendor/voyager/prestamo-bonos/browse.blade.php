@@ -4,16 +4,28 @@
 
 @section('page_header')
     <div class="container-fluid">
-
         <h1 class="">
             <i class="{{ $dataType->icon }}"></i> {{ $dataType->getTranslatedAttribute('display_name_plural') }}
+
             @can('add', app($dataType->model_name))
-                <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-dark btn-add-new">
-                    <i class="voyager-plus"></i> <span class="hidden-xs hidden-sm">Nuevo cliente</span>
-                </a>
-                <a href="{{ route('voyager.cliente-tipos.index') }}" class="btn btn-dark">
-                    <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Tipos</span>
-                </a>
+            <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-dark btn-add-new">
+                <i class="voyager-plus"></i> <span>{{ __('voyager::generic.add_new') }}</span>
+            </a>
+            @endcan
+            @can('delete', app($dataType->model_name))
+                @include('voyager::partials.bulk-delete')
+            @endcan
+            @can('edit', app($dataType->model_name))
+                @if(!empty($dataType->order_column) && !empty($dataType->order_display_column))
+                    <a href="{{ route('voyager.'.$dataType->slug.'.order') }}" class="btn btn-primary btn-add-new">
+                        <i class="voyager-list"></i> <span>{{ __('voyager::bread.order') }}</span>
+                    </a>
+                @endif
+            @endcan
+            @can('delete', app($dataType->model_name))
+                @if($usesSoftDeletes)
+                    <input type="checkbox" @if ($showSoftDeleted) checked @endif id="show_soft_deletes" data-toggle="toggle" data-on="{{ __('voyager::bread.soft_deletes_off') }}" data-off="{{ __('voyager::bread.soft_deletes_on') }}">
+                @endif
             @endcan
             @foreach($actions as $action)
                 @if (method_exists($action, 'massAction'))
@@ -21,23 +33,9 @@
                 @endif
             @endforeach
             @include('voyager::multilingual.language-selector')
-            @can('delete', app($dataType->model_name))
-                @include('voyager::partials.bulk-delete')
-            @endcan
-            @can('edit', app($dataType->model_name))
-                @if(!empty($dataType->order_column) && !empty($dataType->order_display_column))
-                    <a href="{{ route('voyager.'.$dataType->slug.'.order') }}" class="btn btn-primary btn-add-new">
-                        <i class="voyager-list"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::bread.order') }}</span>
-                    </a>
-                @endif
-            @endcan
+
         </h1>
 
-        @can('delete', app($dataType->model_name))
-            @if($usesSoftDeletes)
-                <input type="checkbox" @if ($showSoftDeleted) checked @endif id="show_soft_deletes" data-toggle="toggle" data-on="{{ __('voyager::bread.soft_deletes_off') }}" data-off="{{ __('voyager::bread.soft_deletes_on') }}">
-            @endif
-        @endcan       
     </div>
 @stop
 
@@ -88,7 +86,6 @@
                                                 <input type="checkbox" class="select_all">
                                             </th>
                                         @endif
-                                        <th class="actions text-right dt-not-orderable">{{ __('voyager::generic.actions') }}</th>
                                         @foreach($dataType->browseRows as $row)
                                         <th>
                                             @if ($isServerSide && in_array($row->field, $sortableColumns))
@@ -107,7 +104,7 @@
                                             @endif
                                         </th>
                                         @endforeach
-                                        
+                                        <th class="actions text-right dt-not-orderable">{{ __('voyager::generic.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -118,15 +115,7 @@
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
                                             </td>
                                         @endif
-                                        <td class="no-sort no-click bread-actions">
-                                            @foreach($actions as $action)
-                                                @if (!method_exists($action, 'massAction'))
-                                                    @include('voyager::bread.partials.actions', ['action' => $action])
-                                                @endif
-                                            @endforeach
-                                        </td>
                                         @foreach($dataType->browseRows as $row)
-                                        
                                             @php
                                             if ($data->{$row->field.'_browse'}) {
                                                 $data->{$row->field} = $data->{$row->field.'_browse'};
@@ -266,7 +255,13 @@
                                                 @endif
                                             </td>
                                         @endforeach
-                                       
+                                        <td class="no-sort no-click bread-actions">
+                                            @foreach($actions as $action)
+                                                @if (!method_exists($action, 'massAction'))
+                                                    @include('voyager::bread.partials.actions', ['action' => $action])
+                                                @endif
+                                            @endforeach
+                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>

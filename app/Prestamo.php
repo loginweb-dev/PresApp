@@ -27,4 +27,8 @@ class Prestamo extends Model
     {
         return $this->belongsTo(\App\PrestamoTipo::class, 'tipo_id');
     }
+    public function estado()
+    {
+        return $this->belongsTo(\App\PrestamoEstado::class, 'estado_id');
+    }
 }

@@ -15,26 +15,23 @@
     <h1>
         <i class="{{ $dataType->icon }}"></i>
         {{ __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular') }}
-        {{-- <a href="{{ route('voyager.prestamos.index') }}" class="btn btn-dark">
-            <i class="icon voyager-angle-left"></i> <span class="hidden-xs hidden-sm">Volver</span>
-        </a> --}}
-        {{-- <a href="{{ route('voyager.clientes.index') }}" class="btn btn-primary">
-            <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Nuevo Cliente</span>
-        </a> --}}
-        <a href="/docs/1.0/prestamos" class="btn btn-dark">
-            <i class="icon voyager-info-circled"></i> <span class="hidden-xs hidden-sm">Ayuda</span>
+        <a href="#" id="btnCalcular" class="btn btn-dark"><i class="icon voyager-activity"></i> 
+            Crear plan pagos
         </a>
+        {{-- <a href="/docs/1.0/prestamos" class="btn btn-dark">
+            <i class="icon voyager-info-circled"></i> <span class="hidden-xs hidden-sm">Ayuda</span>
+        </a> --}}
     </h1>
     @include('voyager::multilingual.language-selector')
     
 @stop
 
 @section('content')
-    <div class="page-content edit-add container-fluid">
+    <div class="container-fluid">
         <div class="row">
             
-            <div class="col-md-4">
-                <div class="panel panel-bordered">
+            <div class="col-xs-4">
+                {{-- <div class="panel panel-bordered"> --}}
                 
                     <!-- form start -->
                     <form role="form"
@@ -48,7 +45,7 @@
 
                         <!-- CSRF TOKEN -->
                         {{ csrf_field() }}
-                        <div class="panel-body">
+                        {{-- <div class="panel-body"> --}}
 
                             @if (count($errors) > 0)
                                 <div class="alert alert-danger">
@@ -64,9 +61,9 @@
                             @php
                                 $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
                             @endphp
-                            <div class="form-group col-xs-12">
-                                <a href="#" id="btnCalcular" class="btn btn-primary btn-block"><i class="icon voyager-activity"></i> Crear plan pagos</a>
-                            </div>
+                            {{-- <div class="form-group col-xs-12">
+                                <a href="#" id="btnCalcular" class="btn btn-warning btn-block"><i class="icon voyager-activity"></i> Crear plan pagos</a>
+                            </div> --}}
                             @foreach($dataTypeRows as $row)
                                 <!-- GET THE DISPLAY OPTIONS -->
                                 @php
@@ -80,6 +77,7 @@
                                 @endif
 
                                 <div class="form-group @if($row->type == 'hidden') hidden @endif col-md-{{ $display_options->width ?? 12 }} {{ $errors->has($row->field) ? 'has-error' : '' }}" @if(isset($display_options->id)){{ "id=$display_options->id" }}@endif>
+
                                     {{ $row->slugify }}
                                     <label class="control-label" for="name">{{ $row->getTranslatedAttribute('display_name') }}</label>
                                     @include('voyager::multilingual.input-hidden-bread-edit-add')
@@ -109,20 +107,20 @@
                             <div class="form-group col-xs-12">
                                 <a href="#" id="btnGuardar"  class="btn btn-dark btn-block"><i class="icon voyager-data"></i> Enviar y Guardar</a>
                             </div>
-                        </div>
+                        {{-- </div> --}}
                     </form>
 
                     <div style="display:none">
                         <input type="hidden" id="upload_url" value="{{ route('voyager.upload') }}">
                         <input type="hidden" id="upload_type_slug" value="{{ $dataType->slug }}">
                     </div>
-                </div>
+                {{-- </div> --}}
                 
             </div>
 
-            <div class="col-md-8">
-                <div class="panel panel-bordered">
-                    <div class="panel-body">
+            <div class="col-xs-8">
+                {{-- <div class="panel panel-bordered"> --}}
+                    {{-- <div class="panel-body"> --}}
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered table-striped" id="lista-tabla">
                                 <thead>
@@ -150,8 +148,8 @@
                                 <table class="table" id="totales"></table>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    {{-- </div> --}}
+                {{-- </div> --}}
             </div>
           
         </div>
@@ -178,19 +176,18 @@
             </div>
         </div>
     </div>
-    <!-- End Delete File Modal -->
 @stop
 
 @section('javascript')
-{{-- <script src="{{ asset('js/moment.js') }}"></script> --}}
+
 <script src=" https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js "></script>
     <script>
         var params = {};
         var $file;
-
         const llenarTabla = document.querySelector('#lista-tabla tbody');
         var eprest = "valido"
         localStorage.removeItem("miplan")
+        $("#interes").prop("readonly", true)
         var md = window.markdownit();
 
         function deleteHandler(tag, isMulti) {
@@ -264,32 +261,36 @@
         $("#tipo_id").change(async function (e) { 
             e.preventDefault();
             
-            var mitipo = await axios("/api/tipo/"+this.value)
-            console.log(mitipo.data)
-            $("#interes").val(mitipo.data.monto_interes)
-            $("#table_detalles").html("<h4>"+mitipo.data.nombre+"</h4>"+md.render(mitipo.data.detalle)+"</p><p>Redondeo: {{ setting('prestamos.redondear') }}</p><p>Requisitos: "+md.render(mitipo.data.requisitos)+"</p>")
-            calularCP()
-            eprest = "valido"
             toastr.info("Actualizando datos..")
+            var mitipo = await axios("/api/tipo/"+this.value)
+            // console.log(mitipo.data)
+            // $("#interes").val(mitipo.data.monto_interes)
+            $("#table_detalles").html("<h4>"+mitipo.data.nombre+"</h4>"+md.render(mitipo.data.detalle)+"</p><p>Redondeo: {{ setting('prestamos.redondear') }}</p><p>Requisitos: "+md.render(mitipo.data.requisitos)+"</p>")
+            eprest = "valido"
+            //limpiar table
+            while(llenarTabla.firstChild){
+                llenarTabla.removeChild(llenarTabla.firstChild);
+            }
+            $("#totales").empty()            
         });
 
         $("#cliente_id").change(async function (e) { 
             e.preventDefault();
 
-            console.log(this.value)
-            var midata = await axios("/api/cliente/prestamo/"+this.value)
+            // console.log(this.value)
+            // var midata = await axios("/api/cliente/prestamo/"+this.value)
             
-            // console.log(cliente.data)
-            if (midata.data) {
-                eprest = "invalido"
-                swal({
-                    title: midata.data.cliente.nombre_completo+", ya tiene un (1) prestamo activo, elije otro o crea uno nuevo.",
-                    icon: "error",
-                });
-            }else{
-                eprest = "valido"
-                toastr.success("Cliente correcto..")
-            }
+            // // console.log(cliente.data)
+            // if (midata.data) {
+            //     eprest = "invalido"
+            //     swal({
+            //         title: midata.data.cliente.nombre_completo+", ya tiene un (1) prestamo activo, elije otro o crea uno nuevo.",
+            //         icon: "error",
+            //     });
+            // }else{
+            //     eprest = "valido"
+            //     toastr.success("Cliente correcto..")
+            // }
         });
 
         $("#plazo").keyup(function (e) { 
@@ -301,19 +302,18 @@
         });
         
         btnCalcular.addEventListener('click', () => {
+           
             const monto = document.getElementById('monto');
             const tiempo = document.getElementById('plazo');
-            const interes = document.getElementById('interes');
             const btnCalcular = document.getElementById('btnCalcular');
             const pmensual = document.getElementById('cuota');
             const mitipo = document.getElementById('tipo_id');
             const mesinicio = document.getElementById('mes_inicio');
             eprest = "valido"
             if (mitipo.value == 1) {
-                calcularCuota(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value);
-                
+                calcularCuota(parseFloat(monto.value), 0.03, parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value)
             } else if(mitipo.value == 2){
-                calcularCuota2(parseFloat(monto.value), parseFloat(interes.value), parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value);               
+                calcularCuota2(parseFloat(monto.value), 0.05, parseInt(tiempo.value), parseFloat(pmensual.value), mesinicio.value, mitipo.value)           
             }  else{
                 swal({
                     title: "Selecciona un tipo de prestamos",
@@ -589,20 +589,20 @@
                             $("#btnGuardar").text("enviado datos...")
                             $("#btnGuardar").prop( "disabled", true )
                             $("#btnGuardar").prop( "readonly", true )
-                            
+                            var mitipo = await axios("/api/tipo/"+$("#tipo_id").val())
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
                                 tipo_id:  $("#tipo_id").val(),
                                 estado_id:  1,                                
                                 observacion:  $("#observacion").val(),
-                                miplan: miplan,
                                 cuota:  $("#cuota").val(),
                                 plazo:  $("#plazo").val(),
-                                interes:  $("#interes").val(),
+                                interes:  mitipo.data.monto_interes,
                                 monto:  $("#monto").val(),
                                 user_id:  "{{ Auth::user()->id }}",
                                 mes_inicio:  $("#mes_inicio").val(),
-                                fecha_prestamos:  $("#fecha_prestamos").val()
+                                fecha_prestamos:  $("#fecha_prestamos").val(),
+                                miplan: miplan
                             })
 
                             if(document.getElementById('documentos').files[0]){
@@ -624,8 +624,18 @@
         })
 
         function calularCP() { 
-            var miinteres = $("#interes").val() * $("#monto").val()
-            var micmensual = (parseFloat($("#monto").val()) + (miinteres*parseInt($("#plazo").val()))) / parseInt($("#plazo").val())
+
+            const mitipo = document.getElementById('tipo_id');
+            var miinteres = 0
+            var mimonto = parseFloat($("#monto").val())
+            var miplazo = parseInt($("#plazo").val())
+            if (mitipo.value == 1) {
+                miinteres = 0.03 * mimonto
+            } else if(mitipo.value == 2){
+                miinteres = 0.05 * mimonto
+            }
+            
+            var micmensual = (mimonto + (miinteres*miplazo)) / miplazo
             
             var miseting = "{{ setting('prestamos.redondear') }}"
             if (miseting == "nor") {
