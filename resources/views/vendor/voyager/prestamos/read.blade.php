@@ -24,22 +24,16 @@
             @endif
         @endcan
         @can('browse', $dataTypeContent)
-        {{-- <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-dark">
-            <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
-        </a> --}}
-        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
-            <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
-        </a>
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
+                <i class="icon voyager-params"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
+            </a>
 
-        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
-            <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
-        </a>
-        <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
-            <i class="icon voyager-person"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
-        </a>
-        {{-- <a href="/docs/1.0/pagos" class="btn btn-dark">
-            <i class="icon voyager-info-circled"></i> <span class="hidden-xs hidden-sm">Ayuda</span>
-        </a> --}}
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
+                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
+            </a>
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
+                <i class="icon voyager-person"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
+            </a>
         @endcan
     </h1>
     @include('voyager::multilingual.language-selector')
@@ -196,11 +190,14 @@
                                             <td>
                                                 @if ($item->pagado)
                                                     {{-- @php $countcsp++ @endphp --}}
-                                                    <a href="#" class="btn btn-sm btn-dark" onclick="detalle('{{ $item->id }}')"> <span>Detalle</span>
+                                                    <a href="#" class="btn btn-sm btn-dark" onclick="recibo('{{ $item->id }}')">
+                                                        <span>Recibo</span>
+                                                    </a>
                                                 @else
                                                     {{-- @php $countcnp++ @endphp --}}
-                                                    <a href="#" class="btn btn-sm btn-warning" onclick="pagar('{{ $item->id }}')"> <span>Pagar</span>
-                                                </a>
+                                                    <a href="#" class="btn btn-sm btn-warning" onclick="pagar('{{ $item->id }}')">
+                                                        <span>Pagar</span>
+                                                    </a>
                                                 @endif                                              
                                             </td>
                                             <td>
@@ -326,12 +323,6 @@
                             <label for="">Fecha</label>
                             <input type="date" name="" id="fecha_pago" class="form-control">
                         </div>
-
-                        {{-- <div class="col-sm-4 form-group">
-                            <div style="margin-top: 25px;">                            
-                                <a href="#" class="btn btn-dark btn-block" onclick="btnplan2()">Calcular pago</a>
-                            </div>
-                        </div> --}}
                         <div class="form-group col-xs-12">
                             <label for="">Observaciones</label>
                             <textarea name="" id="mobserv" class="form-control">Sin observación</textarea>
@@ -343,11 +334,6 @@
                     <a href="#" class="btn btn-dark pull-right" onclick="mipago()">
                         <i class="icon voyager-pen"></i>Pagar
                     </a>
-                    {{-- @if (Auth::user()->role_id==1) --}}
-                        {{-- <a href="#" class="btn btn-warning btn-sm pull-left" onclick="mipago_mora()">
-                            <i class="icon voyager-pen"></i>Guardar con mora
-                        </a> --}}
-                    {{-- @endif --}}
                 </div>
             </div>
         </div>
@@ -603,8 +589,28 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn btn-dark pull-right" onclick="refinanciar()">
+                    <a href="#" class="btn btn-dark pull-right">
                         <i class="icon voyager-pen"></i> Pagar con mora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- em recibo  --}}
+    <div class="modal modal-primary fade" tabindex="-1" id="modal_recibo" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label=""><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="voyager-helm"></i> Recibo #</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-success pull-right" onclick="whatsapp()">
+                        <i class="icon voyager-pen"></i> Enviar a whatsapp
                     </a>
                 </div>
             </div>
@@ -643,19 +649,16 @@
         
 
 
-        async function detalle(id){
-            $('#modal_detalle').modal('show');
+        async function recibo(id){
+            $('#modal_recibo').modal('show');
             var mipago = await axios("/api/plan/"+id)
             console.log(mipago.data)
             var misms = "Pasarela: "+mipago.data.pasarelas.nombre+"\n Detalle: "+mipago.data.observacion+"\n Editor: "+mipago.data.user.name
-            // console.log(misms)
-            swal({
-                icon: "info",
-                title: "Fecha: "+mipago.data.fecha_pago,
-                text: misms
-
-            });
         }
+
+        function whatsapp(){ 
+            location.href= "https://wa.me/59171130523?text=Hola sapo sin cola"
+         }
 
         //cargar plan de pago
         async function pagar(id){

@@ -3,6 +3,7 @@
     $add  = is_null($dataTypeContent->getKey());
     $miprestamos = App\Prestamo::where("cliente_id", $dataTypeContent->getKey())->with("estado")->get();
     $mibonos = App\PrestamoBono::where("cliente_id", $dataTypeContent->getKey())->with("estado")->get();
+    $mipoderes = App\ClientePodere::where("cliente_id", $dataTypeContent->getKey())->get();
     @endphp
 
 @extends('voyager::master')
@@ -142,36 +143,82 @@ crossorigin=""/>
                     <h4>Ubicacion</h4>
                     <div style="width: 100%; height: 400px" id="map"></div>
                     @if ($edit)
-                        <h4>Historial de prestamos</h4>   
+                        <h4>Historial prestamos</h4>   
                         <div class="row">
-                            @foreach ($miprestamos as $item)                                                            
-                                <div class="form-group col-sm-6 card" >
-                                    <a href="/admin/prestamos/{{ $item->id }}">
-                                        <img src="{{ asset("/storage/logoprestamos.jpg") }}" alt="Avatar" style="width:100%">
-                                        <div class="container-fluid">
-                                            <h4 class="text-center"><b>#{{ $item->id.' | '.$item->fecha_prestamos.' | '.$item->estado->nombre }}</b></h4>
-                                            <p class="text-center">{{ $item->observacion }}</p>
-                                        </div>
-                                    </a>
-                                </div>
-                            @endforeach
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>fecha</th>
+                                        <th>detalle</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>                                   
+                                    @foreach ($miprestamos as $item)   
+                                    <tr>
+                                        <td>{{ $item->id }}</td>
+                                        <td>{{ $item->fecha_prestamos }}</td>
+                                        <td>{{ $item->observacion }}</td>                                                                                
+                                        <td><a href="#" class="btn btn-xs btn-dark">Ver</a></td>
+                                    </tr>
+                                    @endforeach                                     
+                                </tbody>
+                            </table>
                         </div>     
-                        <h4>Historial de bonos</h4>    
+                        <h4>Historial bonos</h4>    
                         <div class="row">
-                            
-                            {{-- <div class="row"> --}}
-                                @foreach ($mibonos as $item)                                                            
-                                    <div class="form-group col-sm-6 card" >
-                                        <a href="/admin/prestamos/{{ $item->id }}">
-                                            <img src="{{ asset("/storage/logoprestamos.jpg") }}" alt="Avatar" style="width:100%">
-                                            <div class="container-fluid">
-                                                <h4 class="text-center"><b>#{{ $item->id.' | '.$item->id.' | '.$item->estado->nombre }}</b></h4>
-                                                <p class="text-center">{{ $item->detalle }}</p>
-                                            </div>
-                                        </a>
-                                    </div>
-                                @endforeach
-                            {{-- </div>   --}}
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>fecha</th>
+                                        <th>detalle</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>                                   
+                                    @foreach ($mibonos as $item)   
+                                    <tr>
+                                        <td>{{ $item->id }}</td>
+                                        <td>{{ $item->f_bono }}</td>
+                                        <td>{{ $item->detalle }}</td>
+                                        <td><a href="#" class="btn btn-xs btn-dark">Ver</a></td>
+                                    </tr>
+                                    @endforeach                                     
+                                </tbody>
+                            </table>
+                        </div>
+                        <h4>Historial poderes</h4>    
+                        <div class="row">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>fecha</th>
+                                        <th>detalles</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>                                   
+                                    @foreach ($mipoderes as $item)   
+                                    <tr>
+                                        <td>{{ $item->id }}</td>
+                                        <td>{{ $item->inicio }}</td>
+                                        <td>
+                                            Inicio: {{ $item->inicio }}
+                                            <br>
+                                            Final: {{ $item->final }}
+                                        </td>
+                                        <td>
+                                            @foreach(json_decode($item->documento) as $file)
+                                                <a href="{{ Storage::disk(config('voyager.storage.disk'))->url($file->download_link) ?: '' }}" class="btn btn-xs btn-dark">Ver</a>
+                                            @endforeach
+                                        </td>
+                                    </tr>
+                                    @endforeach                                     
+                                </tbody>
+                            </table>
                         </div>
                     @endif
                   

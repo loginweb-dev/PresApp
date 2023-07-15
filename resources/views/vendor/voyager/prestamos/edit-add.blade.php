@@ -18,9 +18,6 @@
         <a href="#" id="btnCalcular" class="btn btn-dark"><i class="icon voyager-activity"></i> 
             Crear plan pagos
         </a>
-        {{-- <a href="/docs/1.0/prestamos" class="btn btn-dark">
-            <i class="icon voyager-info-circled"></i> <span class="hidden-xs hidden-sm">Ayuda</span>
-        </a> --}}
     </h1>
     @include('voyager::multilingual.language-selector')
     

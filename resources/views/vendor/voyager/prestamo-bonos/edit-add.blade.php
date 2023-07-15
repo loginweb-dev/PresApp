@@ -22,9 +22,9 @@
 @section('content')
     <div class="page-content edit-add container-fluid">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-offset-2 col-md-8">
 
-                {{-- <div class="panel panel-bordered"> --}}
+                <div class="panel panel-bordered">
                     <!-- form start -->
                     <form role="form"
                             class="form-edit-add"
@@ -108,39 +108,9 @@
                         <input type="hidden" id="upload_url" value="{{ route('voyager.upload') }}">
                         <input type="hidden" id="upload_type_slug" value="{{ $dataType->slug }}">
                     </div>
-                {{-- </div> --}}
+                </div>
 
             </div>
-
-            {{-- <div class="col-md-8">
-                <div class="table-responsive">
-                    <table class="table table-hover table-bordered table-striped" id="lista-tabla">
-                        <thead>
-                            <tr>
-                                <th>NRO</th>
-                                <th>MES</th>                                       
-                                <th>MONTO</th>
-                                <th>INTERES</th>
-                                <th>CAPITAL</th>
-                                <th>CUOTA</th>
-                                <th>DEUDA</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    
-                </div>
-                <div class="row">
-                    <div class="col-sm-7">
-                    
-                        <div id="table_detalles"></div>
-                    </div>
-                    <div class="col-sm-5">
-                        <h4>Totales: </h4>
-                        <table class="table" id="totales"></table>
-                    </div>
-                </div>
-            </div> --}}
         </div>
     </div>
 
