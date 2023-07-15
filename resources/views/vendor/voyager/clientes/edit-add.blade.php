@@ -211,9 +211,11 @@ crossorigin=""/>
                                             Final: {{ $item->final }}
                                         </td>
                                         <td>
-                                            @foreach(json_decode($item->documento) as $file)
-                                                <a href="{{ Storage::disk(config('voyager.storage.disk'))->url($file->download_link) ?: '' }}" class="btn btn-xs btn-dark">Ver</a>
-                                            @endforeach
+                                            @if ($item->documento)                                                                                                
+                                                @foreach(json_decode($item->documento) as $file)
+                                                    <a href="{{ Storage::disk(config('voyager.storage.disk'))->url($file->download_link) ?: '' }}" class="btn btn-xs btn-dark">Ver</a>
+                                                @endforeach
+                                            @endif
                                         </td>
                                     </tr>
                                     @endforeach                                     

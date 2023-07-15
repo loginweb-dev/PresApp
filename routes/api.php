@@ -79,12 +79,14 @@ Route::get('plan/{id}', function ($id) {
 });
 
 Route::post('plan/update', function (Request $request) {
+    // return $request;
     $new = App\PrestamoPlane::find($request->id);
     $new->pagado = 1;
     $new->fecha_pago = $request->fecha_pago;
     $new->observacion = $request->observacion;
     $new->pasarela_id = $request->pasarela_id;
     $new->user_id = $request->user_id;
+    $new->p_final = $request->p_final;
     $new->save();
     return $new;
 });

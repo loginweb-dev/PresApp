@@ -1,5 +1,23 @@
 @extends('voyager::master')
 
+@php
+    $miplan = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->with("pasarelas")->get();
+
+    //prestamo
+    $miplan2 = App\Prestamo::where("id", $dataTypeContent->getKey())->with("tipo")->first();
+    $pasarelas = App\Pasarela::all();
+    $countcsp = 0;
+    $countcnp = 0;
+    $count_mora = 0;
+    $dias_mora = 0;
+
+    //pago actual
+    $miplan3 = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->where("pagado", 0)->first();
+
+    //cliente
+    $micliente = App\Cliente::find($miplan2->cliente_id);
+    @endphp
+
 @section('page_title', __('voyager::generic.view').' '.$dataType->getTranslatedAttribute('display_name_singular'))
 
 @section('page_header')
@@ -153,15 +171,6 @@
             </div>
 
             <div class="col-sm-9">
-                @php
-                    $miplan = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->with("pasarelas")->get();
-                    $miplan2 = App\Prestamo::where("id", $dataTypeContent->getKey())->with("tipo")->first();
-                    $pasarelas = App\Pasarela::all();
-                    $countcsp = 0;
-                    $countcnp = 0;
-                    $count_mora = 0;
-                    $miplan3 = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->where("pagado", 0)->first();
-                @endphp
                 <div class="panel panel-bordered">
                     {{-- <div class="panel-body"> --}}
                         <div class="table-responsive">
@@ -207,7 +216,15 @@
                                             </td>
                                             <td>                                                
                                                 @if (date("Y-m-d") > $item->fecha && !$item->pagado)
-                                                    <span class="badge badge-pill badge-primary">{{ $item->nro }} en mora</span>
+                                                    @php
+                                                        $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
+                                                        $dias_mora = $midiff->format("%a");
+                                                    @endphp
+                                                    <span class="badge badge-pill badge-primary">
+                                                        {{ $item->nro }} en mora
+                                                        <br>
+                                                        {{ $midiff->format("%R%a Dias") }}
+                                                    </span>
                                                     @php $count_mora++ @endphp
                                                 @else
                                                     {{ $item->nro }} <br>
@@ -293,21 +310,21 @@
                     <div class="row">      
                         <div class="form-group col-xs-4">
                             <label for="">Deuda actual</label>                            
-                            <input type="number" name="" id="mmonto" class="form-control" readonly>
+                            <input type="number" name="" id="mmonto" class="form-control" value="{{ $miplan3->monto }}" readonly>
                         </div>
 
                         <div class="form-group col-xs-4">
                             <label for="">Interes</label>
-                            <input type="number" name="" id="minteres" class="form-control" readonly>
+                            <input type="number" name="" id="minteres" class="form-control" value="{{ $miplan3->interes }}" readonly>
                         </div>
                         <div class="form-group col-xs-4">
                             <label for="">Capital</label>
-                            <input type="number" name="" id="mcapital" class="form-control" readonly>
+                            <input type="number" name="" id="mcapital" class="form-control" value="{{ $miplan3->capital }}" readonly>
                         </div>
 
                         <div class="form-group col-xs-4">
                             <label for="">Cuota</label>                            
-                            <input type="number" name="" id="mcuota" class="form-control" readonly>
+                            <input type="number" name="" id="mcuota" class="form-control" value="{{ $miplan3->cuota }}" readonly>
                         </div>
 
                         <div class="form-group col-xs-4">
@@ -321,8 +338,47 @@
 
                         <div class="form-group col-xs-4">
                             <label for="">Fecha</label>
-                            <input type="date" name="" id="fecha_pago" class="form-control">
+                            <input type="date" name="" id="fecha_pago" class="form-control" value="{{ date("Y-m-d") }}">
                         </div>
+
+                     
+                            <div class="form-group col-xs-4">
+                                <label for="">Dias en mora</label>
+                                <input type="number" name="" id="" class="form-control" value="{{ $dias_mora }}" readonly>
+                            </div>
+                            @php
+                                $interes_mora = 0;
+                                $total_mora = $miplan3->cuota;
+                                if ($dias_mora > 0) {
+                                    # code...
+                                    if ($miplan2->tipo_id == 1 ) {
+                                        $interes_mora = $miplan3->monto * 0.03;
+                                    }else if($miplan2->tipo_id == 2){
+                                        $interes_mora = $miplan3->monto * 0.05;
+                                    }                                
+                                    $total_mora = $interes_mora + $miplan3->cuota;
+                                    $miseting = setting('prestamos.redondear');
+                                    if ($miseting == "nor") {
+                                        $total_mora = number_format($total_mora, 2, '.', '');    
+                                        $interes_mora = number_format($interes_mora, 2, '.', '');              
+                                    } else if($miseting == "rmx"){
+                                        $total_mora = ceil($total_mora);  
+                                        $interes_mora = ceil($interes_mora);  
+                                    } else if($miseting == "rmi"){
+                                            
+                                    }
+                                }
+
+                            @endphp
+                            <div class="form-group col-xs-4">
+                                <label for="">Interes de la mora</label>
+                                <input type="number" name="" id="" class="form-control" value="{{ $interes_mora }}" readonly>
+                            </div>
+                            <div class="form-group col-xs-4">
+                                <label for="">Pago con mora</label>
+                                <input type="number" name="" id="p_final" class="form-control" value="{{ $total_mora }}">
+                            </div>
+                      
                         <div class="form-group col-xs-12">
                             <label for="">Observaciones</label>
                             <textarea name="" id="mobserv" class="form-control">Sin observación</textarea>
@@ -607,6 +663,29 @@
                 </div>
                 <div class="modal-body">
 
+                    <div class="row">
+                        <div class="col-xs-6 form-group">
+                            <label for="">Fecha</label>
+                            <input type="number" class="form-control" value="" readonly>
+                        </div>
+                        <div class="col-xs-6 form-group">
+                            <label for="">Monto</label>
+                            <input type="number" class="form-control" value="" readonly>
+                        </div>
+                        <div class="col-xs-6 form-group">
+                            <label for="">Cliente</label>
+                            <input type="text" class="form-control" value="{{ $micliente->nombre_completo }}" readonly>
+                        </div>
+                        <div class="col-xs-6 form-group">
+                            <label for="">Whatsapp</label>
+                            <input type="text" class="form-control" value="{{ $micliente->telefono }}" readonly>
+                        </div>
+                        
+                        <div class="col-xs-12 form-group">
+                            <label for="">Mensaje</label>
+                            <textarea name="" id="" rows="6" class="form-control"></textarea>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-success pull-right" onclick="whatsapp()">
@@ -648,12 +727,12 @@
         });
         
 
-
         async function recibo(id){
             $('#modal_recibo').modal('show');
             var mipago = await axios("/api/plan/"+id)
             console.log(mipago.data)
-            var misms = "Pasarela: "+mipago.data.pasarelas.nombre+"\n Detalle: "+mipago.data.observacion+"\n Editor: "+mipago.data.user.name
+            //var misms = "Pasarela: "+mipago.data.pasarelas.nombre+"\n Detalle: "+mipago.data.observacion+"\n Editor: "+mipago.data.user.name.
+            
         }
 
         function whatsapp(){ 
@@ -664,13 +743,13 @@
         async function pagar(id){
             $('#modal_pagar').modal('show');
             var mipago = await axios("/api/plan/"+id)
-            $('#mmonto').val(mipago.data.monto.toFixed(2));
-            $('#mnumero').val(mipago.data.nro);
-            $('#mdeuda').val(mipago.data.deuda.toFixed(2));
-            $('#mcuota').val(mipago.data.cuota);
-            $('#minteres').val(mipago.data.interes.toFixed(2));
-            $('#mcapital').val(mipago.data.capital.toFixed(2));
-            $('#plan_id').val(id);
+            // $('#mmonto').val(mipago.data.monto.toFixed(2));
+            // $('#mnumero').val(mipago.data.nro);
+            // $('#mdeuda').val(mipago.data.deuda.toFixed(2));
+            // $('#mcuota').val(mipago.data.cuota);
+            // $('#minteres').val(mipago.data.interes.toFixed(2));
+            // $('#mcapital').val(mipago.data.capital.toFixed(2));
+            // $('#plan_id').val(id);
             localStorage.setItem("miplan", JSON.stringify(mipago.data))
         }
 
@@ -684,7 +763,7 @@
             }      
             swal({
                 icon: "info",
-                title:  "Esta segur@ de realizar el pago #"+$('#plan_id').val(),                
+                title:  "Esta segur@ de realizar el pago #{{ $miplan3->id }}",                
                 buttons: {
                     cancel: "Cancelar",
                     confir: "Confirmar",
@@ -698,12 +777,14 @@
                         break;
                         case "confir":
                             var mipago = await axios.post("/api/plan/update", {
-                                id: $('#plan_id').val(),
+                                id: "{{ $miplan3->id }}",
                                 fecha_pago: $('#fecha_pago').val(),
                                 pasarela_id: $('#pasarela_id').val(),
                                 observacion: $('#mobserv').val(),
-                                user_id: "{{ Auth::user()->id }}"
+                                user_id: "{{ Auth::user()->id }}",
+                                p_final: $('#p_final').val()
                             })
+                            // console.log(mipago.data)
                             location.reload()
                         break;
                     }
@@ -997,7 +1078,7 @@
         async function refinanciar(){
             const miplan = localStorage.getItem("miplan")
             var avanze = ({{ $miplan3->nro }} * 100) / {{ $miplan2->plazo }} 
-            if ({{ setting('prestamos.refin_50') }} && avanze < 50) {
+            if (avanze < 50) {
                 swal({
                     title: "El tiempo minimo para refinanziar es del 50% de avanze",
                     icon: "error",
