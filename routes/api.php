@@ -57,7 +57,6 @@ Route::post('prestamos/store', function (Request $request) {
     }
     return $new;
 });
-
 Route::post('upload', function (Request $request) {
     if($request->file('documentos')) {
         $destinationPath = 'prestamos';
@@ -72,12 +71,10 @@ Route::post('upload', function (Request $request) {
 });
 
 
-
 // planes-------------------------------------------------------
 Route::get('plan/{id}', function ($id) {
     return App\PrestamoPlane::where("id", $id)->with("pasarelas", "user")->first();
 });
-
 Route::post('plan/update', function (Request $request) {
     // return $request;
     $new = App\PrestamoPlane::find($request->id);
@@ -90,7 +87,6 @@ Route::post('plan/update', function (Request $request) {
     $new->save();
     return $new;
 });
-
 Route::post('plan/update/mora', function (Request $request) {
     $new = App\PrestamoPlane::find($request->id);
     $new->pagado = 2;
@@ -119,7 +115,6 @@ Route::post('plan/update/mora', function (Request $request) {
     $sigui->save();
     return true;
 });
-
 Route::post('plan/refin', function (Request $request) {
     DB::table('prestamo_planes')->where('pagado', 0)->where("prestamo_id", $request->prestamo_id)->delete();
 
@@ -146,6 +141,35 @@ Route::post('plan/refin', function (Request $request) {
         }
     }
     return $micount;
+});
+Route::post('plan/mora/dias', function (Request $request) {
+    // return $request;
+    $midiff = date_diff(date_create($request->fecha), date_create(date("Y-m-d")));
+    $dias_mora = $midiff->format("%a");
+
+    $interes_mora = 0;
+    $total_mora = $request->cuota;
+    $DiasMes= date('t'); 
+    // return $DiasMes;
+    if ($dias_mora > 0) {
+        if ($request->tipo_id == 1 ) {
+            $interes_mora = ($request->monto * 0.03)/$DiasMes;
+        }else if($request->tipo_id == 2){
+            $interes_mora = ($request->monto * 0.05)/$DiasMes;
+        }                                
+        $total_mora = ($interes_mora*$dias_mora) + $request->cuota;
+        $miseting = setting('prestamos.redondear');
+        if ($miseting == "nor") {
+            $total_mora = number_format($total_mora, 2, '.', '');    
+            $interes_mora = number_format($interes_mora, 2, '.', '');              
+        } else if($miseting == "rmx"){
+            $total_mora = ceil($total_mora);  
+            $interes_mora = ceil($interes_mora);  
+        } else if($miseting == "rmi"){
+                
+        }
+    }
+    return response()->json(['dias_mora' => $dias_mora, 'interes_mora' => ($interes_mora*$dias_mora), 'total_mora' => $total_mora]);
 });
 
 // tipos-------------------------------------------------------
@@ -186,3 +210,21 @@ Route::get('cliente/{id}', function ($id) {
 Route::get('cliente/prestamo/{id}', function ($id) {
     return App\Prestamo::where("cliente_id", $id)->where("estado_id", 1)->with("cliente")->first();
 });
+
+//Bonos--------------------------------------------
+Route::post('bonos/calular', function (Request $request) {
+    
+    $midiff = date_diff(date_create($request->f_bono), date_create($request->f_prestamo));
+    $dias = $midiff->format("%a");
+    $meses = $midiff->format("%m");
+    // if ($request->tipo_id == 1) {
+        $interes =  ($request->m_bono * 0.03) * $meses;
+    // } else if($request->tipo_id == 2){
+    //     $interes =  ($request->m_bono * 0.05) * $meses;
+    // }
+    $m_prestamo = $request->m_bono - $interes; 
+   
+    return response()->json(['dias' => $dias, 'meses' => $meses, 'interes' => $interes, 'm_prestamo' => $m_prestamo]);
+});
+
+

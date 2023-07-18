@@ -24,7 +24,7 @@ Agente
 <br>
 `pass: 1234578`
 
-Click aqui [https://presapp.iptvbolivia.com/admin](https://presapp.iptvbolivia.com/admin )
+Click aqui [https://presapp.iptvbolivia.com/admin](/admin )
 Ingresa con tus credenciales
 
 <hr />

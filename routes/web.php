@@ -19,6 +19,16 @@ Route::get('/', function () {
 });
 
 
+Route::get('/reset-db', function () {
+    App\Prestamo::truncate();
+    App\PrestamoPlane::truncate();
+    App\Cliente::truncate();
+    App\ClientePodere::truncate();
+    App\PrestamoBono::truncate();
+    App\Gasto::truncate();
+    App\Reporte::truncate();
+    return redirect('/admin');
+})->name('reset-db');
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();

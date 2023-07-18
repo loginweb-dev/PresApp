@@ -27,9 +27,9 @@
             <i class="glyphicon glyphicon-list"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::generic.return_to_list') }}</span>
         </a>
         @endcan --}}
-        <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-success">
+        {{-- <a href="{{ route('pdf_prestamo', $dataTypeContent->getKey()) }}" class="btn btn-success">
             <i class="icon voyager-certificate"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
-        </a>
+        </a> --}}
     </h1>
     @include('voyager::multilingual.language-selector')
 @stop

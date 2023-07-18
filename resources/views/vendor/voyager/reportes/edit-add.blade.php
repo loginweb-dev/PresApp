@@ -38,7 +38,7 @@
                         {{ csrf_field() }}
 
                         <div class="panel-body">
-                            <a href="#" class="btn btn-warning btn-block" onclick="calcular()">Obtener datos</a>
+                            <a href="#" class="btn btn-dark btn-block" onclick="calcular()">Obtener datos</a>
                             <br>
                             @if (count($errors) > 0)
                                 <div class="alert alert-danger">

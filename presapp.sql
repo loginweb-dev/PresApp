@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-06-2023 a las 08:19:33
+-- Tiempo de generación: 19-07-2023 a las 00:48:18
 -- Versión del servidor: 10.4.25-MariaDB
 -- Versión de PHP: 7.4.30
 
@@ -37,18 +37,35 @@ CREATE TABLE `clientes` (
   `telefono` int(11) NOT NULL,
   `documentos_respaldo` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `foto_principal` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT 'users/default.png',
-  `tipo_id` int(11) DEFAULT NULL
+  `tipo_id` int(11) DEFAULT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
+  `nro_cuenta` double DEFAULT NULL,
+  `token_cuenta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `clave_cuenta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nro_tarjeta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pin_tarjeta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `d_domicilio` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `d_trabajo` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
 --
--- Volcado de datos para la tabla `clientes`
+-- Estructura de tabla para la tabla `cliente_poderes`
 --
 
-INSERT INTO `clientes` (`id`, `created_at`, `updated_at`, `deleted_at`, `nombre_completo`, `carnet_indentidad`, `telefono`, `documentos_respaldo`, `foto_principal`, `tipo_id`) VALUES
-(1, '2023-06-17 16:48:17', '2023-06-17 16:48:17', NULL, 'Luis Flores', '5619016 BN', 72823861, '[]', 'users/default.png', 1),
-(2, '2023-06-18 19:19:50', '2023-06-18 19:19:50', NULL, 'Juan Peres', '56190155 BN', 71130523, '[]', 'users/default.png ', 1),
-(3, '2023-06-18 19:22:13', '2023-06-18 19:22:13', NULL, 'Manuel Lopez', '56+5445', 874151481, '[]', 'users/default.png ', 1),
-(4, '2023-06-18 19:29:13', '2023-06-18 19:29:13', NULL, 'hernan cortez', '4984684', 754684, '[]', NULL, 1);
+CREATE TABLE `cliente_poderes` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cliente_id` int(11) DEFAULT NULL,
+  `inicio` date NOT NULL,
+  `final` date NOT NULL,
+  `detalle` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `documento` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -121,70 +138,70 @@ INSERT INTO `data_rows` (`id`, `data_type_id`, `field`, `type`, `display_name`, 
 (20, 3, 'display_name', 'text', 'Nombre a Mostrar', 1, 1, 1, 1, 1, 1, NULL, 5),
 (21, 1, 'role_id', 'text', 'Rol', 0, 1, 1, 1, 1, 1, '{}', 9),
 (22, 4, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
-(23, 4, 'created_at', 'timestamp', 'Created At', 0, 0, 0, 0, 0, 0, '{}', 2),
-(24, 4, 'updated_at', 'timestamp', 'Updated', 0, 1, 1, 0, 0, 0, '{}', 3),
+(23, 4, 'created_at', 'timestamp', 'Created At', 0, 0, 1, 0, 0, 0, '{}', 2),
+(24, 4, 'updated_at', 'timestamp', 'Updated', 0, 0, 1, 0, 0, 0, '{}', 3),
 (25, 4, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
-(26, 4, 'nombre_completo', 'text', 'Nombre Completo', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 5),
-(27, 4, 'carnet_indentidad', 'text', 'Carnet Indentidad', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 7),
-(28, 4, 'telefono', 'number', 'Telefono', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 6),
-(30, 4, 'foto_principal', 'image', 'Foto Principal', 0, 0, 1, 1, 1, 1, '{\"default\":\"users\\/default.png\"}', 9),
-(31, 4, 'documentos_respaldo', 'file', 'Documentos Respaldo', 0, 0, 1, 1, 1, 1, '{}', 10),
+(26, 4, 'nombre_completo', 'text', 'Nombre Completo', 1, 1, 1, 1, 1, 1, '{}', 5),
+(27, 4, 'carnet_indentidad', 'text', 'CI', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 10),
+(28, 4, 'telefono', 'number', 'Whatsapp', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 9),
+(30, 4, 'foto_principal', 'image', 'Foto Principal', 0, 0, 1, 1, 1, 1, '{}', 19),
+(31, 4, 'documentos_respaldo', 'file', 'Documentos Respaldo', 0, 0, 1, 1, 1, 1, '{}', 20),
 (32, 5, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
 (33, 5, 'created_at', 'timestamp', 'Created At', 0, 0, 0, 0, 0, 0, '{}', 2),
 (34, 5, 'updated_at', 'timestamp', 'Updated At', 0, 1, 1, 0, 0, 0, '{}', 3),
 (35, 5, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
 (36, 5, 'nombre', 'text', 'Nombre', 0, 1, 1, 1, 1, 1, '{}', 5),
-(37, 4, 'cliente_belongsto_cliente_tipo_relationship', 'relationship', 'Tipo Cliente', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"model\":\"App\\\\ClienteTipo\",\"table\":\"cliente_tipos\",\"type\":\"belongsTo\",\"column\":\"tipo_id\",\"key\":\"id\",\"label\":\"nombre\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 8),
-(38, 4, 'tipo_id', 'text', 'Tipo Id', 0, 1, 1, 1, 1, 1, '{}', 11),
+(37, 4, 'cliente_belongsto_cliente_tipo_relationship', 'relationship', 'Tipo', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"model\":\"App\\\\ClienteTipo\",\"table\":\"cliente_tipos\",\"type\":\"belongsTo\",\"column\":\"tipo_id\",\"key\":\"id\",\"label\":\"nombre\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 8),
+(38, 4, 'tipo_id', 'text', 'Tipo Id', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 12),
 (39, 1, 'email_verified_at', 'timestamp', 'Email Verified At', 0, 0, 0, 1, 1, 0, '{}', 6),
 (40, 1, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 12),
 (41, 6, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
 (42, 6, 'created_at', 'timestamp', 'Creado', 0, 0, 1, 0, 0, 0, '{}', 2),
 (43, 6, 'updated_at', 'timestamp', 'Actualizado', 0, 0, 1, 0, 0, 0, '{}', 3),
 (44, 6, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
-(45, 6, 'cliente_id', 'text', 'Cliente Id', 0, 1, 1, 1, 1, 1, '{}', 13),
-(46, 6, 'tipo_id', 'text', 'Tipo Id', 0, 1, 1, 1, 1, 1, '{}', 14),
-(47, 6, 'user_id', 'text', 'User Id', 0, 0, 0, 0, 0, 0, '{}', 15),
-(48, 6, 'cuota', 'number', 'Cuota Mensual', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"0\"}', 10),
-(49, 6, 'interes', 'number', 'Interes', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"0.03\"}', 12),
-(50, 6, 'plazo', 'number', 'Plazo', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"0\"}', 7),
-(51, 6, 'monto', 'number', 'Monto', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"0\"}', 8),
+(45, 6, 'cliente_id', 'text', 'Cliente', 0, 0, 1, 1, 1, 1, '{}', 13),
+(46, 6, 'tipo_id', 'text', 'Tipo', 0, 0, 1, 1, 1, 1, '{}', 14),
+(47, 6, 'user_id', 'text', 'Editor', 0, 0, 0, 0, 0, 0, '{}', 15),
+(48, 6, 'cuota', 'number', 'Cuota (CP)', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"5\"},\"default\":\"0\"}', 9),
+(49, 6, 'interes', 'hidden', 'Interes (IP)', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"0.03\"}', 12),
+(50, 6, 'plazo', 'number', 'Plazo (PP)', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"5\"},\"default\":\"0\"}', 7),
+(51, 6, 'monto', 'number', 'Monto (MP)', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"7\"},\"default\":\"0\"}', 8),
 (52, 6, 'observacion', 'text_area', 'Detalles', 1, 1, 1, 1, 1, 1, '{\"default\":\"pr\\u00e9stamo sin observaciones ni detalles\"}', 17),
 (53, 7, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
 (54, 7, 'created_at', 'timestamp', 'Created At', 0, 1, 1, 0, 0, 0, '{}', 2),
 (55, 7, 'updated_at', 'timestamp', 'Updated At', 0, 0, 0, 0, 0, 0, '{}', 3),
 (56, 7, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
 (57, 7, 'nombre', 'text', 'Nombre', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 5),
-(58, 6, 'prestamo_belongsto_cliente_relationship', 'relationship', 'Cliente', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"model\":\"App\\\\Cliente\",\"table\":\"clientes\",\"type\":\"belongsTo\",\"column\":\"cliente_id\",\"key\":\"id\",\"label\":\"nombre_completo\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 11),
-(59, 6, 'prestamo_belongsto_prestamo_tipo_relationship', 'relationship', 'Tipo', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"model\":\"App\\\\PrestamoTipo\",\"table\":\"prestamo_tipos\",\"type\":\"belongsTo\",\"column\":\"tipo_id\",\"key\":\"id\",\"label\":\"nombre\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 5),
-(61, 6, 'mes_inicio', 'date', 'Fecha Inicio', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 6),
+(58, 6, 'prestamo_belongsto_cliente_relationship', 'relationship', 'Cliente', 1, 1, 1, 1, 1, 1, '{\"model\":\"App\\\\Cliente\",\"table\":\"clientes\",\"type\":\"belongsTo\",\"column\":\"cliente_id\",\"key\":\"id\",\"label\":\"nombre_completo\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 10),
+(59, 6, 'prestamo_belongsto_prestamo_tipo_relationship', 'relationship', 'Tipo', 1, 1, 1, 1, 1, 1, '{\"model\":\"App\\\\PrestamoTipo\",\"table\":\"prestamo_tipos\",\"type\":\"belongsTo\",\"column\":\"tipo_id\",\"key\":\"id\",\"label\":\"nombre\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 5),
+(61, 6, 'mes_inicio', 'date', 'F. Inicio', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"7\"}}', 6),
 (62, 8, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
-(63, 8, 'created_at', 'timestamp', 'Created At', 0, 0, 0, 0, 0, 0, '{}', 2),
+(63, 8, 'created_at', 'timestamp', 'Created At', 0, 1, 1, 0, 0, 0, '{}', 2),
 (64, 8, 'updated_at', 'timestamp', 'Updated At', 0, 0, 0, 0, 0, 0, '{}', 3),
 (65, 8, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
-(66, 8, 'mes', 'text', 'Mes', 0, 1, 1, 1, 1, 1, '{}', 5),
-(67, 8, 'nro', 'text', 'Nro', 0, 1, 1, 1, 1, 1, '{}', 6),
-(68, 8, 'monto', 'text', 'Monto', 0, 1, 1, 1, 1, 1, '{}', 7),
-(69, 8, 'interes', 'text', 'Interes', 0, 1, 1, 1, 1, 1, '{}', 8),
-(70, 8, 'capital', 'text', 'Capital', 0, 1, 1, 1, 1, 1, '{}', 9),
-(72, 8, 'deuda', 'text', 'Deuda', 0, 1, 1, 1, 1, 1, '{}', 11),
-(73, 8, 'pagado', 'checkbox', 'Pagado', 0, 1, 1, 1, 1, 1, '{}', 12),
+(66, 8, 'mes', 'text', 'Mes', 0, 1, 1, 1, 1, 1, '{}', 6),
+(67, 8, 'nro', 'text', 'Nro', 0, 1, 1, 1, 1, 1, '{}', 5),
+(68, 8, 'monto', 'text', 'Monto', 0, 0, 1, 1, 1, 1, '{}', 7),
+(69, 8, 'interes', 'text', 'Interes', 0, 0, 1, 1, 1, 1, '{}', 8),
+(70, 8, 'capital', 'text', 'Capital', 0, 0, 1, 1, 1, 1, '{}', 9),
+(72, 8, 'deuda', 'text', 'Deuda', 0, 0, 1, 1, 1, 1, '{}', 11),
+(73, 8, 'pagado', 'checkbox', 'Pagado', 0, 0, 1, 1, 1, 1, '{}', 12),
 (74, 8, 'observacion', 'text_area', 'Observacion', 0, 0, 1, 1, 1, 1, '{}', 13),
-(75, 8, 'cuota', 'text', 'Cuota', 0, 1, 1, 1, 1, 1, '{}', 10),
-(76, 8, 'prestamo_id', 'text', 'Prestamo Id', 0, 1, 1, 1, 1, 1, '{}', 14),
+(75, 8, 'cuota', 'text', 'Cuota', 0, 0, 1, 1, 1, 1, '{}', 10),
+(76, 8, 'prestamo_id', 'text', 'Prestamo', 0, 1, 1, 1, 1, 1, '{}', 14),
 (77, 9, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
 (78, 9, 'created_at', 'timestamp', 'Created At', 0, 1, 1, 0, 0, 0, '{}', 2),
 (79, 9, 'updated_at', 'timestamp', 'Updated At', 0, 0, 0, 0, 0, 0, '{}', 3),
 (80, 9, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
 (81, 9, 'nombre', 'text', 'Nombre', 0, 1, 1, 1, 1, 1, '{}', 5),
-(82, 6, 'estado_id', 'text', 'Estado Id', 0, 0, 0, 0, 0, 0, '{\"default\":1}', 16),
-(84, 8, 'fecha', 'date', 'Fecha', 0, 1, 1, 1, 1, 1, '{}', 15),
+(82, 6, 'estado_id', 'text', 'Estado', 0, 0, 0, 0, 0, 0, '{\"default\":1}', 16),
+(84, 8, 'fecha', 'date', 'Fecha', 0, 0, 1, 1, 1, 1, '{}', 15),
 (85, 10, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
 (86, 10, 'created_at', 'timestamp', 'Created At', 0, 1, 1, 0, 0, 0, '{}', 2),
 (87, 10, 'updated_at', 'timestamp', 'Updated At', 0, 0, 0, 0, 0, 0, '{}', 3),
 (88, 10, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
 (89, 10, 'nombre', 'text', 'Nombre', 0, 1, 1, 1, 1, 1, '{}', 5),
-(90, 8, 'pasarela_id', 'text', 'Pasarela Id', 0, 1, 1, 1, 1, 1, '{}', 16),
+(90, 8, 'pasarela_id', 'text', 'Pasarela', 0, 1, 1, 1, 1, 1, '{}', 16),
 (91, 7, 'monto_interes', 'number', 'Monto Interes', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"0.03\"}', 6),
 (92, 7, 'monto_minimo', 'number', 'Monto Minimo', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"1000\"}', 7),
 (93, 7, 'monto_maximo', 'number', 'Monto Maximo', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"default\":\"100000\"}', 8),
@@ -204,25 +221,70 @@ INSERT INTO `data_rows` (`id`, `data_type_id`, `field`, `type`, `display_name`, 
 (107, 11, 'nombre', 'text', 'Nombre', 0, 1, 1, 1, 1, 1, '{}', 5),
 (108, 12, 'gasto_belongsto_gasto_tipo_relationship', 'relationship', 'Tipo', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"model\":\"App\\\\GastoTipo\",\"table\":\"gasto_tipos\",\"type\":\"belongsTo\",\"column\":\"tipo_id\",\"key\":\"id\",\"label\":\"nombre\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 6),
 (109, 13, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
-(110, 13, 'created_at', 'timestamp', 'Created At', 0, 1, 1, 0, 0, 0, '{}', 2),
+(110, 13, 'created_at', 'timestamp', 'Creado', 0, 1, 1, 0, 0, 0, '{}', 2),
 (111, 13, 'updated_at', 'timestamp', 'Updated At', 0, 0, 0, 0, 0, 0, '{}', 3),
 (112, 13, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
-(113, 13, 'capital_cantidad', 'number', 'Capital Cantidad', 1, 1, 1, 1, 1, 1, '{\"default\":0}', 6),
-(114, 13, 'capital_monto', 'number', 'Capital Monto', 1, 1, 1, 1, 1, 1, '{\"default\":0}', 7),
-(115, 13, 'pago_cantidad', 'number', 'Pago Cantidad', 1, 1, 1, 1, 1, 1, '{\"default\":0}', 8),
-(116, 13, 'pago_monto', 'number', 'Pago Monto', 1, 1, 1, 1, 1, 1, '{\"default\":0}', 9),
-(117, 13, 'gasto_cantidad', 'number', 'Gasto Cantidad', 1, 1, 1, 1, 1, 1, '{\"default\":0}', 10),
-(118, 13, 'gasto_monto', 'number', 'Gasto Monto', 1, 1, 1, 1, 1, 1, '{\"default\":0}', 11),
-(119, 13, 'mes', 'date', 'Mes', 1, 1, 1, 1, 1, 1, '{}', 5),
+(113, 13, 'capital_cantidad', 'number', 'Capital Cantidad', 1, 0, 1, 1, 1, 1, '{\"default\":0}', 6),
+(114, 13, 'capital_monto', 'number', 'Capital Monto', 1, 0, 1, 1, 1, 1, '{\"default\":0}', 7),
+(115, 13, 'pago_cantidad', 'number', 'Pago Cantidad', 1, 0, 1, 1, 1, 1, '{\"default\":0}', 8),
+(116, 13, 'pago_monto', 'number', 'Pago Monto', 1, 0, 1, 1, 1, 1, '{\"default\":0}', 9),
+(117, 13, 'gasto_cantidad', 'number', 'Gasto Cantidad', 1, 0, 0, 0, 0, 0, '{\"default\":0}', 10),
+(118, 13, 'gasto_monto', 'number', 'Gasto Monto', 1, 0, 0, 0, 0, 0, '{\"default\":0}', 11),
+(119, 13, 'mes', 'date', 'Mes', 1, 0, 1, 1, 1, 1, '{}', 5),
 (120, 13, 'detalles', 'text_area', 'Detalles', 1, 1, 1, 1, 1, 1, '{\"default\":\"sin detalles para el mes\"}', 12),
-(121, 6, 'fecha_prestamos', 'date', 'Fecha Prestamo', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 9),
+(121, 6, 'fecha_prestamos', 'date', 'F. Prestamo', 0, 1, 1, 1, 1, 1, '{}', 11),
 (122, 6, 'documentos', 'file', 'Documentos', 0, 0, 1, 1, 1, 1, '{}', 18),
-(123, 7, 'detalle', 'text_area', 'Detalle', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 9),
+(123, 7, 'detalle', 'markdown_editor', 'Descripcion', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 9),
 (124, 9, 'detalle', 'text_area', 'Detalle', 0, 1, 1, 1, 1, 1, '{}', 6),
-(125, 7, 'plazo_minimo', 'number', 'Plazo Minimo', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 10),
-(126, 7, 'plazo_maximo', 'number', 'Plazo Maximo', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 11),
+(125, 7, 'plazo_minimo', 'number', 'Plazo Minimo', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 11),
+(126, 7, 'plazo_maximo', 'number', 'Plazo Maximo', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 12),
 (127, 12, 'fecha', 'date', 'Fecha', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 7),
-(128, 13, 'user_id', 'number', 'Editor', 0, 0, 1, 1, 1, 1, '{}', 13);
+(128, 13, 'user_id', 'number', 'Editor', 0, 0, 1, 1, 1, 1, '{}', 13),
+(129, 7, 'requisitos', 'markdown_editor', 'Requisitos', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 10),
+(131, 8, 'fecha_pago', 'text', 'Fecha Pago', 0, 1, 1, 1, 1, 1, '{}', 17),
+(132, 8, 'user_id', 'text', 'Editor', 0, 1, 1, 1, 1, 1, '{}', 18),
+(133, 8, 'mora', 'text', 'Mora', 0, 0, 1, 1, 1, 1, '{}', 19),
+(134, 8, 'refin', 'text', 'Refin', 0, 0, 1, 1, 1, 1, '{}', 20),
+(135, 4, 'latitude', 'number', 'Latitude', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 17),
+(136, 4, 'longitude', 'number', 'Longitude', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 18),
+(137, 4, 'nro_cuenta', 'number', 'Nro Cuenta', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 11),
+(138, 4, 'token_cuenta', 'text', 'Token Cuenta', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 13),
+(139, 4, 'clave_cuenta', 'text', 'Clave Cuenta', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 14),
+(140, 4, 'nro_tarjeta', 'text', 'Nro Tarjeta', 0, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 15),
+(141, 4, 'pin_tarjeta', 'text', 'Pin Tarjeta', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 16),
+(142, 4, 'd_domicilio', 'text', 'D. Domicilio', 0, 0, 1, 1, 1, 1, '{}', 6),
+(143, 4, 'd_trabajo', 'text', 'D. Trabajo', 0, 0, 1, 1, 1, 1, '{}', 7),
+(144, 14, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
+(145, 14, 'created_at', 'timestamp', 'Created At', 0, 0, 1, 0, 0, 0, '{}', 2),
+(146, 14, 'updated_at', 'timestamp', 'Updated At', 0, 0, 1, 0, 0, 0, '{}', 3),
+(147, 14, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 1, 0, 0, 0, '{}', 4),
+(148, 14, 'cliente_id', 'hidden', 'Cliente Id', 0, 1, 1, 1, 1, 1, '{}', 5),
+(149, 8, 'amort', 'text', 'Amort', 0, 0, 1, 1, 1, 1, '{}', 21),
+(150, 14, 'tipo_id', 'number', 'Tipo', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"},\"default\":1}', 16),
+(154, 14, 'prestamo_bono_belongsto_cliente_relationship', 'relationship', 'Cliente', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"},\"model\":\"App\\\\Cliente\",\"table\":\"clientes\",\"type\":\"belongsTo\",\"column\":\"cliente_id\",\"key\":\"id\",\"label\":\"nombre_completo\",\"pivot_table\":\"cliente_tipos\",\"pivot\":\"0\",\"taggable\":\"0\"}', 6),
+(156, 14, 'f_bono', 'date', 'Fecha del bono', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"}}', 7),
+(158, 14, 'interes', 'number', 'Interes', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"}}', 12),
+(159, 14, 'doc_respado', 'file', 'Documento de respado', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"}}', 13),
+(161, 14, 'estado_id', 'number', 'Estado', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"},\"default\":1}', 15),
+(162, 14, 'detalle', 'text_area', 'Detalle', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"12\"},\"default\":\"pr\\u00e9stamo sin observaciones ni detalles\"}', 14),
+(163, 15, 'id', 'text', 'Id', 1, 1, 1, 0, 0, 0, '{}', 1),
+(164, 15, 'created_at', 'timestamp', 'Created At', 0, 1, 1, 0, 0, 0, '{}', 2),
+(165, 15, 'updated_at', 'timestamp', 'Updated At', 0, 0, 0, 0, 0, 0, '{}', 3),
+(166, 15, 'deleted_at', 'timestamp', 'Deleted At', 0, 0, 0, 0, 0, 0, '{}', 4),
+(167, 15, 'cliente_id', 'text', 'Cliente Id', 0, 1, 1, 1, 1, 1, '{}', 5),
+(168, 15, 'inicio', 'date', 'Inicio', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 6),
+(169, 15, 'final', 'date', 'Final', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 7),
+(170, 15, 'cliente_podere_belongsto_cliente_relationship', 'relationship', 'clientes', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"},\"model\":\"\\\\App\\\\Cliente\",\"table\":\"clientes\",\"type\":\"belongsTo\",\"column\":\"cliente_id\",\"key\":\"id\",\"label\":\"nombre_completo\",\"pivot_table\":\"cliente_poderes\",\"pivot\":\"0\",\"taggable\":\"0\"}', 8),
+(171, 15, 'detalle', 'text_area', 'Detalle', 1, 0, 1, 1, 1, 1, '{}', 10),
+(172, 15, 'documento', 'file', 'Documento', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"6\"}}', 9),
+(176, 8, 'p_final', 'text', 'P Final', 0, 1, 1, 1, 1, 1, '{}', 22),
+(179, 14, 'user_id', 'text', 'Editor', 0, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"},\"default\":1}', 17),
+(180, 14, 'm_bono', 'number', 'Monto del bono', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"}}', 8),
+(181, 14, 'm_prestamo', 'number', 'Monto del prestamo', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"}}', 9),
+(182, 14, 'f_prestamo', 'date', 'Fecha del prestamo', 1, 1, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"}}', 10),
+(183, 14, 'plazo', 'number', 'Plazo', 1, 0, 1, 1, 1, 1, '{\"display\":{\"width\":\"4\"}}', 11),
+(184, 14, 'prestamo_bono_belongsto_prestamo_estado_relationship', 'relationship', 'Estado', 0, 1, 0, 0, 0, 0, '{\"model\":\"\\\\App\\\\PrestamoEstado\",\"table\":\"prestamo_estados\",\"type\":\"belongsTo\",\"column\":\"estado_id\",\"key\":\"id\",\"label\":\"nombre\",\"pivot_table\":\"cliente_poderes\",\"pivot\":\"0\",\"taggable\":\"0\"}', 18),
+(185, 14, 'prestamo_bono_belongsto_user_relationship', 'relationship', 'Editor', 0, 1, 0, 0, 0, 0, '{\"model\":\"\\\\App\\\\Models\\\\User\",\"table\":\"users\",\"type\":\"belongsTo\",\"column\":\"user_id\",\"key\":\"id\",\"label\":\"name\",\"pivot_table\":\"cliente_poderes\",\"pivot\":\"0\",\"taggable\":\"0\"}', 19);
 
 -- --------------------------------------------------------
 
@@ -253,19 +315,21 @@ CREATE TABLE `data_types` (
 --
 
 INSERT INTO `data_types` (`id`, `name`, `slug`, `display_name_singular`, `display_name_plural`, `icon`, `model_name`, `policy_name`, `controller`, `description`, `generate_permissions`, `server_side`, `details`, `created_at`, `updated_at`) VALUES
-(1, 'users', 'users', 'Usuario', 'Usuarios', 'voyager-helm', 'TCG\\Voyager\\Models\\User', 'TCG\\Voyager\\Policies\\UserPolicy', 'TCG\\Voyager\\Http\\Controllers\\VoyagerUserController', NULL, 1, 1, '{\"order_column\":\"updated_at\",\"order_display_column\":\"name\",\"order_direction\":\"desc\",\"default_search_key\":\"name\",\"scope\":null}', '2023-06-17 16:25:09', '2023-06-17 17:01:27'),
+(1, 'users', 'users', 'Usuario', 'Usuarios', 'voyager-helm', 'TCG\\Voyager\\Models\\User', 'TCG\\Voyager\\Policies\\UserPolicy', 'TCG\\Voyager\\Http\\Controllers\\VoyagerUserController', NULL, 1, 0, '{\"order_column\":\"updated_at\",\"order_display_column\":\"name\",\"order_direction\":\"desc\",\"default_search_key\":\"name\",\"scope\":null}', '2023-06-17 16:25:09', '2023-07-07 01:11:30'),
 (2, 'menus', 'menus', 'Menú', 'Menús', 'voyager-list', 'TCG\\Voyager\\Models\\Menu', NULL, '', '', 1, 0, NULL, '2023-06-17 16:25:09', '2023-06-17 16:25:09'),
 (3, 'roles', 'roles', 'Rol', 'Roles', 'voyager-lock', 'TCG\\Voyager\\Models\\Role', NULL, 'TCG\\Voyager\\Http\\Controllers\\VoyagerRoleController', '', 1, 0, NULL, '2023-06-17 16:25:09', '2023-06-17 16:25:09'),
-(4, 'clientes', 'clientes', 'Cliente', 'Clientes', 'voyager-helm', 'App\\Cliente', NULL, NULL, NULL, 1, 1, '{\"order_column\":\"updated_at\",\"order_display_column\":\"nombre_completo\",\"order_direction\":\"desc\",\"default_search_key\":\"nombre_completo\",\"scope\":null}', '2023-06-17 16:40:22', '2023-06-21 22:17:40'),
-(5, 'cliente_tipos', 'cliente-tipos', 'Cliente Tipo', 'Cliente Tipos', 'voyager-helm', 'App\\ClienteTipo', NULL, NULL, NULL, 1, 0, '{\"order_column\":\"updated_at\",\"order_display_column\":\"nombre\",\"order_direction\":\"desc\",\"default_search_key\":\"nombre\",\"scope\":null}', '2023-06-17 16:43:30', '2023-06-17 17:24:21'),
-(6, 'prestamos', 'prestamos', 'Prestamo', 'Prestamos', 'voyager-helm', 'App\\Prestamo', NULL, NULL, NULL, 1, 1, '{\"order_column\":\"updated_at\",\"order_display_column\":\"observacion\",\"order_direction\":\"desc\",\"default_search_key\":\"observacion\",\"scope\":null}', '2023-06-17 17:21:32', '2023-06-28 06:11:17'),
-(7, 'prestamo_tipos', 'prestamo-tipos', 'Prestamo Tipo', 'Prestamo Tipos', 'voyager-helm', 'App\\PrestamoTipo', NULL, NULL, NULL, 1, 0, '{\"order_column\":\"updated_at\",\"order_display_column\":\"nombre\",\"order_direction\":\"desc\",\"default_search_key\":\"nombre\",\"scope\":null}', '2023-06-17 17:22:17', '2023-06-27 16:07:33'),
-(8, 'prestamo_planes', 'prestamo-planes', 'Prestamo Plane', 'Prestamo Planes', 'voyager-helm', 'App\\PrestamoPlane', NULL, NULL, NULL, 1, 1, '{\"order_column\":\"nro\",\"order_display_column\":\"nro\",\"order_direction\":\"asc\",\"default_search_key\":\"mes\",\"scope\":null}', '2023-06-18 17:22:44', '2023-06-19 18:16:20'),
+(4, 'clientes', 'clientes', 'Cliente', 'Clientes', 'voyager-helm', 'App\\Cliente', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":\"nombre_completo\",\"scope\":null}', '2023-06-17 16:40:22', '2023-07-15 04:28:10'),
+(5, 'cliente_tipos', 'cliente-tipos', 'Cliente Tipo', 'Cliente Tipos', 'voyager-helm', 'App\\ClienteTipo', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":null,\"scope\":null}', '2023-06-17 16:43:30', '2023-07-17 02:54:19'),
+(6, 'prestamos', 'prestamos', 'Prestamo', 'Prestamos', 'voyager-helm', 'App\\Prestamo', NULL, NULL, NULL, 1, 0, '{\"order_column\":\"updated_at\",\"order_display_column\":\"observacion\",\"order_direction\":\"desc\",\"default_search_key\":\"observacion\",\"scope\":null}', '2023-06-17 17:21:32', '2023-07-18 15:13:05'),
+(7, 'prestamo_tipos', 'prestamo-tipos', 'Prestamo Tipo', 'Prestamo Tipos', 'voyager-helm', 'App\\PrestamoTipo', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":null,\"scope\":null}', '2023-06-17 17:22:17', '2023-07-17 02:54:08'),
+(8, 'prestamo_planes', 'prestamo-planes', 'Prestamo Plane', 'Prestamo Planes', 'voyager-helm', 'App\\PrestamoPlane', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"desc\",\"default_search_key\":\"id\",\"scope\":null}', '2023-06-18 17:22:44', '2023-07-17 03:04:30'),
 (9, 'prestamo_estados', 'prestamo-estados', 'Prestamo Estado', 'Prestamo Estados', 'voyager-helm', 'App\\PrestamoEstado', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":null,\"scope\":null}', '2023-06-18 20:33:14', '2023-06-27 15:36:52'),
 (10, 'pasarelas', 'pasarelas', 'Pasarela', 'Pasarelas', 'voyager-helm', 'App\\Pasarela', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":null}', '2023-06-19 16:02:45', '2023-06-19 16:02:45'),
 (11, 'gasto_tipos', 'gasto-tipos', 'Gasto Tipo', 'Gasto Tipos', 'voyager-helm', 'App\\GastoTipo', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":null,\"scope\":null}', '2023-06-22 00:06:28', '2023-06-22 00:17:31'),
-(12, 'gastos', 'gastos', 'Gasto', 'Gastos', 'voyager-helm', 'App\\Gasto', NULL, NULL, NULL, 1, 1, '{\"order_column\":\"created_at\",\"order_display_column\":\"detalles\",\"order_direction\":\"desc\",\"default_search_key\":\"detalles\",\"scope\":null}', '2023-06-22 00:07:32', '2023-06-28 04:36:24'),
-(13, 'reportes', 'reportes', 'Reporte', 'Reportes', 'voyager-helm', 'App\\Reporte', NULL, NULL, NULL, 1, 1, '{\"order_column\":\"created_at\",\"order_display_column\":\"mes\",\"order_direction\":\"desc\",\"default_search_key\":\"mes\",\"scope\":null}', '2023-06-22 18:08:28', '2023-06-28 05:31:33');
+(12, 'gastos', 'gastos', 'Gasto', 'Gastos', 'voyager-helm', 'App\\Gasto', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"desc\",\"default_search_key\":\"detalles\",\"scope\":null}', '2023-06-22 00:07:32', '2023-07-15 04:39:21'),
+(13, 'reportes', 'reportes', 'Reporte', 'Reportes', 'voyager-helm', 'App\\Reporte', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"desc\",\"default_search_key\":null,\"scope\":null}', '2023-06-22 18:08:28', '2023-07-18 21:40:33'),
+(14, 'prestamo_bonos', 'prestamo-bonos', 'Bono', 'Bonos', 'voyager-double-right', 'App\\PrestamoBono', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":null,\"scope\":null}', '2023-07-11 20:56:58', '2023-07-18 22:14:32'),
+(15, 'cliente_poderes', 'cliente-poderes', 'Cliente Podere', 'Cliente Poderes', 'voyager-helm', 'App\\ClientePodere', NULL, NULL, NULL, 1, 0, '{\"order_column\":null,\"order_display_column\":null,\"order_direction\":\"asc\",\"default_search_key\":null,\"scope\":null}', '2023-07-14 22:48:53', '2023-07-17 02:56:56');
 
 -- --------------------------------------------------------
 
@@ -301,13 +365,6 @@ CREATE TABLE `gastos` (
   `documentos` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `gastos`
---
-
-INSERT INTO `gastos` (`id`, `created_at`, `updated_at`, `deleted_at`, `user_id`, `tipo_id`, `monto`, `detalles`, `documentos`, `fecha`) VALUES
-(1, '2023-06-28 06:16:43', '2023-06-28 06:16:43', NULL, 2, 1, 600, 'pago de alquiler', '[]', '2023-01-13');
 
 -- --------------------------------------------------------
 
@@ -379,25 +436,25 @@ CREATE TABLE `menu_items` (
 --
 
 INSERT INTO `menu_items` (`id`, `menu_id`, `title`, `url`, `target`, `icon_class`, `color`, `parent_id`, `order`, `created_at`, `updated_at`, `route`, `parameters`) VALUES
-(2, 1, 'Multimedia', '', '_self', 'voyager-images', NULL, 5, 2, '2023-06-17 16:25:16', '2023-06-18 17:23:03', 'voyager.media.index', NULL),
-(3, 1, 'Usuarios', '', '_self', 'voyager-helm', '#000000', NULL, 4, '2023-06-17 16:25:16', '2023-06-28 05:58:16', 'voyager.users.index', 'null'),
-(4, 1, 'Roles', '', '_self', 'voyager-lock', NULL, 5, 3, '2023-06-17 16:25:16', '2023-06-18 17:23:03', 'voyager.roles.index', NULL),
-(5, 1, 'Herramientas', '', '_self', 'voyager-tools', NULL, NULL, 6, '2023-06-17 16:25:17', '2023-06-28 05:58:16', NULL, NULL),
-(6, 1, 'Diseñador de Menús', '', '_self', 'voyager-list', NULL, 5, 4, '2023-06-17 16:25:18', '2023-06-18 17:23:03', 'voyager.menus.index', NULL),
-(7, 1, 'Base de Datos', '', '_self', 'voyager-data', NULL, 5, 5, '2023-06-17 16:25:18', '2023-06-18 17:23:03', 'voyager.database.index', NULL),
-(8, 1, 'Compás', '', '_self', 'voyager-compass', NULL, 5, 6, '2023-06-17 16:25:18', '2023-06-18 17:23:03', 'voyager.compass.index', NULL),
-(9, 1, 'BREAD', '', '_self', 'voyager-bread', NULL, 5, 7, '2023-06-17 16:25:19', '2023-06-18 17:23:03', 'voyager.bread.index', NULL),
-(10, 1, 'Parámetros', '', '_self', 'voyager-settings', NULL, 5, 1, '2023-06-17 16:25:19', '2023-06-18 17:23:02', 'voyager.settings.index', NULL),
-(11, 1, 'Clientes', '', '_self', 'voyager-helm', '#000000', NULL, 2, '2023-06-17 16:40:23', '2023-06-17 17:22:30', 'voyager.clientes.index', 'null'),
-(12, 1, 'Cliente Tipos', '', '_self', 'voyager-helm', '#000000', 5, 8, '2023-06-17 16:43:30', '2023-06-18 20:33:42', 'voyager.cliente-tipos.index', 'null'),
-(13, 1, 'Prestamos', '', '_self', 'voyager-helm', NULL, NULL, 1, '2023-06-17 17:21:33', '2023-06-17 17:22:30', 'voyager.prestamos.index', NULL),
-(14, 1, 'Prestamo Tipos', '', '_self', 'voyager-helm', NULL, 5, 11, '2023-06-17 17:22:18', '2023-06-18 20:33:40', 'voyager.prestamo-tipos.index', NULL),
-(16, 1, 'Prestamo Planes', '', '_self', 'voyager-helm', NULL, 5, 9, '2023-06-18 17:22:45', '2023-06-18 20:33:42', 'voyager.prestamo-planes.index', NULL),
-(17, 1, 'Prestamo Estados', '', '_self', 'voyager-helm', NULL, 5, 10, '2023-06-18 20:33:15', '2023-06-18 20:33:42', 'voyager.prestamo-estados.index', NULL),
-(18, 1, 'Pasarelas', '', '_self', 'voyager-helm', NULL, 5, 13, '2023-06-19 16:02:45', '2023-06-28 05:58:16', 'voyager.pasarelas.index', NULL),
-(19, 1, 'Gasto Tipos', '', '_self', 'voyager-helm', '#000000', 5, 12, '2023-06-22 00:06:28', '2023-06-28 05:58:16', 'voyager.gasto-tipos.index', 'null'),
-(20, 1, 'Gastos', '', '_self', 'voyager-helm', '#000000', NULL, 3, '2023-06-22 00:07:32', '2023-06-22 00:08:37', 'voyager.gastos.index', 'null'),
-(21, 1, 'Reportes', '', '_self', 'voyager-helm', '#000000', NULL, 5, '2023-06-22 18:08:28', '2023-06-28 05:58:16', 'voyager.reportes.index', 'null');
+(2, 1, 'Multimedia', '', '_self', 'voyager-images', NULL, 5, 6, '2023-06-17 16:25:16', '2023-06-28 20:58:51', 'voyager.media.index', NULL),
+(3, 1, 'Usuarios', '', '_self', 'voyager-helm', '#000000', 5, 2, '2023-06-17 16:25:16', '2023-06-28 20:58:43', 'voyager.users.index', 'null'),
+(4, 1, 'Roles', '', '_self', 'voyager-lock', NULL, 5, 1, '2023-06-17 16:25:16', '2023-06-28 20:58:43', 'voyager.roles.index', NULL),
+(5, 1, 'Herramientas', '', '_self', 'voyager-tools', NULL, NULL, 5, '2023-06-17 16:25:17', '2023-07-11 21:45:08', NULL, NULL),
+(6, 1, 'Diseñador de Menús', '', '_self', 'voyager-list', NULL, 5, 8, '2023-06-17 16:25:18', '2023-06-28 20:58:40', 'voyager.menus.index', NULL),
+(7, 1, 'Base de Datos', '', '_self', 'voyager-data', NULL, 5, 7, '2023-06-17 16:25:18', '2023-06-28 20:58:49', 'voyager.database.index', NULL),
+(8, 1, 'Compás', '', '_self', 'voyager-compass', NULL, 5, 3, '2023-06-17 16:25:18', '2023-06-28 20:58:55', 'voyager.compass.index', NULL),
+(9, 1, 'BREAD', '', '_self', 'voyager-bread', NULL, 5, 5, '2023-06-17 16:25:19', '2023-06-28 20:58:51', 'voyager.bread.index', NULL),
+(10, 1, 'Parametros', '', '_self', 'voyager-settings', '#000000', 5, 4, '2023-06-17 16:25:19', '2023-06-28 20:58:55', 'voyager.settings.index', 'null'),
+(11, 1, 'Clientes', '', '_self', 'voyager-person', '#000000', NULL, 3, '2023-06-17 16:40:23', '2023-07-18 20:57:34', 'voyager.clientes.index', 'null'),
+(13, 1, 'Mis prestamos', '', '_self', 'voyager-double-right', '#000000', 22, 1, '2023-06-17 17:21:33', '2023-06-28 20:57:18', 'voyager.prestamos.index', 'null'),
+(14, 1, 'Tipos', '', '_self', 'voyager-double-right', '#000000', 22, 3, '2023-06-17 17:22:18', '2023-07-11 20:57:29', 'voyager.prestamo-tipos.index', 'null'),
+(16, 1, 'Planes', '', '_self', 'voyager-double-right', '#000000', 22, 6, '2023-06-18 17:22:45', '2023-07-11 21:45:08', 'voyager.prestamo-planes.index', 'null'),
+(17, 1, 'Estados', '', '_self', 'voyager-double-right', '#000000', 22, 4, '2023-06-18 20:33:15', '2023-07-11 20:57:29', 'voyager.prestamo-estados.index', 'null'),
+(18, 1, 'Pasarelas', '', '_self', 'voyager-double-right', '#000000', 22, 5, '2023-06-19 16:02:45', '2023-07-11 20:57:29', 'voyager.pasarelas.index', 'null'),
+(20, 1, 'Gastos', '', '_self', 'voyager-pen', '#000000', NULL, 2, '2023-06-22 00:07:32', '2023-07-18 20:57:34', 'voyager.gastos.index', 'null'),
+(21, 1, 'Reportes', '', '_self', 'voyager-bar-chart', '#000000', NULL, 4, '2023-06-22 18:08:28', '2023-07-11 21:45:08', 'voyager.reportes.index', 'null'),
+(22, 1, 'Prestamos', '', '_self', 'voyager-shop', '#000000', NULL, 1, '2023-06-28 20:20:47', '2023-06-28 20:54:35', NULL, ''),
+(23, 1, 'Bonos', '', '_self', 'voyager-double-right', '#000000', 22, 2, '2023-07-11 20:57:00', '2023-07-11 20:57:34', 'voyager.prestamo-bonos.index', 'null');
 
 -- --------------------------------------------------------
 
@@ -567,7 +624,17 @@ INSERT INTO `permissions` (`id`, `key`, `table_name`, `created_at`, `updated_at`
 (72, 'read_reportes', 'reportes', '2023-06-22 18:08:28', '2023-06-22 18:08:28'),
 (73, 'edit_reportes', 'reportes', '2023-06-22 18:08:28', '2023-06-22 18:08:28'),
 (74, 'add_reportes', 'reportes', '2023-06-22 18:08:28', '2023-06-22 18:08:28'),
-(75, 'delete_reportes', 'reportes', '2023-06-22 18:08:28', '2023-06-22 18:08:28');
+(75, 'delete_reportes', 'reportes', '2023-06-22 18:08:28', '2023-06-22 18:08:28'),
+(76, 'browse_prestamo_bonos', 'prestamo_bonos', '2023-07-11 20:56:59', '2023-07-11 20:56:59'),
+(77, 'read_prestamo_bonos', 'prestamo_bonos', '2023-07-11 20:56:59', '2023-07-11 20:56:59'),
+(78, 'edit_prestamo_bonos', 'prestamo_bonos', '2023-07-11 20:56:59', '2023-07-11 20:56:59'),
+(79, 'add_prestamo_bonos', 'prestamo_bonos', '2023-07-11 20:56:59', '2023-07-11 20:56:59'),
+(80, 'delete_prestamo_bonos', 'prestamo_bonos', '2023-07-11 20:56:59', '2023-07-11 20:56:59'),
+(81, 'browse_cliente_poderes', 'cliente_poderes', '2023-07-14 22:48:53', '2023-07-14 22:48:53'),
+(82, 'read_cliente_poderes', 'cliente_poderes', '2023-07-14 22:48:53', '2023-07-14 22:48:53'),
+(83, 'edit_cliente_poderes', 'cliente_poderes', '2023-07-14 22:48:53', '2023-07-14 22:48:53'),
+(84, 'add_cliente_poderes', 'cliente_poderes', '2023-07-14 22:48:53', '2023-07-14 22:48:53'),
+(85, 'delete_cliente_poderes', 'cliente_poderes', '2023-07-14 22:48:53', '2023-07-14 22:48:53');
 
 -- --------------------------------------------------------
 
@@ -590,7 +657,9 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (2, 1),
 (3, 1),
 (4, 1),
+(4, 3),
 (5, 1),
+(5, 3),
 (6, 1),
 (7, 1),
 (8, 1),
@@ -602,10 +671,8 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (14, 1),
 (15, 1),
 (16, 1),
-(17, 1),
 (18, 1),
 (19, 1),
-(20, 1),
 (21, 1),
 (22, 1),
 (23, 1),
@@ -613,19 +680,15 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (25, 1),
 (26, 1),
 (26, 3),
-(27, 1),
 (28, 1),
 (28, 3),
 (29, 1),
 (29, 3),
-(30, 1),
 (31, 1),
 (31, 3),
-(32, 1),
 (32, 3),
 (33, 1),
 (34, 1),
-(35, 1),
 (36, 1),
 (36, 3),
 (37, 1),
@@ -637,48 +700,34 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (42, 3),
 (43, 1),
 (44, 1),
-(46, 1),
-(47, 1),
-(48, 1),
-(49, 1),
-(50, 1),
 (51, 1),
 (51, 3),
-(52, 1),
 (52, 3),
 (53, 1),
 (54, 1),
-(55, 1),
 (56, 1),
 (56, 3),
-(57, 1),
 (57, 3),
 (58, 1),
 (59, 1),
-(60, 1),
-(61, 1),
-(61, 3),
-(62, 1),
-(62, 3),
-(63, 1),
-(64, 1),
-(65, 1),
-(66, 1),
-(66, 3),
-(67, 1),
-(68, 1),
-(68, 3),
-(69, 1),
-(69, 3),
-(70, 1),
 (71, 1),
 (71, 3),
-(72, 1),
 (72, 3),
 (73, 1),
 (74, 1),
 (74, 3),
-(75, 1);
+(76, 1),
+(76, 3),
+(78, 1),
+(78, 3),
+(79, 1),
+(79, 3),
+(81, 1),
+(81, 3),
+(83, 1),
+(83, 3),
+(84, 1),
+(84, 3);
 
 -- --------------------------------------------------------
 
@@ -705,12 +754,30 @@ CREATE TABLE `prestamos` (
   `documentos` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
 --
--- Volcado de datos para la tabla `prestamos`
+-- Estructura de tabla para la tabla `prestamo_bonos`
 --
 
-INSERT INTO `prestamos` (`id`, `created_at`, `updated_at`, `deleted_at`, `cliente_id`, `tipo_id`, `user_id`, `cuota`, `interes`, `plazo`, `monto`, `observacion`, `mes_inicio`, `estado_id`, `fecha_prestamos`, `documentos`) VALUES
-(1, '2023-06-28 06:08:05', '2023-06-28 06:08:19', NULL, 3, 1, 2, 793.33, 0.03, 12, 7000, 'préstamo sin observaciones ni detalles', '2023-01-09', 2, '2023-01-03', NULL);
+CREATE TABLE `prestamo_bonos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `cliente_id` int(11) DEFAULT NULL,
+  `tipo_id` int(11) DEFAULT NULL,
+  `f_bono` date NOT NULL,
+  `interes` double NOT NULL,
+  `doc_respado` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado_id` int(11) DEFAULT NULL,
+  `detalle` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `m_bono` double NOT NULL,
+  `m_prestamo` double NOT NULL,
+  `f_prestamo` date NOT NULL,
+  `plazo` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -735,7 +802,8 @@ INSERT INTO `prestamo_estados` (`id`, `created_at`, `updated_at`, `deleted_at`, 
 (1, '2023-06-18 20:34:08', '2023-06-27 15:37:10', NULL, 'ACTIVO', 'son los préstamos que no tienen deuda y están incompletos'),
 (2, '2023-06-18 20:34:39', '2023-06-27 15:37:31', NULL, 'EN MORA', 'son préstamos con deudas.'),
 (3, '2023-06-18 20:34:58', '2023-06-27 15:37:40', NULL, 'REFINANCIADO', 'son préstamos editados y actualizados según las reglas  del agente de ventas'),
-(4, '2023-06-18 20:35:03', '2023-06-27 15:37:47', NULL, 'COMPLETADO', 'son los préstamos que completan el plan de pago.');
+(4, '2023-06-18 20:35:03', '2023-06-27 15:37:47', NULL, 'COMPLETADO', 'son los préstamos que completan el plan de pago.'),
+(5, '2023-07-14 18:50:25', '2023-07-14 18:50:49', NULL, 'EN JUCIO O CONGELADO', 'En este estado el interés mensual deja de cobrarse');
 
 -- --------------------------------------------------------
 
@@ -755,32 +823,18 @@ CREATE TABLE `prestamo_planes` (
   `capital` double DEFAULT NULL,
   `cuota` double DEFAULT NULL,
   `deuda` double DEFAULT NULL,
-  `pagado` binary(1) DEFAULT NULL,
+  `pagado` int(11) DEFAULT NULL,
   `observacion` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `prestamo_id` int(11) DEFAULT NULL,
   `fecha` date DEFAULT NULL,
   `pasarela_id` int(11) DEFAULT NULL,
   `fecha_pago` date DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
+  `user_id` int(11) DEFAULT NULL,
+  `mora` double DEFAULT 0,
+  `refin` double DEFAULT 0,
+  `amort` double DEFAULT 0,
+  `p_final` double DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `prestamo_planes`
---
-
-INSERT INTO `prestamo_planes` (`id`, `created_at`, `updated_at`, `deleted_at`, `mes`, `nro`, `monto`, `interes`, `capital`, `cuota`, `deuda`, `pagado`, `observacion`, `prestamo_id`, `fecha`, `pasarela_id`, `fecha_pago`, `user_id`) VALUES
-(1, '2023-06-28 06:08:06', '2023-06-28 06:15:53', NULL, 'enero-23', 1, 7000, 210, 583.33, 793.33, 6416.67, 0x31, 'Sin observación', 1, '2023-01-09', 1, '2023-01-28', 2),
-(2, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'febrero-23', 2, 6416.67, 210, 583.33, 793.33, 5833.34, 0x30, NULL, 1, '2023-02-09', NULL, NULL, NULL),
-(3, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'marzo-23', 3, 5833.34, 210, 583.33, 793.33, 5250.01, 0x30, NULL, 1, '2023-03-09', NULL, NULL, NULL),
-(4, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'abril-23', 4, 5250.01, 210, 583.33, 793.33, 4666.68, 0x30, NULL, 1, '2023-04-09', NULL, NULL, NULL),
-(5, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'mayo-23', 5, 4666.68, 210, 583.33, 793.33, 4083.35, 0x30, NULL, 1, '2023-05-09', NULL, NULL, NULL),
-(6, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'junio-23', 6, 4083.35, 210, 583.33, 793.33, 3500.02, 0x30, NULL, 1, '2023-06-09', NULL, NULL, NULL),
-(7, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'julio-23', 7, 3500.02, 210, 583.33, 793.33, 2916.69, 0x30, NULL, 1, '2023-07-09', NULL, NULL, NULL),
-(8, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'agosto-23', 8, 2916.69, 210, 583.33, 793.33, 2333.36, 0x30, NULL, 1, '2023-08-09', NULL, NULL, NULL),
-(9, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'septiembre-23', 9, 2333.36, 210, 583.33, 793.33, 1750.03, 0x30, NULL, 1, '2023-09-09', NULL, NULL, NULL),
-(10, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'octubre-23', 10, 1750.03, 210, 583.33, 793.33, 1166.7, 0x30, NULL, 1, '2023-10-09', NULL, NULL, NULL),
-(11, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'noviembre-23', 11, 1166.7, 210, 583.33, 793.33, 583.37, 0x30, NULL, 1, '2023-11-09', NULL, NULL, NULL),
-(12, '2023-06-28 06:08:06', '2023-06-28 06:08:06', NULL, 'diciembre-23', 12, 583.37, 210, 583.33, 793.37, 0, 0x30, NULL, 1, '2023-12-09', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -799,16 +853,17 @@ CREATE TABLE `prestamo_tipos` (
   `monto_maximo` double DEFAULT NULL,
   `detalle` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `plazo_minimo` int(11) DEFAULT NULL,
-  `plazo_maximo` int(11) DEFAULT NULL
+  `plazo_maximo` int(11) DEFAULT NULL,
+  `requisitos` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `prestamo_tipos`
 --
 
-INSERT INTO `prestamo_tipos` (`id`, `created_at`, `updated_at`, `deleted_at`, `nombre`, `monto_interes`, `monto_minimo`, `monto_maximo`, `detalle`, `plazo_minimo`, `plazo_maximo`) VALUES
-(1, '2023-06-17 17:24:54', '2023-06-27 16:08:54', NULL, 'Prestamo  al 3%', 0.03, 3000, 30000, 'Es un tipo de préstamo donde la cuota, el capital y el interés son montos fijos.', 6, 24),
-(2, '2023-06-17 17:25:06', '2023-06-27 16:09:04', NULL, 'Prestamo  al 5%', 0.05, 5000, 50000, 'Es un tipo de préstamo donde solo los pagos son fijos y el  interés y el capital son variables', 9, 36);
+INSERT INTO `prestamo_tipos` (`id`, `created_at`, `updated_at`, `deleted_at`, `nombre`, `monto_interes`, `monto_minimo`, `monto_maximo`, `detalle`, `plazo_minimo`, `plazo_maximo`, `requisitos`) VALUES
+(1, '2023-06-17 17:24:54', '2023-07-03 03:54:58', NULL, 'Prestamo  al 3%', 0.03, 3000, 30000, '* Es un tipo de préstamo donde la cuota, el capital y el interés son montos fijos.\r\nLa couta mensual sale del calculo de el plazo y moto a prestar.\r\n* **CP = (MP+IP)/PP**', 6, 24, '1. Fotocopia de CI\r\n2. Ultima boleta de pago'),
+(2, '2023-06-17 17:25:06', '2023-07-03 03:57:12', NULL, 'Prestamo  al 5%', 0.05, 5000, 50000, '* Es un tipo de préstamo donde solo los pagos (CP) son fijos, el  interés y el capital son variables.', 9, 36, '1. Fotocopia de CI \r\n2. Ultima boleta de pago');
 
 -- --------------------------------------------------------
 
@@ -825,8 +880,8 @@ CREATE TABLE `reportes` (
   `capital_monto` double NOT NULL,
   `pago_cantidad` int(11) NOT NULL,
   `pago_monto` double NOT NULL,
-  `gasto_cantidad` int(11) NOT NULL,
-  `gasto_monto` double NOT NULL,
+  `gasto_cantidad` int(11) DEFAULT NULL,
+  `gasto_monto` double DEFAULT NULL,
   `mes` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `detalles` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` int(11) DEFAULT NULL
@@ -878,7 +933,7 @@ CREATE TABLE `settings` (
 
 INSERT INTO `settings` (`id`, `key`, `display_name`, `value`, `details`, `type`, `order`, `group`) VALUES
 (1, 'site.title', 'Título del sitio', 'PresApp', '', 'text', 1, 'Site'),
-(2, 'site.description', 'Descripción del sitio', 'Aplicativo para gestionar negocios de préstamos y créditos financieros', '', 'text', 2, 'Site'),
+(2, 'site.description', 'Descripción del sitio', 'Sistema de administración PresApp v1.0', '', 'text', 2, 'Site'),
 (3, 'site.logo', 'Logo del sitio', '', '', 'image', 3, 'Site'),
 (4, 'site.google_analytics_tracking_id', 'ID de rastreo de Google Analytics', NULL, '', 'text', 4, 'Site'),
 (5, 'admin.bg_image', 'Imagen de fondo del administrador', '', '', 'image', 5, 'Admin'),
@@ -886,7 +941,8 @@ INSERT INTO `settings` (`id`, `key`, `display_name`, `value`, `details`, `type`,
 (7, 'admin.description', 'Descripción del administrador', 'Aplicativo para gestionar negocios de prestamos', '', 'text', 2, 'Admin'),
 (8, 'admin.loader', 'Imagen de carga del administrador', '', '', 'image', 3, 'Admin'),
 (9, 'admin.icon_image', 'Ícono del administrador', '', '', 'image', 4, 'Admin'),
-(10, 'admin.google_analytics_client_id', 'ID de Cliente para Google Analytics (usado para el tablero de administrador)', NULL, '', 'text', 1, 'Admin');
+(10, 'admin.google_analytics_client_id', 'ID de Cliente para Google Analytics (usado para el tablero de administrador)', NULL, '', 'text', 1, 'Admin'),
+(12, 'prestamos.redondear', 'Redondear', 'rmx', '{\n    \"default\" : \"nor\",\n    \"options\" : {\n        \"nor\": \"No redondear\",\n        \"rmx\": \"Redondear al miximo proximo\",\n        \"rmi\": \"Redondear al minmo proximo\"\n    }\n}', 'select_dropdown', 7, 'Prestamos');
 
 -- --------------------------------------------------------
 
@@ -931,9 +987,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `role_id`, `name`, `email`, `avatar`, `email_verified_at`, `password`, `remember_token`, `settings`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'admin', 'admin@admin.com', 'users/default.png', NULL, '$2y$10$PYDJlmniUdo9unXtrO4Rae/K1deMD62pNS3NoHB7mnvfUYfgWR09W', 'aa7uSccOcRm0TVHS5QDGnOLWHgJ9jeeRiRE53n4mTEGppwY6hoE9FvlLShq8', NULL, '2023-06-17 16:27:11', '2023-06-17 16:27:12', NULL),
-(2, 3, 'Agente 1', 'agente@agente.com', 'users/default.png', NULL, '$2y$10$o8Zbf7OO0Co0k5bYJzHFFuRum/RqGVoypM7emY/Ts/IyejOFaksH2', '8HZ6kkDecqv3YPqVIdlAq9ZhkTSO1YTSue9QR09KCFoKkfAJw46KOfUdMF2B', '{\"locale\":\"es\"}', '2023-06-17 16:53:31', '2023-06-17 16:53:31', NULL),
-(3, 3, 'paul.muiba', 'paul.muiba@ventas.com', 'users/default.png', NULL, '$2y$10$FH5LiMEr2Poy0HziWoxDCe92tmHZt0w1yjcO.cCUsIZAN6TjrqRlK', NULL, '{\"locale\":\"es\"}', '2023-06-28 06:01:06', '2023-06-28 06:01:06', NULL);
+(1, 1, 'admin', 'admin@admin.com', 'users/default.png', NULL, '$2y$10$PYDJlmniUdo9unXtrO4Rae/K1deMD62pNS3NoHB7mnvfUYfgWR09W', 'VwYnu2LL6D12ptyxPDPgDPWJn6BjlcQV71BHrunOWHVau3rhAAG5DdU2pXPd', NULL, '2023-06-17 16:27:11', '2023-06-17 16:27:12', NULL),
+(2, 3, 'Agente 1', 'agente@agente.com', 'users/default.png', NULL, '$2y$10$o8Zbf7OO0Co0k5bYJzHFFuRum/RqGVoypM7emY/Ts/IyejOFaksH2', 'iPdgj0hC7cB7OYefvzQyBsA3XbU8mvcZeWFxEqmZQJY1PVFxQNB4tVYtljhY', '{\"locale\":\"es\"}', '2023-06-17 16:53:31', '2023-06-17 16:53:31', NULL),
+(3, 3, 'paul.muiba', 'paul.muiba@ventas.com', 'users/default.png', NULL, '$2y$10$FH5LiMEr2Poy0HziWoxDCe92tmHZt0w1yjcO.cCUsIZAN6TjrqRlK', NULL, '{\"locale\":\"es\"}', '2023-06-28 06:01:06', '2023-06-28 06:01:06', NULL),
+(4, 3, 'percy alvarez', 'percy.alvarez@ventas.com', 'users/default.png', NULL, '$2y$10$3ARsfNgV0rEoYo1J6hQuzOSNZFUv9./8oRfGhteIP4Fbv9sJUtv0G', NULL, '{\"locale\":\"es\"}', '2023-07-07 01:08:15', '2023-07-07 01:08:15', NULL),
+(5, 1, 'Damaris Nova', 'damaris.nova@admin.com', 'users/default.png', NULL, '$2y$10$3qtM4hB/h/2yY/AhkLDGauTPClWN7XM86UmXzwXWY5U0H56ZhF/4i', NULL, '{\"locale\":\"es\"}', '2023-07-07 01:09:02', '2023-07-07 01:09:02', NULL),
+(6, 3, 'Carlos Mendoz', 'carlos.mendoza@ventas.com', 'users/default.png', NULL, '$2y$10$Aj88WLHL451URTjPH4eCUOXwLfX3ZBkUcwBOu/CEv41v4n.ypgoF6', NULL, '{\"locale\":\"es\"}', '2023-07-07 01:09:38', '2023-07-07 01:09:38', NULL);
 
 -- --------------------------------------------------------
 
@@ -954,6 +1013,12 @@ CREATE TABLE `user_roles` (
 -- Indices de la tabla `clientes`
 --
 ALTER TABLE `clientes`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `cliente_poderes`
+--
+ALTER TABLE `cliente_poderes`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1050,6 +1115,12 @@ ALTER TABLE `prestamos`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indices de la tabla `prestamo_bonos`
+--
+ALTER TABLE `prestamo_bonos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `prestamo_estados`
 --
 ALTER TABLE `prestamo_estados`
@@ -1118,7 +1189,13 @@ ALTER TABLE `user_roles`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `cliente_poderes`
+--
+ALTER TABLE `cliente_poderes`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `cliente_tipos`
@@ -1130,13 +1207,13 @@ ALTER TABLE `cliente_tipos`
 -- AUTO_INCREMENT de la tabla `data_rows`
 --
 ALTER TABLE `data_rows`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
 
 --
 -- AUTO_INCREMENT de la tabla `data_types`
 --
 ALTER TABLE `data_types`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `failed_jobs`
@@ -1148,7 +1225,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT de la tabla `gastos`
 --
 ALTER TABLE `gastos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `gasto_tipos`
@@ -1166,7 +1243,7 @@ ALTER TABLE `menus`
 -- AUTO_INCREMENT de la tabla `menu_items`
 --
 ALTER TABLE `menu_items`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `migrations`
@@ -1184,25 +1261,31 @@ ALTER TABLE `pasarelas`
 -- AUTO_INCREMENT de la tabla `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT de la tabla `prestamos`
 --
 ALTER TABLE `prestamos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `prestamo_bonos`
+--
+ALTER TABLE `prestamo_bonos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `prestamo_estados`
 --
 ALTER TABLE `prestamo_estados`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `prestamo_planes`
 --
 ALTER TABLE `prestamo_planes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `prestamo_tipos`
@@ -1226,7 +1309,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `translations`
@@ -1238,7 +1321,7 @@ ALTER TABLE `translations`
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Restricciones para tablas volcadas

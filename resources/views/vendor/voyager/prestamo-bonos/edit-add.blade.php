@@ -14,15 +14,22 @@
 @section('page_header')
     <h1 class="">
         <i class="{{ $dataType->icon }}"></i>
-        {{ __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular') }}
+        {{ $edit ? 'Kardex del' : 'Nuevo '}} {{ $dataType->getTranslatedAttribute('display_name_singular') }}
+        
     </h1>
+    @if ($edit)
+        <p>El prestamo esta conclido</p>
+    @else
+        <p>Presiona enter luego de ingresar la fecha del monto, la fecha del prestamo y el monto del bono, para calular el prestamo</p>
+    @endif
+    
     @include('voyager::multilingual.language-selector')
 @stop
 
 @section('content')
     <div class="page-content edit-add container-fluid">
         <div class="row">
-            <div class="col-md-offset-2 col-md-8">
+            <div class="col-md-offset-1 col-md-10">
 
                 <div class="panel panel-bordered">
                     <!-- form start -->
@@ -210,5 +217,55 @@
             });
             $('[data-toggle="tooltip"]').tooltip();
         });
+
+        $("#user_id").prop("readonly", true)
+        $("#user_id").val("{{ Auth::user()->id }}")
+        $("#plazo").prop("readonly", true)
+        $("#interes").prop("readonly", true)
+        $("#tipo_id").prop("readonly", true)
+        $("#estado_id").prop("readonly", true)
+        $("#m_prestamo").prop("readonly", true)
+
+        @if($edit)
+            $("#estado_id").val(4)
+            $("#f_bono").prop("readonly", true)
+            $("#f_prestamo").prop("readonly", true)
+            $("#m_bono").prop("readonly", true)
+            $("#detalle").prop("readonly", true)
+            $("#cliente_id").prop("disabled", true)
+            $("#doc_respado").prop("disabled", true)
+            
+            // $("#select2-cliente_id-container").prop("readonly", true)
+            
+        @endif
+        $("#m_bono").change(function (e) { 
+            e.preventDefault();
+            // calcular()
+        });
+
+        $("#m_bono").keypress(function (e) { 
+            var keycode = (e.keyCode ? e.keyCode : e.which);
+            if(keycode == '13'){
+           
+                calcular()
+            }
+        });
+        async function calcular(){     
+     
+            toastr.success("Calculando..")
+            var midata = await axios.post("/api/bonos/calular", {
+                // tipo_id: $("#tipo_id").val(),
+                f_bono: $("#f_bono").val(),
+                f_prestamo: $("#f_prestamo").val(),
+                f_bono: $("#f_bono").val(),
+                m_bono: $("#m_bono").val(),                
+                user_id: "{{ Auth::user()->id }}"
+            })
+            $("#plazo").val(midata.data.meses)
+            $("#interes").val(midata.data.interes)
+            $("#m_prestamo").val(midata.data.m_prestamo)
+            console.log(midata.data)
+
+        }
     </script>
 @stop

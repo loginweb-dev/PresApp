@@ -160,7 +160,7 @@ crossorigin=""/>
                                         <td>{{ $item->id }}</td>
                                         <td>{{ $item->fecha_prestamos }}</td>
                                         <td>{{ $item->observacion }}</td>                                                                                
-                                        <td><a href="#" class="btn btn-xs btn-dark">Ver</a></td>
+                                        <td><a href="/admin/prestamos/{{ $item->id }}" class="btn btn-xs btn-dark">Ver</a></td>
                                     </tr>
                                     @endforeach                                     
                                 </tbody>
@@ -183,7 +183,7 @@ crossorigin=""/>
                                         <td>{{ $item->id }}</td>
                                         <td>{{ $item->f_bono }}</td>
                                         <td>{{ $item->detalle }}</td>
-                                        <td><a href="#" class="btn btn-xs btn-dark">Ver</a></td>
+                                        <td><a href="/admin/prestamo-bonos/{{ $item->id }}/edit" class="btn btn-xs btn-dark">Ver</a></td>
                                     </tr>
                                     @endforeach                                     
                                 </tbody>
@@ -204,7 +204,11 @@ crossorigin=""/>
                                     @foreach ($mipoderes as $item)   
                                     <tr>
                                         <td>{{ $item->id }}</td>
-                                        <td>{{ $item->inicio }}</td>
+                                        <td>
+                                            {{ $item->inicio }}
+                                            <br>
+                                            {{ $item->detalle }}
+                                        </td>
                                         <td>
                                             Inicio: {{ $item->inicio }}
                                             <br>

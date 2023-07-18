@@ -15,8 +15,8 @@
     <h1>
         <i class="{{ $dataType->icon }}"></i>
         {{ __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular') }}
-        <a href="#" id="btnCalcular" class="btn btn-dark"><i class="icon voyager-activity"></i> 
-            Crear plan pagos
+        <a href="#" id="btnCalcular" class="btn btn-dark"><i class="icon voyager-helm"></i> 
+            Nuevo plan
         </a>
     </h1>
     @include('voyager::multilingual.language-selector')
@@ -584,8 +584,8 @@
                         break;
                         case "confir":
                             $("#btnGuardar").text("enviado datos...")
-                            $("#btnGuardar").prop( "disabled", true )
-                            $("#btnGuardar").prop( "readonly", true )
+                            $("#btnGuardar").prop( "disabled", true)
+                            // $("#btnGuardar").prop( "readonly", true )
                             var mitipo = await axios("/api/tipo/"+$("#tipo_id").val())
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
@@ -621,7 +621,6 @@
         })
 
         function calularCP() { 
-
             const mitipo = document.getElementById('tipo_id');
             var miinteres = 0
             var mimonto = parseFloat($("#monto").val())

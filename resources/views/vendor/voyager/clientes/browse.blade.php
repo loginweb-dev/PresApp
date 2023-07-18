@@ -9,10 +9,10 @@
             <i class="{{ $dataType->icon }}"></i> {{ $dataType->getTranslatedAttribute('display_name_plural') }}
             @can('add', app($dataType->model_name))
                 <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-dark btn-add-new">
-                    <i class="voyager-plus"></i> <span class="hidden-xs hidden-sm">Añadir</span>
+                    <i class="voyager-helm"></i> <span class="hidden-xs hidden-sm">Nuevo cliente</span>
                 </a>
                 <a href="{{ route('voyager.cliente-tipos.index') }}" class="btn btn-dark">
-                    <i class="icon voyager-data"></i> <span class="hidden-xs hidden-sm">Tipos</span>
+                    <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Tipos</span>
                 </a>
                 <a href="{{ route('voyager.cliente-poderes.index') }}" class="btn btn-dark">
                     <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Poderes</span>
