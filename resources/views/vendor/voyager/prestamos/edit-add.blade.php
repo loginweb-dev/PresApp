@@ -185,6 +185,9 @@
         var eprest = "valido"
         localStorage.removeItem("miplan")
         $("#interes").prop("readonly", true)
+        
+        $("#fecha_prestamos").val("{{ date('Y-m-d') }}")
+        $("#mes_inicio").val("{{ date('Y-m-d') }}")
         var md = window.markdownit();
 
         function deleteHandler(tag, isMulti) {
@@ -260,8 +263,6 @@
             
             toastr.info("Actualizando datos..")
             var mitipo = await axios("/api/tipo/"+this.value)
-            // console.log(mitipo.data)
-            // $("#interes").val(mitipo.data.monto_interes)
             $("#table_detalles").html("<h4>"+mitipo.data.nombre+"</h4>"+md.render(mitipo.data.detalle)+"</p><p>Redondeo: {{ setting('prestamos.redondear') }}</p><p>Requisitos: "+md.render(mitipo.data.requisitos)+"</p>")
             eprest = "valido"
             //limpiar table

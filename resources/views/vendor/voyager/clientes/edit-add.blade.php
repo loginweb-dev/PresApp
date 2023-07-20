@@ -196,7 +196,7 @@ crossorigin=""/>
                                     <tr>
                                         <th>#</th>
                                         <th>fecha</th>
-                                        <th>detalles</th>
+                                        <th>detalle</th>
                                         <th></th>
                                     </tr>
                                 </thead>

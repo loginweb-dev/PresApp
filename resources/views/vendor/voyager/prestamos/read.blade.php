@@ -2,7 +2,6 @@
 
 @php
     $miplan = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->with("pasarelas")->get();
-
     //prestamo
     $miplan2 = App\Prestamo::where("id", $dataTypeContent->getKey())->with("tipo")->first();
     $pasarelas = App\Pasarela::all();
@@ -10,15 +9,12 @@
     $countcnp = 0;
     $count_mora = 0;
     $dias_mora = 0;
-
     $mimora = [];
-
     //pago actual
     $miplan3 = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->where("pagado", 0)->first();
-
     //cliente
     $micliente = App\Cliente::find($miplan2->cliente_id);
-    @endphp
+@endphp
 
 @section('page_title', __('voyager::generic.view').' '.$dataType->getTranslatedAttribute('display_name_singular'))
 
@@ -43,7 +39,7 @@
             @endif
         @endcan
         @can('browse', $dataTypeContent)
-            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modal_mora">
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
 
@@ -229,8 +225,8 @@
                                                         {{ $midiff->format("%R%a Dias") }}
                                                     </span>
                                                 @else
-                                                    # {{ $item->id }}<br>
-                                                    ID {{ $item->nro }}   
+                                                    # {{ $item->nro }} <br>                                               
+                                                    ID {{ $item->id }}                                                    
                                                 @endif                                                             
                                             </td>
                                             <td class="text-center">
@@ -588,7 +584,7 @@
                     
                         <div class="form-group col-xs-4">
                             <label for="">Deuda actual</label>                            
-                            <input type="number" name="" id="" value="{{ $miplan3->monto }}" class="form-control" readonly>
+                            <input type="number" name="" id="" value="{{ number_format($miplan3->monto, 2, '.', '') }}" class="form-control" readonly>
                         </div>
                         
                         <div class="col-sm-4 form-group">
@@ -597,14 +593,13 @@
                                 $ideuda = $miplan2->interes * $miplan3->monto;
                                 $icapital = $miplan3->monto - $ideuda;
                             @endphp
-                            <input type="number" class="form-control" id="" value="{{ $miplan3->interes }}" readonly>
+                            <input type="number" class="form-control" id="" value="{{ number_format($miplan3->interes, 2, '.', '') }}" readonly>
                         </div>
 
                         <div class="col-sm-4 form-group">
                             <label for="">Capital de la deuda</label>
-                            <input type="number" class="form-control" id="" value="{{ $miplan3->capital }}" readonly>
+                            <input type="number" class="form-control" id="" value="{{ number_format($miplan3->capital, 2, '.', '') }}" readonly>
                         </div>
-
                  
 
                         <div class="col-sm-4 form-group">
@@ -617,40 +612,34 @@
                                 <a href="#" class="btn btn-dark" onclick="btn_mora()">Re-calcular deuda</a>
                             </div>
                         </div>
-                
+                    
                         <div class="col-sm-4 form-group">
                             <label for="">deuda acumulada</label>
                             <input type="text" class="form-control" id="mora_deuda" value="0" readonly>
                         </div>
 
-                        <div class="col-sm-12 form-group">
-                            
-                            <div class="table-responsive">
-                                <table class="table table-hover table-bordered" id="tabla-mora">
-                                    <thead>
-                                        <tr>
-                                            <th>NRO</th>
-                                            <th>MES</th>                                            
-                                            <th>MONTO</th>
-                                            <th>INTERES</th>
-                                            <th>CAPITAL</th>
-                                            <th>CUOTA</th>
-                                            <th>DEUDA</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>                                
-                            </div>   
+                        <div class="form-group col-xs-6">
+                            <label for="">Pasarela</label>
+                            <select name="" id="mora_pasarela" class="form-control">
+                                @foreach ($pasarelas as $item)
+                                    <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group col-xs-6">
+                            <label for="">Fecha de pago</label>
+                            <input type="date" name="" id="mora_fecha" class="form-control" value="{{ date("Y-m-d") }}">
                         </div>
 
                         <div class="col-sm-12 form-group">
                             <label for="">Detalle</label>
-                            <textarea name="" id=""  class="form-control"></textarea>
+                            <textarea name="" id="mora_detalle"  class="form-control">Pago con mora</textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn btn-dark pull-right">
+                    <a href="#" onclick="mipago_mora()" class="btn btn-dark pull-right">
                         <i class="icon voyager-pen"></i> Pagar con mora
                     </a>
                 </div>
@@ -759,11 +748,10 @@
                 'https://wa.me/'+miwhats+'?text='+misms,
                 '_blank'
             );
-         }
-
+        }
         
-         //cargar plan de pago        
-        async function pagar(id){
+        //cargar plan de pago                
+         async function pagar(id){
             $('#modal_pagar').modal('show');
             var mipago = await axios("/api/plan/"+id)
             // $('#mmonto').val(mipago.data.monto.toFixed(2));
@@ -860,50 +848,6 @@
             toastr.info("Cantidad faltante: "+mideuda.toFixed(2))
         }
 
-        function mipago_mora(){
-            if(!$("#fecha_pago").val()){
-                swal({
-                    icon: "error",
-                    title: "Ingresa la fecha de pago"
-                })
-                return true;
-            }      
-            swal({
-                icon: "info",
-                title:  "Esta segur@ de realizar el pago con mora ?",                
-                buttons: {
-                    cancel: "Cancelar",
-                    confir: "Confirmar",
-                },
-                }).then(async (value) => {
-                    switch (value) {
-                        case "cancel":
-                            console.log("cerrar")
-                            $('#modal_pagar').modal('hide');
-                        break;
-                        case "confir":
-                            var miplan = JSON.parse(localStorage.getItem("miplan")) 
-                            var mideuda = parseFloat(miplan.cuota) - $("#mcuota").val()
-                            var mipago = await axios.post("/api/plan/update/mora", {
-                                id: $('#plan_id').val(),
-                                fecha_pago: $('#fecha_pago').val(),
-                                pasarela_id: $('#pasarela_id').val(),
-                                observacion: $('#mobserv').val(),
-                                user_id: "{{ Auth::user()->id }}",
-                                mora: mideuda,
-                                deuda: $('#mdeuda').val(),
-                                capital: $('#mcapital').val(),
-                                cuota: $('#mcuota').val(),
-                                interes: $('#minteres').val(),
-                                tipo_id: {{ $miplan2->tipo_id }},
-                                monto_inicial: {{ $miplan2->monto }}
-                            })
-                            location.reload()
-                        break;
-                    }
-                }
-            );    
-        }
 
         //crear plan nuevo
         function btnplan() {
@@ -1162,156 +1106,67 @@
             );
         }
 
-        //calcular mora
-        const tabla_mora = document.querySelector('#tabla-mora tbody');
-        function btn_mora() {
-            // toastr.info("proceso exitoso..")                        
-            // var new_data  = {
-            //     interes: $("#minteres").val(),
-            //     capital: $("#mcapital").val(),
-            //     deuda: $("#mdeuda").val()
-            // }
-            // mcuota
-            // $("#minteres").val(new_data.interes)
-            // var new_interes =   parseFloat($("#new_monto").val())
-
-            
-            //limpiar table
-            while(tabla_mora.firstChild){
-                tabla_mora.removeChild(tabla_mora.firstChild);
-            }
-
-            //variables
+        //calcular mora -----------------------------------------------------------------------------
+        async function btn_mora() {
             var monto = $("#mora_pago").val()
-            var tiempo = ({{ $miplan2->plazo}} - {{ $miplan3->nro }})
+            var tiempo = ({{ $miplan2->plazo}} - {{ $miplan3->nro }}) + 1
             var pmensual = {{ $miplan3->cuota }} 
-            var mesinicio = "{{ $miplan3->fecha }}"
-            var minro = {{ $miplan3->nro }} - 1
-
-            console.log({{ $miplan2->tipo_id }})
-            if ({{ $miplan2->tipo_id }} === 1) {                 
-                //procesamiento
-                let fechas = [];
-                let fecha = [];
-                var miplan = []
-                let mes_actual = moment(mesinicio);
-                var mideuda = 0
-                var mimonto = 0
-                var miaxu = 0
-                var mitotal = 0
-                var mitotalI = 0
-                var miinteres = parseFloat(0.03 * monto)
-                var micapital = parseFloat(pmensual-miinteres)
-                var miaxu2 = 0 //%
-                for(let i = 1; i <= tiempo; i++) {               
-                    fechas[i] = mes_actual.format('MMMM-YY');
-                    fecha[i] = mes_actual.format('YYYY-MM-DD');
-                    mes_actual.add(1, 'month');
-                    if (i == 1) {
-                        mimonto = parseFloat(monto)
-                        mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
-                        miaxu = parseFloat(mideuda)     
-                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
-                    } else if(i == tiempo){
-                        mimonto = parseFloat(miaxu)
-                        pmensual = parseFloat(mimonto) + parseFloat(miinteres) 
-                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))    
-                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)      
-                    } else {
-                        mimonto = parseFloat(miaxu)
-                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
-                        miaxu = parseFloat(mideuda)
-                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
-                    }
-                    miaxu2 = 100 - miaxu2
-                    minro = minro + 1
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${minro}</td>
-                        <td>${fechas[i]}</td>                    
-                        <td>${mimonto.toFixed(2)}</td>
-                        <td>${miinteres.toFixed(2)}</td>
-                        <td>${micapital.toFixed(2)}</td>
-                        <td>${pmensual.toFixed(2)}</td>
-                        <td>${mideuda.toFixed(2)}</td>
-                    `;
-                    tabla_mora.appendChild(row)
-
-                    // if (mideuda < 0) {
-                    //     row.style.backgroundColor = "#C95D58"
-                    //     eprest = "invalido"
-                    // }
-                    
-                    mitotal = parseFloat(mitotal) + parseFloat(pmensual)
-                    mitotalI = parseFloat(mitotalI + miinteres)
-                    miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': minro})
-                }             
-            } else if({{ $miplan2->tipo_id }} === 2){                
-                let fechas = [];
-                let fecha = [];
-                var miplan = []
-                let mes_actual = moment(mesinicio);
-                var mideuda = 0
-                var mimonto = 0
-                var miaxu = 0
-                var mitotal = 0
-                var mitotal = 0
-                var mitotalI = 0
-                var miinteres = parseFloat(0.05 * monto)
-                var micapital = parseFloat(pmensual-miinteres)       
-                var miaxu2 = 0 //%
-                for(let i = 1; i <= tiempo; i++) {
-                    fechas[i] = mes_actual.format('MMMM-YY');
-                    fecha[i] = mes_actual.format('YYYY-MM-DD');
-                    mes_actual.add(1, 'month');
-                    if (i == 1) {
-                        mimonto = parseFloat(monto)
-                        mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
-                        miaxu = parseFloat(mideuda)
-                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)       
-                    } else if(i == tiempo){
-                        mimonto = parseFloat(miaxu)                
-                        miinteres = parseFloat(interes * mimonto)
-                        pmensual = parseFloat(parseFloat(mimonto) + parseFloat(miinteres))
-                        micapital = parseFloat(pmensual-miinteres)     
-                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
-                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
-                    } else {
-                        mimonto = parseFloat(miaxu)                                    
-                        miinteres = parseFloat(interes * mimonto)
-                        micapital = parseFloat(pmensual-miinteres) 
-                        mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))  
-                        miaxu = parseFloat(mideuda) 
-                        miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
-                    }
-                    miaxu2 = 100 - miaxu2
-
-                    const row = document.createElement('tr');
-                    row.innerHTML = `                    
-                        <td>${i}</td>
-                        <td>${fechas[i]}</td>
-                        <td>${mimonto.toFixed(2)}</td>
-                        <td>${miinteres.toFixed(2)}</td>
-                        <td>${micapital.toFixed(2)}</td>
-                        <td>${pmensual.toFixed(2)}</td>
-                        <td>${mideuda.toFixed(2)}</td>
-                    `;
-                    llenarTabla.appendChild(row)
-                    
-                    if (mideuda < 0) {
-                        row.style.backgroundColor = "#C95D58"
-                        eprest = "invalido"
-                    }
-
-                    mitotal = parseFloat(mitotal) + parseFloat(pmensual)
-                    mitotal+=pmensual
-                    mitotalI+=miinteres
-                    miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': pmensual, 'deuda': mideuda, 'nro': i})                
-                }
-            }
+            var mesinicio = "{{ $miplan3->fecha }}"     
+            var nueva_deuda = {{ $miplan3->monto }} + ({{ $miplan3->cuota }} - $("#mora_pago").val())
+            $("#mora_deuda").val(nueva_deuda.toFixed(2))
         }
 
-        //calular amort
+        function mipago_mora(){
+            if(!$("#mora_fecha").val()){
+                swal({
+                    icon: "error",
+                    title: "Ingresa la fecha de pago"
+                })
+                return true;
+            }    
+            if(!$("#mora_detalle").val()){
+                swal({
+                    icon: "error",
+                    title: "Ingresar el detalle"
+                })
+                return true;
+            } 
+              
+            swal({
+                icon: "info",
+                title:  "Esta segur@ de realizar el pago con mora ?",                
+                buttons: {
+                    cancel: "Cancelar",
+                    confir: "Confirmar",
+                },
+                }).then(async (value) => {
+                    switch (value) {
+                        case "cancel":
+                            console.log("cerrar")
+                            $('#modal_pagar').modal('hide');
+                        break;
+                        case "confir":
+                        var midata = await axios.post("/api/plan/update/mora", {
+                            plan_id: {{ $miplan3->id }},
+                            nueva_deuda: $("#mora_deuda").val(),
+                            pago_parcial: $("#mora_pago").val(),
+                            mora_detalle: $("#mora_detalle").val(),
+                            mora_pasarela: $("#mora_pasarela").val(),
+                            mora_fecha: $("#mora_fecha").val(),
+                            user_id: {{ Auth::user()->id }},
+                            plazo: {{ $miplan2->plazo }},
+                            prestamo_id: {{ $miplan2->id }},
+                            tipo_id: {{ $miplan2->tipo_id }}
+                        })
+                        console.log(midata.data)
+                        location.reload()
+                        break;
+                    }
+                }
+            );    
+        }
+
+        //amortizacion ------------------------------------------------------------------------
         function btn_amort() {
             var mindeuda = parseFloat($("#acapital").val()) - (parseFloat($("#apago").val()) - parseFloat($("#ainteres").val()))
             $("#andeuda").val(mindeuda)
