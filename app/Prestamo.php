@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Prestamo extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
     protected $cascadeSoftDeletes = ['prestamo_planes'];
     protected $fillable = ['cliente_id', 'tipo_id','user_id','plazo','monto','interes','cuota','observacion', 'mes_inicio', 'estado_id', 'fecha_prestamos'];
     

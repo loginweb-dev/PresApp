@@ -383,5 +383,14 @@ crossorigin=""></script>
         });
 
 
+        $("#telefono").change(function (e) { 
+            e.preventDefault();
+            
+            console.log(e)
+        });
+
+        $("#telefono").keyup(function (e) { 
+            console.log(this.value.length)
+        });
     </script>
 @stop

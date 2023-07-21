@@ -8,6 +8,6 @@ use TCG\Voyager\Traits\Spatial;
 
 class Cliente extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
     use Spatial;
 }

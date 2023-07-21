@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class PrestamoPlane extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
     protected $fillable = ['mes', 'nro','monto','interes','capital','cuota','deuda','pagado', 'observacion', 'prestamo_id', 'fecha', 'pasarela_id', 'fecha_pago', 'user_id', 'mora', 'refin', 'amort', 'p_final'];
 
     // protected $appends=['published'];

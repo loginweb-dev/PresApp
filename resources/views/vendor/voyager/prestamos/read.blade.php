@@ -27,7 +27,7 @@
                 <i class="glyphicon glyphicon-pencil"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::generic.edit') }}</span>
             </a>
         @endcan
-        @can('delete', $dataTypeContent)
+        {{-- @can('delete', $dataTypeContent)
             @if($isSoftDeleted)
                 <a href="{{ route('voyager.'.$dataType->slug.'.restore', $dataTypeContent->getKey()) }}" title="{{ __('voyager::generic.restore') }}" class="btn btn-default restore" data-id="{{ $dataTypeContent->getKey() }}" id="restore-{{ $dataTypeContent->getKey() }}">
                     <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::generic.restore') }}</span>
@@ -37,7 +37,7 @@
                     <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">{{ __('voyager::generic.delete') }}</span>
                 </a>
             @endif
-        @endcan
+        @endcan --}}
         @can('browse', $dataTypeContent)
             <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>

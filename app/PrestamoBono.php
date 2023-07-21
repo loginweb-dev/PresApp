@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class PrestamoBono extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
 
     public function estado()
     {

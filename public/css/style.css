@@ -1,0 +1,15 @@
+td {
+    border: thin solid black;
+}
+th, tfoot td {
+    border: thin solid black;
+    text-align: center;
+    font-weight: bold;
+    
+}
+tbody tr td{
+    border-bottom: 1pt solid black;
+    font-size: 110%;
+    font-weight: bold;
+    border: solid black;
+}

@@ -15,7 +15,7 @@ use App\Http\Controllers\PrestamoController;
 
 Route::get('/', function () {
     // return view('welcome');
-    return redirect('/docs');
+    return redirect('/admin');
 });
 
 
