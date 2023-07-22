@@ -4,6 +4,9 @@
     $miprestamos = App\Prestamo::where("cliente_id", $dataTypeContent->getKey())->with("estado")->get();
     $mibonos = App\PrestamoBono::where("cliente_id", $dataTypeContent->getKey())->with("estado")->get();
     $mipoderes = App\ClientePodere::where("cliente_id", $dataTypeContent->getKey())->get();
+
+    $micliente = App\Cliente::find($dataTypeContent->getKey());
+    $michats = App\History::where("phone", '591'.$micliente->telefono)->get();
     @endphp
 
 @extends('voyager::master')
@@ -11,25 +14,7 @@
 @section('css')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <style>
-.card {
-  /* Add shadows to create the "card" effect */
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-}
-
-/* On mouse-over, add a deeper shadow */
-.card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-
-/* Add some padding inside the card container */
-.container {
-  padding: 2px 16px;
-}
-    </style>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
 crossorigin=""/>
 @stop
@@ -40,7 +25,12 @@ crossorigin=""/>
     <h1 class="">
         <i class="{{ $dataType->icon }}"></i>
         @if ($edit)
-            Kardex del cliente
+        Kardex del cliente
+            @if (count($miprestamos) == 0 || Auth::user()->role_id == 1)                           
+                <a href="#" onclick="miedit()" id="mieditar" class="btn btn-dark"><i class="icon voyager-helm"></i> 
+                    <span>Editar</span> 
+                </a>
+            @endif
         @else
             Nuevo cliente
         @endif
@@ -126,7 +116,7 @@ crossorigin=""/>
 
                         <div class="panel-footer">
                             @section('submit-buttons')
-                                <button type="submit" class="btn btn-dark btn-block save">{{ __('voyager::generic.save') }}</button>
+                                <button type="submit" id="miboton" class="btn btn-dark btn-block save">{{ __('voyager::generic.save') }}</button>
                             @stop
                             @yield('submit-buttons')
                         </div>
@@ -141,8 +131,9 @@ crossorigin=""/>
             <div class="col-md-6">
                 {{-- <div class="panel panel-bordered"> --}}
                     <h4>Ubicacion</h4>
-                    <div style="width: 100%; height: 400px" id="map"></div>
+                    <div style="width: 100%; height: 300px" id="map"></div>
                     @if ($edit)
+                    <hr>
                         <h4>Historial prestamos</h4>   
                         <div class="row">
                             <table class="table">
@@ -226,6 +217,31 @@ crossorigin=""/>
                                 </tbody>
                             </table>
                         </div>
+                        <h4>Historial chats</h4>    
+                        <div class="row">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>fecha</th>
+                                        <th>detalle</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>                                   
+                                    @foreach ($michats as $item)   
+                                    <tr>
+                                        <td>{{ $item->id }}</td>
+                                        <td>{{ $item->created_at }}</td>
+                                        <td>
+                                            {{ $item->answer }}
+                                        </td>
+
+                                    </tr>
+                                    @endforeach                                     
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
                   
                 {{-- </div> --}}
@@ -286,6 +302,9 @@ crossorigin=""></script>
         $('document').ready(async function () {
             $('.toggleswitch').bootstrapToggle();
 
+            @if ($edit)
+                miupdated(true)
+            @endif
             //Init datepicker for date fields if data-datepicker attribute defined
             //or if browser does not handle date inputs
             $('.form-group input[type=date]').each(function (idx, elt) {
@@ -334,8 +353,7 @@ crossorigin=""></script>
 
 
          
-            // $("#latitude").prop("readonly", true)
-            // $("#longitude").prop("readonly", true)
+
             var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap'
             });
@@ -392,5 +410,32 @@ crossorigin=""></script>
         $("#telefono").keyup(function (e) { 
             console.log(this.value.length)
         });
+
+        function miupdated(mivar){
+            $("#latitude").prop("readonly", mivar)
+            $("#longitude").prop("readonly", mivar)
+            $("#nombre_completo").prop("readonly", mivar)
+            $("#d_domicilio").prop("readonly", mivar)
+            $("#d_trabajo").prop("readonly", mivar)
+            $("#carnet_indentidad").prop("readonly", mivar)
+            $("#telefono").prop("readonly", mivar)
+            $("#nro_cuenta").prop("readonly", mivar)
+            $("#token_cuenta").prop("readonly", mivar)
+            $("#clave_cuenta").prop("readonly", mivar)
+            $("#nro_tarjeta").prop("readonly", mivar)
+            $("#pin_tarjeta").prop("readonly", mivar)
+
+            $("#tipo_id").prop("disabled", mivar)
+            $("#documentos_respaldo").prop("disabled", mivar)
+            $("#foto_principal").prop("disabled", mivar)
+            $("#miboton").prop("disabled", mivar)
+            
+        }
+
+        function miedit(mivar) {
+            miupdated(false)
+            $("#mieditar").hide()
+            // $("#mieditar").prop("readonly", true)
+        }
     </script>
 @stop

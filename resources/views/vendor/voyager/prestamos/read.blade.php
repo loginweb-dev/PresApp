@@ -39,7 +39,7 @@
             @endif
         @endcan --}}
         @can('browse', $dataTypeContent)
-            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
+            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modal_mora">
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
 
@@ -364,21 +364,6 @@
                             <label for="">Fecha</label>
                             <input type="date" name="" id="fecha_pago" class="form-control" value="{{ date("Y-m-d") }}">
                         </div>
-
-                     
-                            <div class="form-group col-xs-4">
-                                <label for="">Dias en mora</label>
-                                <input type="number" name="" id="mora_dias" class="form-control" value="" readonly>
-                            </div>
-  
-                            <div class="form-group col-xs-4">
-                                <label for="">Interes de la mora</label>
-                                <input type="number" name="" id="mora_interes" class="form-control" value="" readonly>
-                            </div>
-                            <div class="form-group col-xs-4">
-                                <label for="">Pago final</label>
-                                <input type="number" name="" id="p_final" class="form-control" value="">
-                            </div>
                       
                         <div class="form-group col-xs-12">
                             <label for="">Observaciones</label>
@@ -632,6 +617,22 @@
                             <input type="date" name="" id="mora_fecha" class="form-control" value="{{ date("Y-m-d") }}">
                         </div>
 
+                        
+                     
+                        <div class="form-group col-xs-4">
+                            <label for="">Dias en mora</label>
+                            <input type="number" name="" id="mora_dias" class="form-control" value="" readonly>
+                        </div>
+
+                        <div class="form-group col-xs-4">
+                            <label for="">Interes de la mora</label>
+                            <input type="number" name="" id="mora_interes" class="form-control" value="" readonly>
+                        </div>
+                        <div class="form-group col-xs-4">
+                            <label for="">Pago final</label>
+                            <input type="number" name="" id="p_final" class="form-control" value="">
+                        </div>
+
                         <div class="col-sm-12 form-group">
                             <label for="">Detalle</label>
                             <textarea name="" id="mora_detalle"  class="form-control">Pago con mora</textarea>
@@ -692,7 +693,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn btn-success pull-right" onclick="whatsapp()">
+                    <a href="#" class="btn btn-dark pull-right" onclick="whatsapp()">
                         <i class="icon voyager-pen"></i> Enviar por whatsapp
                     </a>
                 </div>
@@ -754,15 +755,6 @@
          async function pagar(id){
             $('#modal_pagar').modal('show');
             var mipago = await axios("/api/plan/"+id)
-            // $('#mmonto').val(mipago.data.monto.toFixed(2));
-            // $('#mnumero').val(mipago.data.nro);
-            // $('#mdeuda').val(mipago.data.deuda.toFixed(2));
-            // $('#mcuota').val(mipago.data.cuota);
-            // $('#minteres').val(mipago.data.interes.toFixed(2));
-            // $('#mcapital').val(mipago.data.capital.toFixed(2));
-            // $('#plan_id').val(id);
-            // localStorage.setItem("miplan", JSON.stringify(mipago.data))
-
             var mora_update =  await axios.post("/api/plan/mora/dias", {
                 fecha: mipago.data.fecha,
                 cuota: mipago.data.cuota,
@@ -807,8 +799,8 @@
                                 fecha_pago: $('#fecha_pago').val(),
                                 pasarela_id: $('#pasarela_id').val(),
                                 observacion: $('#mobserv').val(),
-                                user_id: "{{ Auth::user()->id }}",
-                                p_final: $('#p_final').val()
+                                user_id: {{ Auth::user()->id }},
+                                p_final: {{ $miplan3->cuota }}
                             })
                             // console.log(mipago.data)
                             location.reload()

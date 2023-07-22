@@ -14,11 +14,8 @@ use App\Http\Controllers\PrestamoController;
 */
 
 Route::get('/', function () {
-    // return view('welcome');
     return redirect('/admin');
 });
-
-
 
 Route::get('/reset-db', function () {
     App\Prestamo::truncate();
@@ -28,21 +25,15 @@ Route::get('/reset-db', function () {
     App\PrestamoBono::truncate();
     App\Gasto::truncate();
     App\Reporte::truncate();
+    App\History::truncate();
     return redirect('/admin');
 })->name('reset-db');
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
-
-    // Route::get('/reportes', function () {
-    //     return view('reportes');
-    // });
-
     Route::get('bot-whatsapp', function () {
         return view('bot-whatsapp');
-        // return redirect('/admin');
     });
-
     Route::post('/prestamo/store', [PrestamoController::class, 'prestamo_store'])->name('prestamo_store');
     Route::get('/pdf/prestamo/{id}', [PrestamoController::class, 'pdf_prestamo'])->name('pdf_prestamo');
 });

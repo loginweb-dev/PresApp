@@ -70,8 +70,8 @@ Route::post('upload', function (Request $request) {
     }
     return true;
 });
-Route::get('prestamo/{id}', function ($id) {
-    return App\Prestamo::where('id', $id)->with('cliente', 'tipo', 'user')->first();
+Route::get('prestamo/{id}', function ($codigo) {
+    return App\Prestamo::where('codigo', $codigo)->with('cliente', 'tipo', 'user')->first();
 });
 
 // planes-------------------------------------------------------

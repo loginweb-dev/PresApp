@@ -16,7 +16,7 @@
         <i class="{{ $dataType->icon }}"></i>
         {{ __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular') }}
         <a href="#" id="btnCalcular" class="btn btn-dark"><i class="icon voyager-helm"></i> 
-            Nuevo plan
+            Crear plan plagos
         </a>
     </h1>
     @include('voyager::multilingual.language-selector')
@@ -367,28 +367,54 @@
             var mitotalI = 0
             var miinteres = parseFloat(interes * monto)
             var micapital = parseFloat(pmensual-miinteres)
-            var miaxu2 = 0 //%
+
             for(let i = 1; i <= tiempo; i++) {               
                 fechas[i] = mes_actual.format('MMMM-YY');
                 fecha[i] = mes_actual.format('YYYY-MM-DD');
                 mes_actual.add(1, 'month');
                 if (i == 1) {
-                    mimonto = parseFloat(monto)
-                    mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                    mimonto = parseFloat(monto)                    
+                    switch ("{{ setting('prestamos.redondear') }}") {
+                        case 'nor':
+                            mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                            break;
+                        case 'rmx':
+                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))
+                            break;
+                        case 'rmi':
+                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))                
+                            break;
+                    }
                     miaxu = parseFloat(mideuda)     
-                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
                 } else if(i == tiempo){
                     mimonto = parseFloat(miaxu)
                     pmensual = parseFloat(mimonto) + parseFloat(miinteres) 
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))    
-                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)      
+                    switch ("{{ setting('prestamos.redondear') }}") {
+                        case 'nor':
+                            mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                            break;
+                        case 'rmx':
+                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))
+                            break;
+                        case 'rmi':
+                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))                
+                            break;
+                    }    
                 } else {
                     mimonto = parseFloat(miaxu)
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                    switch ("{{ setting('prestamos.redondear') }}") {
+                        case 'nor':
+                            mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
+                            break;
+                        case 'rmx':
+                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))
+                            break;
+                        case 'rmi':
+                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))                
+                            break;
+                    }
                     miaxu = parseFloat(mideuda)
-                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
                 }
-                miaxu2 = 100 - miaxu2
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -463,33 +489,57 @@
             var mitotalI = 0
             var miinteres = parseFloat(interes * monto)
             var micapital = parseFloat(pmensual-miinteres)       
-            var miaxu2 = 0 //%
             for(let i = 1; i <= tiempo; i++) {
                 fechas[i] = mes_actual.format('MMMM-YY');
                 fecha[i] = mes_actual.format('YYYY-MM-DD');
                 mes_actual.add(1, 'month');
                 if (i == 1) {
                     mimonto = parseFloat(monto)
-                    mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
-                    miaxu = parseFloat(mideuda)
-                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto)       
+                    switch ("{{ setting('prestamos.redondear') }}") {
+                        case 'nor':
+                            mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)) 
+                            break;
+                        case 'rmx':
+                            mideuda = Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))  
+                            break;
+                        case 'rmi':
+                            mideuda = Math.round(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))                       
+                            break;
+                    }
+                    miaxu = parseFloat(mideuda)                        
                 } else if(i == tiempo){
                     mimonto = parseFloat(miaxu)                
                     miinteres = parseFloat(interes * mimonto)
                     pmensual = parseFloat(parseFloat(mimonto) + parseFloat(miinteres))
                     micapital = parseFloat(pmensual-miinteres)     
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))
-                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
+                    switch ("{{ setting('prestamos.redondear') }}") {
+                        case 'nor':
+                            mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)) 
+                            break;
+                        case 'rmx':
+                            mideuda = Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))  
+                            break;
+                        case 'rmi':
+                            mideuda = Math.round(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))                       
+                            break;
+                    }
                 } else {
                     mimonto = parseFloat(miaxu)                                    
                     miinteres = parseFloat(interes * mimonto)
                     micapital = parseFloat(pmensual-miinteres) 
-                    mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual))  
+                    switch ("{{ setting('prestamos.redondear') }}") {
+                        case 'nor':
+                            mideuda = parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)) 
+                            break;
+                        case 'rmx':
+                            mideuda = Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))  
+                            break;
+                        case 'rmi':
+                            mideuda = Math.round(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(pmensual)))                       
+                            break;
+                    }
                     miaxu = parseFloat(mideuda) 
-                    miaxu2 = (parseFloat(mideuda) * 100) / parseFloat(mimonto) 
                 }
-                miaxu2 = 100 - miaxu2
-
                 const row = document.createElement('tr');
                 row.innerHTML = `                    
                     <td>${i}</td>
