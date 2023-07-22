@@ -2,6 +2,7 @@
 /public/hot
 /public/base-baileys-mysql/node_modules
 /public/base-baileys-mysql/bot_sessions
+/public/base-baileys-mysql/core.class.log
 /public/storage
 /storage/*.key
 /vendor
