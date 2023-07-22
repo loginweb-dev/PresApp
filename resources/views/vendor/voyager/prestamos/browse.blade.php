@@ -46,8 +46,8 @@
         @include('voyager::alerts')
         <div class="row">
             <div class="col-md-12">
-                <div class="panel panel-bordered">
-                    <div class="panel-body">
+                {{-- <div class="panel panel-bordered"> --}}
+                    {{-- <div class="panel-body"> --}}
                         @if ($isServerSide)
                             <form method="get" class="form-search">
                                 <div id="search-input">
@@ -296,8 +296,8 @@
                                 ])->links() }}
                             </div>
                         @endif
-                    </div>
-                </div>
+                    {{-- </div> --}}
+                {{-- </div> --}}
             </div>
         </div>
     </div>

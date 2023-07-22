@@ -59,7 +59,7 @@
         <div class="row">
             <div class="col-sm-3">
 
-                <div class="panel panel-bordered" style="padding-bottom:5px;">
+                {{-- <div class="panel panel-bordered" style="padding-bottom:5px;"> --}}
                     <!-- form start -->
                     @foreach($dataType->readRows as $row)
                         @php
@@ -164,11 +164,11 @@
                         @endif
                     @endforeach
 
-                </div>
+                {{-- </div> --}}
             </div>
 
             <div class="col-sm-9">
-                <div class="panel panel-bordered">
+                {{-- <div class="panel panel-bordered"> --}}
                     {{-- <div class="panel-body"> --}}
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered">
@@ -220,7 +220,7 @@
                                                         array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
                                                     @endphp
                                                     <span class="badge badge-pill badge-primary">
-                                                        {{ $item->nro }} en mora
+                                                        {{ $item->id }} en mora
                                                         <br>
                                                         {{ $midiff->format("%R%a Dias") }}
                                                     </span>
@@ -296,7 +296,7 @@
                             @endphp
                         </div>
                     {{-- </div> --}}
-                </div>
+                {{-- </div> --}}
             </div>
         </div>
     </div>

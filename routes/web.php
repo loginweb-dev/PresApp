@@ -19,6 +19,7 @@ Route::get('/', function () {
 });
 
 
+
 Route::get('/reset-db', function () {
     App\Prestamo::truncate();
     App\PrestamoPlane::truncate();
@@ -36,6 +37,11 @@ Route::group(['prefix' => 'admin'], function () {
     // Route::get('/reportes', function () {
     //     return view('reportes');
     // });
+
+    Route::get('bot-whatsapp', function () {
+        return view('bot-whatsapp');
+        // return redirect('/admin');
+    });
 
     Route::post('/prestamo/store', [PrestamoController::class, 'prestamo_store'])->name('prestamo_store');
     Route::get('/pdf/prestamo/{id}', [PrestamoController::class, 'pdf_prestamo'])->name('pdf_prestamo');

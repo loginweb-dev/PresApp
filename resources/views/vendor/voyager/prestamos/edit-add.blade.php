@@ -587,6 +587,7 @@
                             $("#btnGuardar").text("enviado datos...")
                             $("#btnGuardar").prop( "disabled", true)
                             // $("#btnGuardar").prop( "readonly", true )
+                            var codigo = (Math.random() + 1).toString(36).substring(7);
                             var mitipo = await axios("/api/tipo/"+$("#tipo_id").val())
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
@@ -600,7 +601,8 @@
                                 user_id:  "{{ Auth::user()->id }}",
                                 mes_inicio:  $("#mes_inicio").val(),
                                 fecha_prestamos:  $("#fecha_prestamos").val(),
-                                miplan: miplan
+                                miplan: miplan,
+                                codigo: codigo
                             })
 
                             if(document.getElementById('documentos').files[0]){

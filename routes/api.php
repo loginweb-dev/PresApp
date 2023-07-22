@@ -35,7 +35,8 @@ Route::post('prestamos/store', function (Request $request) {
         'observacion' => $request->observacion,
         'mes_inicio' => $request->mes_inicio,
         'estado_id' => $request->estado_id,
-        'fecha_prestamos' => $request->fecha_prestamos
+        'fecha_prestamos' => $request->fecha_prestamos,
+        'codigo' => $request->codigo
     ]);
 
     $micount =  json_decode($request->miplan);
@@ -69,7 +70,9 @@ Route::post('upload', function (Request $request) {
     }
     return true;
 });
-
+Route::get('prestamo/{id}', function ($id) {
+    return App\Prestamo::where('id', $id)->with('cliente', 'tipo', 'user')->first();
+});
 
 // planes-------------------------------------------------------
 Route::get('plan/{id}', function ($id) {
