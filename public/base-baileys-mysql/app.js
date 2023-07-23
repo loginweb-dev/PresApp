@@ -1,21 +1,20 @@
-const { createBot, createProvider, createFlow, addKeyword} = require('@bot-whatsapp/bot')
+const { createBot, createProvider, createFlow, addKeyword, EVENTS} = require('@bot-whatsapp/bot')
 const axios = require('axios')
 const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const MySQLAdapter = require('@bot-whatsapp/database/mysql')
-
-const MYSQL_DB_HOST = 'localhost'
-const MYSQL_DB_USER = 'root'
-const MYSQL_DB_PASSWORD = ''
-const MYSQL_DB_NAME = 'presapp3'
-const MYSQL_DB_PORT = '3306'
-
 require('dotenv').config({path: '../../.env'})
+
+const MYSQL_DB_HOST = process.env.DB_HOST
+const MYSQL_DB_USER = process.env.DB_USERNAME
+const MYSQL_DB_PASSWORD = process.env.DB_PASSWORD
+const MYSQL_DB_NAME = process.env.DB_DATABASE
+const MYSQL_DB_PORT = process.env.DB_PORT
+
 
 const flujoMenu1 = addKeyword('1')
     .addAnswer('Ingresa el codigo asignado de tu prestamo', { capture: true })
     .addAnswer('Resultado de la conulta: ', null, async (ctx, {flowDynamic}) => {
         const midata = await axios(process.env.APP_URL+"/api/prestamo/"+ctx.body)
-        console.log(midata.data)
         if(!midata.data){
             await flowDynamic([{body: 'Sin datos, vulva a intertar desde el inicio (enviando un hola)'}])
         }else{
@@ -23,7 +22,31 @@ const flujoMenu1 = addKeyword('1')
         }
     })
 
+const flujoMenu2 = addKeyword('2')
+    .addAnswer('Estos son nuestros servicios: ', null, async (ctx, {flowDynamic}) => {
+        const midata = await axios(process.env.APP_URL+"/api/servicios")
+        if(!midata.data){
+            await flowDynamic([{body: 'Sin datos, vulva a intertar desde el inicio (enviando un hola)'}])
+        }else{
+            for (let index = 0; index < midata.data.length; index++) {   
+                await flowDynamic([{body: midata.data[index].nombre}])             
+            }
+        }
+    })
 
+const flujoMenu3 = addKeyword('3')
+    .addAnswer('Estos son nuestros agentes: ', null, async (ctx, {flowDynamic}) => {
+        const midata = await axios(process.env.APP_URL+"/api/agentes")
+        if(!midata.data){
+            await flowDynamic([{body: 'Sin datos, vulva a intertar desde el inicio (enviando un hola)'}])
+        }else{
+            for (let index = 0; index < midata.data.length; index++) {   
+                await flowDynamic([{body: midata.data[index].name}])             
+            }
+        }
+    })
+
+// var  misettings2 = null
 const flowPrincipal = addKeyword(['hola', 'Hola','ole', 'alo', 'buenas', 'Buenas', 'alguien', 'precios', 'precios', 'iptv'])
     .addAnswer(
         [
@@ -35,14 +58,21 @@ const flowPrincipal = addKeyword(['hola', 'Hola','ole', 'alo', 'buenas', 'Buenas
         ],
         null,
         null,
-        [flujoMenu1]
+        [flujoMenu1, flujoMenu2, flujoMenu3]
     )
 
-    const flujoGracias = addKeyword(['gracias', 'muchas gracias'], )
+const flujoGracias = addKeyword(['gracias', 'muchas gracias'], )
         .addAnswer('Estamos para servirle.')
 
-const main = async () => {
 
+const flujoWelcome = addKeyword(EVENTS.WELCOME)
+    .addAnswer('Bienvenidos al chatbot')
+
+const main = async () => {
+    // const misettings = await axios(process.env.APP_URL+"/api/settings")
+    // console.log(misettings.data)
+    // misettings2 = misettings.data
+    // console.log(misettings2.nombre)
     const adapterDB = new MySQLAdapter({
         host: MYSQL_DB_HOST,
         user: MYSQL_DB_USER,
@@ -50,7 +80,7 @@ const main = async () => {
         password: MYSQL_DB_PASSWORD,
         port: MYSQL_DB_PORT,
     })
-    const adapterFlow = createFlow([flowPrincipal, flujoGracias])
+    const adapterFlow = createFlow([flowPrincipal, flujoGracias, flujoWelcome])
     const adapterProvider = createProvider(BaileysProvider)
     createBot({
         flow: adapterFlow,

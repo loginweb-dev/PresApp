@@ -39,7 +39,7 @@
             @endif
         @endcan --}}
         @can('browse', $dataTypeContent)
-            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modal_mora">
+            <a href="#" class="btn btn-dark" onclick="calcular_mora_dias('{{ $miplan3->id }}')">
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
 
@@ -174,7 +174,7 @@
                             <table class="table table-hover table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>NRO</th>
+                                        <th>NO/ID</th>
                                         <th>FECHA</th>
                                         <th></th>            
                                         <th>ESTADO</th>                             
@@ -192,32 +192,32 @@
                                     @foreach ($miplan as $item)
                                         <tr>
                                             <td class="text-center">                                                
-                                                @if ((date("Y-m-d") > $item->fecha && !$item->pagado) || date("Y-m-d") == $item->fecha)
+                                                @if (date("Y-m-d") > $item->fecha && $item->pagado==0)
                                                     @php
-                                                        $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
-                                                        $dias_mora = $midiff->format("%a");                                                  
-                                                        $interes_mora = 0;
-                                                        $total_mora = $miplan3->cuota;
-                                                        // echo $dias_mora;
-                                                        if ($dias_mora >= 0) {
-                                                            if ($miplan2->tipo_id == 1 ) {
-                                                                $interes_mora = $miplan3->monto * 0.03;
-                                                            }else if($miplan2->tipo_id == 2){
-                                                                $interes_mora = $miplan3->monto * 0.05;
-                                                            }                                
-                                                            $total_mora = $interes_mora + $miplan3->cuota;
-                                                            $miseting = setting('prestamos.redondear');
-                                                            if ($miseting == "nor") {
-                                                                $total_mora = number_format($total_mora, 2, '.', '');    
-                                                                $interes_mora = number_format($interes_mora, 2, '.', '');              
-                                                            } else if($miseting == "rmx"){
-                                                                $total_mora = ceil($total_mora);  
-                                                                $interes_mora = ceil($interes_mora);  
-                                                            } else if($miseting == "rmi"){
+                                                        // $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
+                                                        // $dias_mora = $midiff->format("%a");                                                  
+                                                        // $interes_mora = 0;
+                                                        // $total_mora = $miplan3->cuota;
+                                                        // echo $item->pagado;
+                                                        // if ($dias_mora >= 0) {
+                                                        //     if ($miplan2->tipo_id == 1 ) {
+                                                        //         $interes_mora = $miplan3->monto * 0.03;
+                                                        //     }else if($miplan2->tipo_id == 2){
+                                                        //         $interes_mora = $miplan3->monto * 0.05;
+                                                        //     }                                
+                                                        //     $total_mora = $interes_mora + $miplan3->cuota;
+                                                        //     $miseting = setting('prestamos.redondear');
+                                                        //     if ($miseting == "nor") {
+                                                        //         $total_mora = number_format($total_mora, 2, '.', '');    
+                                                        //         $interes_mora = number_format($interes_mora, 2, '.', '');              
+                                                        //     } else if($miseting == "rmx"){
+                                                        //         $total_mora = ceil($total_mora);  
+                                                        //         $interes_mora = ceil($interes_mora);  
+                                                        //     } else if($miseting == "rmi"){
                                                                     
-                                                            }
-                                                        }                                                        
-                                                        array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
+                                                        //     }
+                                                        // }                                                        
+                                                        // array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
                                                     @endphp
                                                     <span class="badge badge-pill badge-primary">
                                                         {{ $item->id }} en mora
@@ -225,8 +225,8 @@
                                                         {{ $midiff->format("%R%a Dias") }}
                                                     </span>
                                                 @else
-                                                    # {{ $item->nro }} <br>                                               
-                                                    ID {{ $item->id }}                                                    
+                                                    NO:{{ $item->nro }}<br>                                               
+                                                    ID:{{ $item->id }}                                                    
                                                 @endif                                                             
                                             </td>
                                             <td class="text-center">
@@ -240,8 +240,8 @@
                                                         <span>Recibo</span>
                                                     </a>
                                                 @else
-                                                    @if ($dias_mora > 0 || date("Y-m-d") == $item->fecha)
-                                                        <a href="#" class="btn btn-sm btn-warning" onclick="pagar('{{ $item->id }}')">
+                                                    @if (date("Y-m-d") >= $item->fecha)
+                                                        <a href="#" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal_pagar" >
                                                             <span>Pagar</span>
                                                         </a>
                                                     @endif                                                    
@@ -599,7 +599,7 @@
                         </div>
                     
                         <div class="col-sm-4 form-group">
-                            <label for="">deuda acumulada</label>
+                            <label for="">Nueva deuda</label>
                             <input type="text" class="form-control" id="mora_deuda" value="0" readonly>
                         </div>
 
@@ -616,10 +616,8 @@
                             <label for="">Fecha de pago</label>
                             <input type="date" name="" id="mora_fecha" class="form-control" value="{{ date("Y-m-d") }}">
                         </div>
-
-                        
-                     
-                        <div class="form-group col-xs-4">
+                                             
+                        {{-- <div class="form-group col-xs-4">
                             <label for="">Dias en mora</label>
                             <input type="number" name="" id="mora_dias" class="form-control" value="" readonly>
                         </div>
@@ -631,7 +629,7 @@
                         <div class="form-group col-xs-4">
                             <label for="">Pago final</label>
                             <input type="number" name="" id="p_final" class="form-control" value="">
-                        </div>
+                        </div> --}}
 
                         <div class="col-sm-12 form-group">
                             <label for="">Detalle</label>
@@ -751,23 +749,7 @@
             );
         }
         
-        //cargar plan de pago                
-         async function pagar(id){
-            $('#modal_pagar').modal('show');
-            var mipago = await axios("/api/plan/"+id)
-            var mora_update =  await axios.post("/api/plan/mora/dias", {
-                fecha: mipago.data.fecha,
-                cuota: mipago.data.cuota,
-                monto: mipago.data.monto,
-                tipo_id: {{ $miplan2->tipo_id }}
-            })
-            console.log(mora_update.data)
-            $("#mora_dias").val(mora_update.data.dias_mora)
-            $("#mora_interes").val(mora_update.data.interes_mora)
-            $("#p_final").val(mora_update.data.total_mora)
-            
-            
-        }
+
 
         async function mipago(){      
             // if(!$("#fecha_pago").val()){
@@ -1100,15 +1082,30 @@
 
         //calcular mora -----------------------------------------------------------------------------
         async function btn_mora() {
-            var monto = $("#mora_pago").val()
-            var tiempo = ({{ $miplan2->plazo}} - {{ $miplan3->nro }}) + 1
-            var pmensual = {{ $miplan3->cuota }} 
-            var mesinicio = "{{ $miplan3->fecha }}"     
-            var nueva_deuda = {{ $miplan3->monto }} + ({{ $miplan3->cuota }} - $("#mora_pago").val())
+            // var monto = $("#mora_pago").val()
+            // var tiempo = ({{ $miplan2->plazo}} - {{ $miplan3->nro }}) + 1
+            // var pmensual = {{ $miplan3->cuota }} 
+            // var mesinicio = "{{ $miplan3->fecha }}"     
+            // var nueva_deuda = {{ $miplan3->monto }} + ({{ $miplan3->cuota }} - $("#mora_pago").val())
+            var nueva_deuda = 0
+            var nueva_interes = 0
+            var nueva_capital = 0
+            if ($("#mora_pago").val() == {{ $miplan3->interes }}) {
+                nueva_deuda = {{ $miplan3->monto }}
+            } else if($("#mora_pago").val() < {{ $miplan3->interes }} ){
+                nueva_interes = {{ $miplan3->interes }} - $("#mora_pago").val()
+                console.log(nueva_interes)
+                nueva_deuda ={{ $miplan3->monto }}  + nueva_interes                
+            }else{
+                nueva_interes =  $("#mora_pago").val() - {{ $miplan3->interes }}
+                nueva_capital = {{ $miplan3->capital }} - nueva_interes
+                nueva_deuda ={{ $miplan3->monto }} + nueva_capital     
+            }
             $("#mora_deuda").val(nueva_deuda.toFixed(2))
         }
 
         function mipago_mora(){
+            $('#modal_mora').modal('hide')
             if(!$("#mora_fecha").val()){
                 swal({
                     icon: "error",
@@ -1157,7 +1154,24 @@
                 }
             );    
         }
-
+                
+        async function calcular_mora_dias(id){
+            // console.log(id)
+            $('#modal_mora').modal('show')
+            // var mipago = await axios("/api/plan/"+id)
+            // var mora_update =  await axios.post("/api/plan/mora/dias", {
+            //     fecha: mipago.data.fecha,
+            //     cuota: mipago.data.cuota,
+            //     monto: mipago.data.monto,
+            //     tipo_id: {{ $miplan2->tipo_id }}
+            // })
+            // console.log(mora_update.data)
+            // $("#mora_dias").val(mora_update.data.dias_mora)
+            // $("#mora_interes").val(mora_update.data.interes_mora)
+            // $("#p_final").val(mora_update.data.total_mora)
+            
+            
+        }
         //amortizacion ------------------------------------------------------------------------
         function btn_amort() {
             var mindeuda = parseFloat($("#acapital").val()) - (parseFloat($("#apago").val()) - parseFloat($("#ainteres").val()))

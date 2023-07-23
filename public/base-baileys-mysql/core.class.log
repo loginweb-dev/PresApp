@@ -1,0 +1,96 @@
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB02FF809CF9BEF66C127',
+    participant: undefined
+  },
+  messageTimestamp: 1690084254,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  messageStubType: 2,
+  messageStubParameters: [ 'Message absent from node' ],
+  body: undefined,
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB02FF809CF9BEF66C127',
+    participant: undefined
+  },
+  messageTimestamp: 1690084255,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: 'hola',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  verifiedBizName: 'Iptv Bolivia',
+  body: 'hola',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB01403E410C153A9E4E4',
+    participant: undefined
+  },
+  messageTimestamp: 1690084260,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: 'donde',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'donde',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB0C46EF3A2A4ADD04596',
+    participant: undefined
+  },
+  messageTimestamp: 1690084269,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: '1',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: '1',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB0D7A56BEF90F4EDFE35',
+    participant: undefined
+  },
+  messageTimestamp: 1690084278,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: 'que hay',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'que hay',
+  from: '59172823861'
+}
