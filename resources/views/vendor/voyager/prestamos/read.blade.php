@@ -194,30 +194,29 @@
                                             <td class="text-center">                                                
                                                 @if (date("Y-m-d") > $item->fecha && $item->pagado==0)
                                                     @php
-                                                        // $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
-                                                        // $dias_mora = $midiff->format("%a");                                                  
-                                                        // $interes_mora = 0;
-                                                        // $total_mora = $miplan3->cuota;
-                                                        // echo $item->pagado;
-                                                        // if ($dias_mora >= 0) {
-                                                        //     if ($miplan2->tipo_id == 1 ) {
-                                                        //         $interes_mora = $miplan3->monto * 0.03;
-                                                        //     }else if($miplan2->tipo_id == 2){
-                                                        //         $interes_mora = $miplan3->monto * 0.05;
-                                                        //     }                                
-                                                        //     $total_mora = $interes_mora + $miplan3->cuota;
-                                                        //     $miseting = setting('prestamos.redondear');
-                                                        //     if ($miseting == "nor") {
-                                                        //         $total_mora = number_format($total_mora, 2, '.', '');    
-                                                        //         $interes_mora = number_format($interes_mora, 2, '.', '');              
-                                                        //     } else if($miseting == "rmx"){
-                                                        //         $total_mora = ceil($total_mora);  
-                                                        //         $interes_mora = ceil($interes_mora);  
-                                                        //     } else if($miseting == "rmi"){
+                                                        $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
+                                                        $dias_mora = $midiff->format("%a");                                                  
+                                                        $interes_mora = 0;
+                                                        $total_mora = $miplan3->cuota;
+                                                        if ($dias_mora >= 0) {
+                                                            if ($miplan2->tipo_id == 1 ) {
+                                                                $interes_mora = $miplan3->monto * 0.03;
+                                                            }else if($miplan2->tipo_id == 2){
+                                                                $interes_mora = $miplan3->monto * 0.05;
+                                                            }                                
+                                                            $total_mora = $interes_mora + $miplan3->cuota;
+                                                            $miseting = setting('prestamos.redondear');
+                                                            if ($miseting == "nor") {
+                                                                $total_mora = number_format($total_mora, 2, '.', '');    
+                                                                $interes_mora = number_format($interes_mora, 2, '.', '');              
+                                                            } else if($miseting == "rmx"){
+                                                                $total_mora = ceil($total_mora);  
+                                                                $interes_mora = ceil($interes_mora);  
+                                                            } else if($miseting == "rmi"){
                                                                     
-                                                        //     }
-                                                        // }                                                        
-                                                        // array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
+                                                            }
+                                                        }                                                        
+                                                        array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
                                                     @endphp
                                                     <span class="badge badge-pill badge-primary">
                                                         {{ $item->id }} en mora
