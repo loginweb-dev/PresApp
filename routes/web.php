@@ -34,6 +34,12 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('bot-whatsapp', function () {
         return view('bot-whatsapp');
     });
+
+    // Route::get('send', function () {        
+    //     $api = new Api('WHATICKET_BASEURL', 'WHATICKET_TOKEN');
+    //     $api->sendMessage('NUMBER', 'Whaticket api test', 'WHATICKET_WHATSAPP_ID or null');
+    // });
+
     Route::post('/prestamo/store', [PrestamoController::class, 'prestamo_store'])->name('prestamo_store');
     Route::get('/pdf/prestamo/{id}', [PrestamoController::class, 'pdf_prestamo'])->name('pdf_prestamo');
 });

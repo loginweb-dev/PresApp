@@ -6,7 +6,10 @@
     $mipoderes = App\ClientePodere::where("cliente_id", $dataTypeContent->getKey())->get();
 
     $micliente = App\Cliente::find($dataTypeContent->getKey());
-    $michats = App\History::where("phone", '591'.$micliente->telefono)->get();
+    if ($edit) {
+        $michats = App\History::where("phone", '591'.$micliente->telefono)->get();
+    }
+    
     @endphp
 
 @extends('voyager::master')

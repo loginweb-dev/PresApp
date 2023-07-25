@@ -120,13 +120,10 @@ Route::post('plan/update/mora', function (Request $request) {
     $new->save();
 
 
-    // if ($request->pago_parcial == $piv_interes) {
         //add row
         $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
         $ultimoplan = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("nro", $request->plazo)->first();
         $nuevomes = date("Y-m-d",strtotime($ultimoplan->fecha."+ 1 month"));
-
-
         $miaux = 0;
         foreach ($miupdate as $index => $item) {
             $miitem = App\PrestamoPlane::find($item->id);
@@ -144,18 +141,19 @@ Route::post('plan/update/mora', function (Request $request) {
             }         
             $miitem->save();        
         }
-            $ni=0;
-            $nc=0;
-            $ncu=0;
-            if($request->tipo_id == 1){
-                $ni=0.03*$miaux; 
-                $nc=$miaux-$ni;
-                $ncu = $nc+$ni;
-            }else if($request->tipo_id == 2){
-                $ni=0.05*$miaux; 
-                $nc=$miaux-$ni;
-                $ncu = $nc+$ni;
-            }
+
+        $ni=0;
+        $nc=0;
+        $ncu=0;
+        if($request->tipo_id == 1){
+            $ni=0.03*$miaux; 
+            $nc=$miaux-$ni;
+            $ncu = $nc+$ni;
+        }else if($request->tipo_id == 2){
+            $ni=0.05*$miaux; 
+            $nc=$miaux-$ni;
+            $ncu = $nc+$ni;
+        }
         $nuevoplan = App\PrestamoPlane::create([
             'mes' => date("F-Y", strtotime($nuevomes)),
             'nro' => $request->plazo + 1,
@@ -176,8 +174,8 @@ Route::post('plan/update/mora', function (Request $request) {
     return true;
 });
 Route::post('plan/refin', function (Request $request) {
+    return $request;
     DB::table('prestamo_planes')->where('pagado', 0)->where("prestamo_id", $request->prestamo_id)->delete();
-
     $micount =  json_decode($request->miplan);    
     for ($i=0; $i < count($micount); $i++) { 
         $minew = App\PrestamoPlane::create([
@@ -231,6 +229,54 @@ Route::post('plan/mora/dias', function (Request $request) {
     }
     return response()->json(['dias_mora' => $dias_mora, 'interes_mora' => ($interes_mora*$dias_mora), 'total_mora' => $total_mora]);
 });
+Route::post('plan/amortizacion', function (Request $request) {
+    $miplan = App\PrestamoPlane::find($request->plan_id);
+    $miprestamo =  App\Prestamo::find($request->prestamo_id);
+
+    $miplan->observacion = $request->detalle;
+    $miplan->amort = $request->pc_nmonto;
+    $miplan->observacion = $request->user_id;
+    $miplan->pagado = 3; //cat pago a capital
+    $miplan->amort = $request->pago_capital;
+    $miplan->deuda = $request->nueva_deuda;
+    $miplan->save();
+
+    $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
+    $miaux = 0;
+    foreach ($miupdate as $index => $item) {
+        $miitem = App\PrestamoPlane::find($item->id);
+        $miitem->monto = ($index==0) ? $request->nueva_deuda : $miaux;
+
+        if ($miaux <= $item->cuota) {
+            $miitem->interes = 0;
+            $miitem->capital = 0;
+            $miitem->deuda = 0;
+            $item->cuota = $miaux;
+
+            // $minro1 = $item->nro + 1;
+            App\PrestamoPlane::where('nro', $item->nro + 1)->delete();
+            App\PrestamoPlane::where('nro', $item->nro + 2)->delete();
+            App\PrestamoPlane::where('nro', $item->nro + 3)->delete();
+        }
+
+        if($request->tipo_id == 1){
+            // $miitem->intere | interes no se modifica
+            $miitem->capital = $miitem->cuota - $miitem->interes;
+            $miaux = $miitem->monto - ($miitem->cuota - $miitem->interes);
+            $miitem->deuda = $miaux;  
+        }else if($request->tipo_id == 2){
+            $miitem->interes = $miitem->monto * 0.05;
+            $miitem->capital = $miitem->cuota - ($miitem->monto * 0.05);
+            $miaux = $miitem->monto - ($miitem->cuota - ($miitem->monto * 0.05));
+            $miitem->deuda = $miaux;  
+        }         
+
+
+        $miitem->save();     
+
+    }
+    return $request;
+});
 
 // tipos-------------------------------------------------------
 Route::get('tipo/{id}', function ($id) {
@@ -269,10 +315,10 @@ Route::get('cliente/{id}', function ($id) {
 Route::get('clientes', function () {
     return App\Cliente::get();
 });
-
 Route::get('cliente/prestamo/{id}', function ($id) {
     return App\Prestamo::where("cliente_id", $id)->where("estado_id", 1)->with("cliente")->first();
 });
+
 
 //Bonos--------------------------------------------
 Route::post('bonos/calular', function (Request $request) {
@@ -295,8 +341,7 @@ Route::get('servicios', function () {
     return App\PrestamoTipo::all();
 });
 
-
-//servicios --------------------------------------------
+//Agentes --------------------------------------------
 Route::get('agentes', function () {
     return App\Models\User::where('role_id', 3)->get();
 });
