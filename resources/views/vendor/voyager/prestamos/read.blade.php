@@ -42,13 +42,13 @@
             <a href="#" class="btn btn-dark" onclick="calcular_mora_dias('{{ $miplan3->id }}')">
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
-            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
-                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
-            </a>
+
             <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
             </a>
-
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
+                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
+            </a>
         @endcan
     </h1>
     @include('voyager::multilingual.language-selector')
@@ -224,7 +224,7 @@
                                                         {{ $midiff->format("%R%a Dias") }}
                                                     </span>
                                                 @else
-                                                    NO:{{ $item->nro }}<br>                                               
+                                                    NR:{{ $item->nro }}<br>                                               
                                                     ID:{{ $item->id }}                                                    
                                                 @endif                                                             
                                             </td>
@@ -520,7 +520,7 @@
                     <div class="row">
                         <div class="col-sm-4 form-group">
                             <label for="">Deuda actual</label>
-                            <input type="number" class="form-control" value="{{ $miplan3->monto }}" id="ref_deuda_actual" readonly>
+                            <input type="number" class="form-control" value="{{ $miplan3->monto }}" readonly>
                         </div>
                         <div class="col-sm-4 form-group">
                             <label for="">Interes del mes</label>
@@ -528,7 +528,7 @@
                         </div>
                         <div class="col-sm-4 form-group">
                             <label for="">Ingreso a capital</label>
-                            <input type="number" class="form-control" id="" value="{{ $miplan3->capital }}" readonly>
+                            <input type="number" class="form-control" value="{{ $miplan3->capital }}" readonly>
                         </div>
                         <div class="col-sm-4 form-group">
                             <label for="">Nuevo monto</label>
@@ -546,7 +546,7 @@
 
                         <div class="col-sm-12 form-group">
                             <label for="">Observaciones</label>
-                            <textarea name="" id="" class="form-control"></textarea>
+                            <textarea name="" id="ref_detalle" class="form-control"></textarea>
                         </div>
                     </div>
                 </div>
@@ -626,7 +626,6 @@
         localStorage.removeItem("miplan")
         var eprest = "invalido"
         var deleteFormAction;
-
         $('.delete').on('click', function (e) {
             var form = $('#delete_form')[0];
 
@@ -642,6 +641,7 @@
             $('#delete_modal').modal('show');
         });
         
+
         // pago normal-------------------------------------------------------------------------------
         async function mipago(){      
             // if(!$("#fecha_pago").val()){
@@ -685,34 +685,6 @@
         }
 
 
-        //refinanciar --------------------------------------------------------------------------------
-        function btnplan() {
-
-            var new_monto = parseFloat($("#ref_nuevo_monto").val())
-            var newmonto = {{ $miplan3->monto }} + new_monto
-            var monto_actual = parseFloat({{ $miplan2->monto }})
-            var monto_minimo = parseFloat({{ $miplan2->tipo->plazo_minimo }})
-            if(new_monto > monto_actual){
-                swal({
-                    title: "El nuevo monto no tiene que superar el monto inicial",
-                    icon: "error",
-                    
-                });
-                return true
-            }
-            if(newmonto > $("#monto_actual").val()){
-                swal({
-                    title: "El nuevo monto no tiene que superar el monto inicial",
-                    icon: "error",
-                });
-                return true
-            }
-            $("#ref_nueva_deuda").val(newmonto)
-            toastr.info("Nueva deuda: "+newmonto)
-        }
-
-
-
         //calcular mora -----------------------------------------------------------------------------
         async function btn_mora() {
             // var monto = $("#mora_pago").val()
@@ -720,6 +692,7 @@
             // var pmensual = {{ $miplan3->cuota }} 
             // var mesinicio = "{{ $miplan3->fecha }}"     
             // var nueva_deuda = {{ $miplan3->monto }} + ({{ $miplan3->cuota }} - $("#mora_pago").val())
+            toastr.info("calculando..")
             var nueva_deuda = 0
             var nueva_interes = 0
             var nueva_capital = 0
@@ -736,7 +709,6 @@
             }
             $("#mora_deuda").val(nueva_deuda.toFixed(2))
         }
-
         function mipago_mora(){
             $('#modal_mora').modal('hide')
             if(!$("#mora_fecha").val()){
@@ -768,7 +740,7 @@
                             $('#modal_pagar').modal('hide');
                         break;
                         case "confir":
-                        var midata = await axios.post("/api/plan/update/mora", {
+                        var midata = await axios.post("/api/plan/mora", {
                             plan_id: {{ $miplan3->id }},
                             nueva_deuda: $("#mora_deuda").val(),
                             pago_parcial: $("#mora_pago").val(),
@@ -786,8 +758,7 @@
                     }
                 }
             );    
-        }
-                
+        }     
         async function calcular_mora_dias(id){
             // console.log(id)
             $('#modal_mora').modal('show')
@@ -807,9 +778,9 @@
         }
 
 
-
         //pago a capital amortizacion ------------------------------------------------------------------------
         function btn_amort() {
+            toastr.info("Calculando..")
             var mindeuda = parseFloat({{ $miplan3->monto }}) - parseFloat($("#pc_nmonto").val())
             $("#pc_ndeuda").val(mindeuda)
 
@@ -829,14 +800,14 @@
                             console.log("cancel")
                         break;
                         case "confir":                            
-                            var midata = await axios.post("/api/plan/amortizacion", {
+                            var midata = await axios.post("/api/plan/amort", {
                                 prestamo_id: {{ $miplan2->id }},
                                 plan_id: {{ $miplan3->id }},
                                 pago_capital: $("#pc_nmonto").val(),
                                 nueva_deuda: $("#pc_ndeuda").val(),
-                                user_id: {{ Auth::user()->id }},    
-                                detalle: $("#pc_detalle").val(),   
-                                tipo_id: {{ $miplan2->tipo_id }}           
+                                user_id: {{ Auth::user()->id }},     
+                                tipo_id: {{ $miplan2->tipo_id }},
+                                pc_detalle: $("#pc_detalle").val()
                             })
                             console.log(midata.data)
                             location.reload()
@@ -847,6 +818,30 @@
         }
 
 
+        //refinanciar --------------------------------------------------------------------------------
+        function btnplan() {
+            var new_monto = parseFloat($("#ref_nuevo_monto").val())
+            var newmonto = {{ $miplan3->monto }} + new_monto
+            var monto_actual = parseFloat({{ $miplan2->monto }})
+            var monto_minimo = parseFloat({{ $miplan2->tipo->plazo_minimo }})
+            if(new_monto > monto_actual){
+                swal({
+                    title: "El nuevo monto no tiene que superar el monto inicial",
+                    icon: "error",
+                    
+                });
+                return true
+            }
+            if(newmonto > $("#monto_actual").val()){
+                swal({
+                    title: "El nuevo monto no tiene que superar el monto inicial",
+                    icon: "error",
+                });
+                return true
+            }
+            $("#ref_nueva_deuda").val(newmonto)
+            toastr.info("Nueva deuda: "+newmonto)
+        }
         async function refinanciar(){
             $('#modal_refinanciar').modal('hide')
             swal({
@@ -865,9 +860,11 @@
                             var midata = await axios.post("/api/plan/refin", {
                                 prestamo_id: {{ $miplan2->id }},
                                 plan_id: {{ $miplan3->id }},
-                                new_monto: parseFloat({{ $miplan3->monto }}),
-                                new_dauda: $("#ref_nueva_deuda").val(),
-                                user_id: {{ Auth::user()->id }}        
+                                ref_nuevo_monto: $("#ref_nuevo_monto").val(),
+                                ref_nueva_deuda: $("#ref_nueva_deuda").val(),
+                                user_id: {{ Auth::user()->id }},    
+                                tipo_id: {{ $miplan2->tipo_id }},
+                                ref_detalle: $("#ref_detalle").val()
                             })
                             console.log(midata.data)
                             // location.reload()
@@ -877,6 +874,8 @@
             );
         }
 
+
+        // recibo ------------------------------------------------------------------------------
         async function recibo(id){
             $('#modal_recibo').modal('show');
             var mipago = await axios("/api/plan/"+id)
@@ -887,6 +886,7 @@
             $("#recibo_editor").val(mipago.data.user.name)            
         }
 
+        // whatsapp-------------------------------------------------------------------------------
         async function whatsapp(){ 
             var misms = $("#recibo_detalle").val()
             var miwhats = $("#recibo_whatsapp").val()
@@ -895,6 +895,5 @@
                 '_blank'
             );
         }
-
     </script>
 @stop

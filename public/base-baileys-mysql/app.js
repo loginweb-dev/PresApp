@@ -10,7 +10,6 @@ const MYSQL_DB_PASSWORD = process.env.DB_PASSWORD
 const MYSQL_DB_NAME = process.env.DB_DATABASE
 const MYSQL_DB_PORT = process.env.DB_PORT
 
-
 const flujoMenu1 = addKeyword('1')
     .addAnswer('Ingresa el codigo asignado de tu prestamo', { capture: true })
     .addAnswer('Resultado de la conulta: ', null, async (ctx, {flowDynamic}) => {
@@ -46,11 +45,14 @@ const flujoMenu3 = addKeyword('3')
         }
     })
 
-// var  misettings2 = null
+// const misetting =  async () =>{
+//     var midata = await axios(process.env.APP_URL+"/api/settings")
+//     console.log(midata.data)
+// }
 const flowPrincipal = addKeyword(['hola', 'Hola','ole', 'alo', 'buenas', 'Buenas', 'alguien', 'precios', 'precios', 'iptv'])
     .addAnswer(
         [
-            '🙌 Hola bienvenido, te saluda el chatbot *LIZA*, te puedo ayudar con las opciones de:',
+            '🙌 Hola bienvenid@, te saluda el chatbot: '+process.env.APP_NAME+', te puedo ayudar con las opciones de:',
             '\n1.- Consultar mi deuda',
             '2.- Todos nuestros servicios',
             '3.- Chatear agente de ventas',
@@ -64,15 +66,12 @@ const flowPrincipal = addKeyword(['hola', 'Hola','ole', 'alo', 'buenas', 'Buenas
 const flujoGracias = addKeyword(['gracias', 'muchas gracias'], )
         .addAnswer('Estamos para servirle.')
 
+// eventos--------------------------------------------------------
+// const flujoWelcome = addKeyword(EVENTS.WELCOME)
+    // .addAnswer('Bienvenidos al chatbot')
 
-const flujoWelcome = addKeyword(EVENTS.WELCOME)
-    .addAnswer('Bienvenidos al chatbot')
 
 const main = async () => {
-    // const misettings = await axios(process.env.APP_URL+"/api/settings")
-    // console.log(misettings.data)
-    // misettings2 = misettings.data
-    // console.log(misettings2.nombre)
     const adapterDB = new MySQLAdapter({
         host: MYSQL_DB_HOST,
         user: MYSQL_DB_USER,
@@ -80,7 +79,7 @@ const main = async () => {
         password: MYSQL_DB_PASSWORD,
         port: MYSQL_DB_PORT,
     })
-    const adapterFlow = createFlow([flowPrincipal, flujoGracias, flujoWelcome])
+    const adapterFlow = createFlow([flowPrincipal, flujoGracias])
     const adapterProvider = createProvider(BaileysProvider)
     createBot({
         flow: adapterFlow,
