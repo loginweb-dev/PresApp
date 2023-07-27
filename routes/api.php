@@ -92,7 +92,7 @@ Route::post('plan/update', function (Request $request) {
 });
 Route::post('plan/mora', function (Request $request) {
     $new = App\PrestamoPlane::find($request->plan_id);
-    $miprest =  App\Prestamo::find($request->prestamo_id);
+    $miprestamo =  App\Prestamo::find($request->prestamo_id);
 
     $piv_interes = $new->interes;
     $piv_capital = $new->capital;
@@ -105,6 +105,7 @@ Route::post('plan/mora', function (Request $request) {
     $new->user_id = $request->user_id;
     $new->deuda = $request->nueva_deuda;
     $new->cuota = $request->pago_parcial;
+    $new->p_final = $request->pago_parcial;
     $new->mora = $misuma;
     if($request->pago_parcial == $new->interes){
         $new->capital = 0;
@@ -124,13 +125,13 @@ Route::post('plan/mora', function (Request $request) {
             $miitem->monto = ($index==0) ? $request->nueva_deuda : $miaux;
             if($request->tipo_id == 1){
                 // $miitem->intere | interes no se modifica
-                $miitem->capital = $miitem->cuota - $miitem->interes;
-                $miaux = $miitem->monto - ($miitem->cuota - $miitem->interes);
+                $miitem->capital = $miprestamo->cuota - $miitem->interes;
+                $miaux = $miitem->monto - ($miprestamo->cuota - $miitem->interes);
                 $miitem->deuda = $miaux;  
             }else if($request->tipo_id == 2){
                 $miitem->interes = $miitem->monto * 0.05;
-                $miitem->capital = $miitem->cuota - ($miitem->monto * 0.05);
-                $miaux = $miitem->monto - ($miitem->cuota - ($miitem->monto * 0.05));
+                $miitem->capital = $miprestamo->cuota - ($miitem->monto * 0.05);
+                $miaux = $miitem->monto - ($miprestamo->cuota - ($miitem->monto * 0.05));
                 $miitem->deuda = $miaux;  
             }         
             $miitem->save();        
@@ -142,7 +143,7 @@ Route::post('plan/mora', function (Request $request) {
         $nc=0;
         $ncu=0;
         if($request->tipo_id == 1){
-            $ni=0.03*$miaux; 
+            $ni=$miitem->interes; 
             $nc=$miaux-$ni;
             $ncu = $nc+$ni;
         }else if($request->tipo_id == 2){
@@ -165,8 +166,8 @@ Route::post('plan/mora', function (Request $request) {
             'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
         ]);
 
-       $miprest->plazo = $request->plazo + 1;
-       $miprest->save();
+       $miprestamo->plazo = $request->plazo + 1;
+       $miprestamo->save();
     return true;
 });
 Route::post('plan/refin', function (Request $request) {
@@ -176,10 +177,12 @@ Route::post('plan/refin', function (Request $request) {
 
     //actualzar el plan anterior
     $miplan->observacion = $miplan->observacion."\n".$request->ref_detalle;
+    $miplan->pagado = 3; //cat refin
     $miplan->refin = $request->ref_nuevo_monto;
     $miplan->deuda = $request->ref_nueva_deuda;
     $miplan->save();
-    
+
+
     $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
     $miaux = 0;
     $milultimo = false;
@@ -189,31 +192,47 @@ Route::post('plan/refin', function (Request $request) {
         $miitem->monto = ($i==0) ? $request->ref_nueva_deuda : $miaux;
         if($request->tipo_id == 1){
             // $miitem->intere | interes no se modifica
-            $miitem->capital = $miitem->cuota - $miitem->interes;
-            $miaux = $miitem->monto - ($miitem->cuota - $miitem->interes);
+            $miitem->capital = $miprestamo->cuota - $miitem->interes;
+            $miaux = $miitem->monto - ($miprestamo->cuota - $miitem->interes);
             $miitem->deuda = $miaux;  
         }else if($request->tipo_id == 2){
             $miitem->interes = $miitem->monto * 0.05;
-            $miitem->capital = $miitem->cuota - ($miitem->monto * 0.05);
-            $miaux = $miitem->monto - ($miitem->cuota - ($miitem->monto * 0.05));
+            $miitem->capital = $miprestamo->cuota - ($miitem->monto * 0.05);
+            $miaux = $miitem->monto - ($miprestamo->cuota - ($miitem->monto * 0.05));
             $miitem->deuda = $miaux;  
         }         
-        $miitem->save();
+        $miitem->save();       
 
-        //crear item
-        // $miadd = $i+1;
-        $miitem = App\PrestamoPlane::find($miupdate[$i]->id);
-        if (($i+1) >= $micount) {
+        if (($i+1) == $micount) {
+            //actualizar el ultimo plan
+            if ($milultimo) {
+                if($request->tipo_id == 1){
+                    $miitem->capital = $miitem->monto - $miitem->interes;
+                }else if($request->tipo_id == 2){
+                    $miitem->interes = $miitem->monto * 0.05;
+                    $miitem->capital = -$miitem->monto - ($miitem->monto * 0.05);
+                }
+                $miitem->cuota = $miitem->monto;
+                $miitem->deuda = 0;
+                $miitem->save();
+                $miaux = $miprestamo->monto;
+                break;
+            }
+            
+
+            //crear un item n uevo
             $nuevomes = date("Y-m-d",strtotime($miitem->fecha."+ 1 month"));
             $ni=0; $nc=0;
             if($request->tipo_id == 1){
                 $ni = $miitem->interes; 
-                $nc = $miitem->cuota - $miitem->interes;
-                $miaux = $miitem->monto - ($miitem->cuota - $miitem->interes);
+                $nc = $miprestamo->cuota - $ni;
+                $miaux = $miitem->monto - ($miprestamo->cuota - $miitem->interes);
+                $miitem->deuda = $miaux;  
             }else if($request->tipo_id == 2){
                 $ni = $miitem->monto * 0.05;
-                $nc = $miitem->cuota - ($miitem->monto * 0.05);
-                $miaux = $miitem->monto - ($miitem->cuota - ($miitem->monto * 0.05));
+                $nc = $miprestamo->cuota - ($miitem->monto * 0.05);
+                $miaux = $miitem->monto - ($miprestamo->cuota - ($miitem->monto * 0.05));
+                $miitem->deuda = $miaux; 
             }
             App\PrestamoPlane::create([
                 'mes' => date("F-Y", strtotime($nuevomes)),
@@ -221,7 +240,7 @@ Route::post('plan/refin', function (Request $request) {
                 'monto' => $miitem->deuda,
                 'interes' => $ni,
                 'capital' => $nc,
-                'cuota' => $miitem->cuota,
+                'cuota' => $miprestamo->cuota,
                 'deuda' => $miaux,
                 'pagado' => 0,
                 'prestamo_id' => $request->prestamo_id,
@@ -229,25 +248,13 @@ Route::post('plan/refin', function (Request $request) {
                 'pasarela_id' => null,
                 'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
             ]);
+
             $micount = $micount + 1;
             $miprestamo->plazo = $miprestamo->plazo + 1;
-            $miprestamo->save();
+            $miprestamo->save();            
         }
 
-        //actualizar el ultimo plan
-        if ($milultimo) {
-            if($request->tipo_id == 1){
-                $miitem->capital = $miitem->monto - $miitem->interes;
-            }else if($request->tipo_id == 2){
-                $miitem->interes = $miitem->monto * 0.05;
-                $miitem->capital = -$miitem->monto - ($miitem->monto * 0.05);
-            }
-            $miitem->cuota = $miitem->monto;
-            $miitem->deuda = 0;
-            $miitem->save();
-            $miaux = $miprestamo->monto;
-            break;
-        }
+        //controlar el ultimo
         $milultimo = ($miaux<=$miitem->cuota) ? true : false;
     }
     return $request;
@@ -255,10 +262,13 @@ Route::post('plan/refin', function (Request $request) {
 Route::post('plan/amort', function (Request $request) {
     $miplan = App\PrestamoPlane::find($request->plan_id-1);
     $miprestamo =  App\Prestamo::find($request->prestamo_id);
+
     $miplan->observacion = $miplan->observacion."\n".$request->pc_detalle;
+    $miplan->pagado = 4; //cat mora
     $miplan->amort = $request->pago_capital;
     $miplan->deuda = $request->nueva_deuda;
     $miplan->save();
+
     $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
     $miaux = 0;
     $milultimo = false;
@@ -268,13 +278,13 @@ Route::post('plan/amort', function (Request $request) {
         $miitem->monto = ($index==0) ? $request->nueva_deuda : $miaux;
         if($request->tipo_id == 1){
             // $miitem->intere | interes no se modifica
-            $miitem->capital = $miitem->cuota - $miitem->interes;
-            $miaux = $miitem->monto - ($miitem->cuota - $miitem->interes);
+            $miitem->capital = $miprestamo->cuota - $miitem->interes;
+            $miaux = $miitem->monto - ($miprestamo->cuota - $miitem->interes);
             $miitem->deuda = $miaux;  
         }else if($request->tipo_id == 2){
             $miitem->interes = $miitem->monto * 0.05;
-            $miitem->capital = $miitem->cuota - ($miitem->monto * 0.05);
-            $miaux = $miitem->monto - ($miitem->cuota - ($miitem->monto * 0.05));
+            $miitem->capital = $miprestamo->cuota - ($miitem->monto * 0.05);
+            $miaux = $miitem->monto - ($miprestamo->cuota - ($miitem->monto * 0.05));
             $miitem->deuda = $miaux;  
         }         
         $miitem->save();

@@ -43,12 +43,13 @@
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
 
-            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
-                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
-            </a>
             <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
                 <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
             </a>
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
+                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
+            </a>
+
         @endcan
     </h1>
     @include('voyager::multilingual.language-selector')
@@ -495,7 +496,7 @@
 
                         <div class="col-sm-12 form-group">
                             <label for="">Detalle</label>
-                            <textarea name="" id="pc_detalle"  class="form-control"></textarea>
+                            <textarea name="" id="pc_detalle"  class="form-control">pago a capital</textarea>
                         </div>
                     </div>
                 </div>
@@ -546,7 +547,7 @@
 
                         <div class="col-sm-12 form-group">
                             <label for="">Observaciones</label>
-                            <textarea name="" id="ref_detalle" class="form-control"></textarea>
+                            <textarea name="" id="ref_detalle" class="form-control">Refinanziar prestamo</textarea>
                         </div>
                     </div>
                 </div>
@@ -668,6 +669,7 @@
                             toastr.error("Pago cancelado...")
                         break;
                         case "confir":
+                            toastr.info("Enviando datos, espere por favor")  
                             var mipago = await axios.post("/api/plan/update", {
                                 id: "{{ $miplan3->id }}",
                                 fecha_pago: $('#fecha_pago').val(),
@@ -685,7 +687,7 @@
         }
 
 
-        //calcular mora -----------------------------------------------------------------------------
+        //pago con mora -----------------------------------------------------------------------------
         async function btn_mora() {
             // var monto = $("#mora_pago").val()
             // var tiempo = ({{ $miplan2->plazo}} - {{ $miplan3->nro }}) + 1
@@ -740,20 +742,21 @@
                             $('#modal_pagar').modal('hide');
                         break;
                         case "confir":
-                        var midata = await axios.post("/api/plan/mora", {
-                            plan_id: {{ $miplan3->id }},
-                            nueva_deuda: $("#mora_deuda").val(),
-                            pago_parcial: $("#mora_pago").val(),
-                            mora_detalle: $("#mora_detalle").val(),
-                            mora_pasarela: $("#mora_pasarela").val(),
-                            mora_fecha: $("#mora_fecha").val(),
-                            user_id: {{ Auth::user()->id }},
-                            plazo: {{ $miplan2->plazo }},
-                            prestamo_id: {{ $miplan2->id }},
-                            tipo_id: {{ $miplan2->tipo_id }}
-                        })
-                        console.log(midata.data)
-                        location.reload()
+                            toastr.info("Enviando datos, espere por favor")  
+                            var midata = await axios.post("/api/plan/mora", {
+                                plan_id: {{ $miplan3->id }},
+                                nueva_deuda: $("#mora_deuda").val(),
+                                pago_parcial: $("#mora_pago").val(),
+                                mora_detalle: $("#mora_detalle").val(),
+                                mora_pasarela: $("#mora_pasarela").val(),
+                                mora_fecha: $("#mora_fecha").val(),
+                                user_id: {{ Auth::user()->id }},
+                                plazo: {{ $miplan2->plazo }},
+                                prestamo_id: {{ $miplan2->id }},
+                                tipo_id: {{ $miplan2->tipo_id }}
+                            })
+                            console.log(midata.data)
+                            location.reload()
                         break;
                     }
                 }
@@ -799,7 +802,8 @@
                         case "cancel":
                             console.log("cancel")
                         break;
-                        case "confir":                            
+                        case "confir":    
+                            toastr.info("Enviando datos, espere por favor")                        
                             var midata = await axios.post("/api/plan/amort", {
                                 prestamo_id: {{ $miplan2->id }},
                                 plan_id: {{ $miplan3->id }},
@@ -856,7 +860,8 @@
                         case "cancel":
                             console.log("cancel")
                         break;
-                        case "confir":                            
+                        case "confir":    
+                            toastr.info("Enviando datos, espere por favor")                          
                             var midata = await axios.post("/api/plan/refin", {
                                 prestamo_id: {{ $miplan2->id }},
                                 plan_id: {{ $miplan3->id }},
@@ -867,7 +872,7 @@
                                 ref_detalle: $("#ref_detalle").val()
                             })
                             console.log(midata.data)
-                            // location.reload()
+                            location.reload()
                         break;
                     }
                 }

@@ -634,6 +634,7 @@
                             console.log("cancel")
                         break;
                         case "confir":
+                            toastr.info("Enviado datos al servidor, espere por favor...")
                             $("#btnGuardar").text("enviado datos...")
                             $("#btnGuardar").prop( "disabled", true)
                             // $("#btnGuardar").prop( "readonly", true )
@@ -663,7 +664,7 @@
                                     console.log(response.data);
                                 });                                
                             }else{
-                                toastr.info("Prestamos sin documentos")
+                                //toastr.info("Prestamos sin documentos")
                             }
 
                             location.href = "/admin/prestamos"
