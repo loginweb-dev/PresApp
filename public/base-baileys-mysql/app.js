@@ -23,7 +23,7 @@ const flujoMenu1 = addKeyword('1')
 
 const flujoMenu2 = addKeyword('2')
     .addAnswer('Estos son nuestros servicios: ', null, async (ctx, {flowDynamic}) => {
-        const midata = await axios(process.env.APP_URL+"/api/servicios")
+        cons t midata = awai t axios(process.env.APP_URL+"/api/servicios")
         if(!midata.data){
             await flowDynamic([{body: 'Sin datos, vulva a intertar desde el inicio (enviando un hola)'}])
         }else{

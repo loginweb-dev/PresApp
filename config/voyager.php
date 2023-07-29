@@ -196,7 +196,6 @@ return [
         //'css/custom.css',
         'https://bootswatch.com/3/flatly/bootstrap.min.css',
         'css/style.css',
-        //'https://bootswatch.com/3/darkly/bootstrap.min.css'
     ],
 
     'additional_js' => [

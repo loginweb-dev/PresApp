@@ -40,14 +40,14 @@
         @endcan --}}
         @can('browse', $dataTypeContent)
             <a href="#" class="btn btn-dark" onclick="calcular_mora_dias('{{ $miplan3->id }}')">
-                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
+                <i class="icon voyager-refresh"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
 
             <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
-                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
+                <i class="icon voyager-lightbulb"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
             </a>
             <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
-                <i class="icon voyager-helm"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
+                <i class="icon voyager-heart"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
             </a>
 
         @endcan
@@ -256,6 +256,9 @@
                                                     <h2 class="text-center"><i class="icon voyager-refresh"></i></h2>
                                                 @elseif($item->pagado == 3)
                                                     <h2 class="text-center"><i class="icon voyager-heart"></i></h2>
+                                               
+                                                @elseif($item->pagado == 4)
+                                                    <h2 class="text-center"><i class="icon voyager-lightbulb"></i></h2>
                                                 @endif
                                             </td>  
                                     
@@ -689,11 +692,6 @@
 
         //pago con mora -----------------------------------------------------------------------------
         async function btn_mora() {
-            // var monto = $("#mora_pago").val()
-            // var tiempo = ({{ $miplan2->plazo}} - {{ $miplan3->nro }}) + 1
-            // var pmensual = {{ $miplan3->cuota }} 
-            // var mesinicio = "{{ $miplan3->fecha }}"     
-            // var nueva_deuda = {{ $miplan3->monto }} + ({{ $miplan3->cuota }} - $("#mora_pago").val())
             toastr.info("calculando..")
             var nueva_deuda = 0
             var nueva_interes = 0
@@ -753,7 +751,8 @@
                                 user_id: {{ Auth::user()->id }},
                                 plazo: {{ $miplan2->plazo }},
                                 prestamo_id: {{ $miplan2->id }},
-                                tipo_id: {{ $miplan2->tipo_id }}
+                                tipo_id: {{ $miplan2->tipo_id }},
+                                clase: "{{ $miplan2->clase }}"
                             })
                             console.log(midata.data)
                             location.reload()
@@ -811,7 +810,8 @@
                                 nueva_deuda: $("#pc_ndeuda").val(),
                                 user_id: {{ Auth::user()->id }},     
                                 tipo_id: {{ $miplan2->tipo_id }},
-                                pc_detalle: $("#pc_detalle").val()
+                                pc_detalle: $("#pc_detalle").val(),
+                                clase: "{{ $miplan2->clase }}"
                             })
                             console.log(midata.data)
                             location.reload()
@@ -869,10 +869,12 @@
                                 ref_nueva_deuda: $("#ref_nueva_deuda").val(),
                                 user_id: {{ Auth::user()->id }},    
                                 tipo_id: {{ $miplan2->tipo_id }},
-                                ref_detalle: $("#ref_detalle").val()
+                                ref_detalle: $("#ref_detalle").val(),
+                                clase: "{{ $miplan2->clase }}",
+                                plazo: {{ $miplan2->plazo }}
                             })
                             console.log(midata.data)
-                            location.reload()
+                            // location.reload()
                         break;
                     }
                 }
