@@ -42,13 +42,13 @@
             <a href="#" class="btn btn-dark" onclick="calcular_mora_dias('{{ $miplan3->id }}')">
                 <i class="icon voyager-refresh"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
-
-            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
-                <i class="icon voyager-lightbulb"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
-            </a>
             <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
                 <i class="icon voyager-heart"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
             </a>
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
+                <i class="icon voyager-lightbulb"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
+            </a>
+
 
         @endcan
     </h1>
@@ -166,6 +166,9 @@
                     @endforeach
 
                 {{-- </div> --}}
+                <a href="#" class="btn btn-dark btn-block">
+                    Actualizar
+                </a>
             </div>
 
             <div class="col-sm-9">
@@ -184,9 +187,9 @@
                                         <th>CAPITAL</th>
                                         <th>CUOTA</th>
                                         <th>DEUDA</th>
-                                         <th>MORA</th>
-                                        <th>REFIN</th>
-                                        <th>AMORT</th>
+                                         <th><i class="icon voyager-refresh"></i></th>
+                                        <th><i class="icon voyager-heart"></th>
+                                        <th><i class="icon voyager-lightbulb"></i></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -874,7 +877,7 @@
                                 plazo: {{ $miplan2->plazo }}
                             })
                             console.log(midata.data)
-                            // location.reload()
+                            location.reload()
                         break;
                     }
                 }
