@@ -332,35 +332,37 @@ Route::post('plan/amort', function (Request $request) {
     }
     return $request;
 });
-// Route::post('plan/mora/dias', function (Request $request) {
-//     // return $request;
-//     $midiff = date_diff(date_create($request->fecha), date_create(date("Y-m-d")));
-//     $dias_mora = $midiff->format("%a");
+Route::post('plan/mora/dias', function (Request $request) {
+    $midiff = date_diff(date_create($request->fecha), date_create(date("Y-m-d")));
+    $dias_mora = $midiff->format("%a");
 
-//     $interes_mora = 0;
-//     $total_mora = $request->cuota;
-//     $DiasMes= date('t'); 
-//     // return $DiasMes;
-//     if ($dias_mora > 0) {
-//         if ($request->tipo_id == 1 ) {
-//             $interes_mora = ($request->monto * 0.03)/$DiasMes;
-//         }else if($request->tipo_id == 2){
-//             $interes_mora = ($request->monto * 0.05)/$DiasMes;
-//         }                                
-//         $total_mora = ($interes_mora*$dias_mora) + $request->cuota;
-//         $miseting = setting('prestamos.redondear');
-//         if ($miseting == "nor") {
-//             $total_mora = number_format($total_mora, 2, '.', '');    
-//             $interes_mora = number_format($interes_mora, 2, '.', '');              
-//         } else if($miseting == "rmx"){
-//             $total_mora = ceil($total_mora);  
-//             $interes_mora = ceil($interes_mora);  
-//         } else if($miseting == "rmi"){
-                
-//         }
-//     }
-//     return response()->json(['dias_mora' => $dias_mora, 'interes_mora' => ($interes_mora*$dias_mora), 'total_mora' => $total_mora]);
-// });
+    $interes_mora = 0;
+    $total_mora = 0;
+    $DiasMes= date('t'); 
+    // return $DiasMes;
+    //     if ($dias_mora > 0) {
+    //         if ($request->tipo_id == 1 ) {
+    //             $interes_mora = ($request->monto * 0.03)/$DiasMes;
+    //         }else if($request->tipo_id == 2){
+    //             $interes_mora = ($request->monto * 0.05)/$DiasMes;
+    //         }                                
+    //         $total_mora = ($interes_mora*$dias_mora) + $request->cuota;
+    //         $miseting = setting('prestamos.redondear');
+    //         if ($miseting == "nor") {
+    //             $total_mora = number_format($total_mora, 2, '.', '');    
+    //             $interes_mora = number_format($interes_mora, 2, '.', '');              
+    //         } else if($miseting == "rmx"){
+    //             $total_mora = ceil($total_mora);  
+    //             $interes_mora = ceil($interes_mora);  
+    //         } else if($miseting == "rmi"){
+                    
+    //         }
+    //     }
+
+    $interes_mora = ceil($request->interes_mes / $DiasMes);
+    $total_mora = $dias_mora * $interes_mora; 
+    return response()->json(['dias_mora' => $dias_mora, 'interes_mora' => $interes_mora, 'total_mora' => $total_mora]);
+});
 
 
 // tipos-------------------------------------------------------
@@ -435,4 +437,25 @@ Route::get('settings', function () {
 //servicios --------------------------------------------
 Route::get('servicios', function () {
     return App\PrestamoTipo::all();
+});
+
+//servicios --------------------------------------------
+Route::get('agentes', function () {
+    return App\Models\User::where('role_id', 3)->get();
+});
+
+//leads --------------------------------------------
+Route::post('leads', function (Request $request) {
+    $midata = App\Lead::where("phone", $request->phone)->first();
+    if (!$midata) {
+        App\Lead::create([
+            'phone' => $request->phone,
+            'message' => $request->message,
+            'categoria' => 'General'
+        ]);
+    }else{
+        $midata->message = $request->message;
+        $midata->save();
+    }
+    return $request;
 });

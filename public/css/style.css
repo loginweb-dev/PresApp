@@ -13,3 +13,11 @@ tbody tr td{
     font-weight: bold;
     border: solid black;
 }
+
+.miselect {
+    border-style: inset;
+}
+
+.miinput{
+    border-style: inset;
+}

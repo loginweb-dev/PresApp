@@ -26,6 +26,7 @@ Route::get('/reset-db', function () {
     App\Gasto::truncate();
     App\Reporte::truncate();
     App\History::truncate();
+    App\Lead::truncate();
     return redirect('/admin');
 })->name('reset-db');
 

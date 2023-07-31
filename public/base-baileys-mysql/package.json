@@ -17,6 +17,9 @@
         "@bot-whatsapp/portal": "latest",
         "@bot-whatsapp/provider": "latest",
         "axios": "^1.4.0",
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "markdown-it": "^13.0.1",
         "mysql2": "^2.3.3",
         "wa-sticker-formatter": "4.3.2"
     },

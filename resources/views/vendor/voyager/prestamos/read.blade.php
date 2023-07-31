@@ -39,7 +39,7 @@
             @endif
         @endcan --}}
         @can('browse', $dataTypeContent)
-            <a href="#" class="btn btn-dark" onclick="calcular_mora_dias('{{ $miplan3->id }}')">
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
                 <i class="icon voyager-refresh"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
             <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
@@ -328,7 +328,7 @@
         </div><!-- /.modal-dialog -->
     </div>
 
-    {{-- pago de plan --}}
+    {{-- pago normal --}}
     <div class="modal modal-primary fade" tabindex="-1" id="modal_pagar" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -395,79 +395,101 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label=""><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title"><i class="voyager-helm"></i> Pago con mora #{{ $miplan3->nro." - ".$miplan2->tipo->nombre." - ".$miplan3->fecha." - ".$miplan2->plazo }}</h4>
                 </div>
+
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#opt1" aria-controls="opt1" role="tab" data-toggle="tab">Opcion Mensual</a></li>
+                    <li role="presentation"><a href="#opt2" aria-controls="opt2" role="tab" data-toggle="tab">Opcion Diaria</a></li>
+                </ul>
                 <div class="modal-body">
-                    <div class="row">
-                    
-                        <div class="form-group col-xs-4">
-                            <label for="">Deuda actual</label>                            
-                            <input type="number" name="" id="" value="{{ number_format($miplan3->monto, 2, '.', '') }}" class="form-control" readonly>
-                        </div>
-                        
-                        <div class="col-sm-4 form-group">
-                            <label for="">Interes del mes</label>
-                            <input type="number" class="form-control" id="" value="{{ number_format($miplan3->interes, 2, '.', '') }}" readonly>
-                        </div>
-
-                        <div class="col-sm-4 form-group">
-                            <label for="">Ingreso de capital</label>
-                            <input type="number" class="form-control" id="" value="{{ number_format($miplan3->capital, 2, '.', '') }}" readonly>
-                        </div>
-                    
-
-                        <div class="col-sm-4 form-group">
-                            <label for="">Pago parcial</label>
-                            <input type="number" class="form-control" id="mora_pago" value="{{ $miplan3->cuota }}">
-                        </div>
-
-                        <div class="col-sm-4 form-group">
-                            <div style="margin-top: 20px;">                            
-                                <a href="#" class="btn btn-warning" onclick="btn_mora()">Re-calcular deuda</a>
-                            </div>
-                        </div>
-                    
-                        <div class="col-sm-4 form-group">
-                            <label for="">Nueva deuda</label>
-                            <input type="text" class="form-control" id="mora_deuda" value="0" readonly>
-                        </div>
-
-                        <div class="form-group col-xs-6">
-                            <label for="">Pasarela</label>
-                            <select name="" id="mora_pasarela" class="form-control">
-                                @foreach ($pasarelas as $item)
-                                    <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group col-xs-6">
-                            <label for="">Fecha de pago</label>
-                            <input type="date" name="" id="mora_fecha" class="form-control" value="{{ date("Y-m-d") }}">
-                        </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="opt1">                            
+                                <div class="row">                                
+                                    <div class="form-group col-xs-4">
+                                        <label for="">Deuda actual</label>                            
+                                        <input type="number" name="" id="" value="{{ number_format($miplan3->monto, 2, '.', '') }}" class="form-control" readonly>
+                                    </div>
+                                    
+                                    <div class="col-sm-4 form-group">
+                                        <label for="">Interes del mes</label>
+                                        <input type="number" class="form-control" id="" value="{{ number_format($miplan3->interes, 2, '.', '') }}" readonly>
+                                    </div>
+            
+                                    <div class="col-sm-4 form-group">
+                                        <label for="">Ingreso de capital</label>
+                                        <input type="number" class="form-control" id="" value="{{ number_format($miplan3->capital, 2, '.', '') }}" readonly>
+                                    </div>                                
+            
+                                    <div class="col-sm-4 form-group">
+                                        <label for="">Pago parcial</label>
+                                        <input type="number" class="form-control" id="mora_pago" value="{{ $miplan3->cuota }}">
+                                    </div>
+            
+                                    <div class="col-sm-4 form-group">
+                                        <div style="margin-top: 20px;">                            
+                                            <a href="#" class="btn btn-warning" onclick="btn_mora()">Re-calcular deuda</a>
+                                        </div>
+                                    </div>
+                                
+                                    <div class="col-sm-4 form-group">
+                                        <label for="">Nueva deuda</label>
+                                        <input type="text" class="form-control" id="mora_deuda" value="{{ $miplan3->deuda }}" readonly>
+                                    </div>
+            
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Pasarela</label>
+                                        <select name="" id="mora_pasarela" class="form-control">
+                                            @foreach ($pasarelas as $item)
+                                                <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+            
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Fecha de pago</label>
+                                        <input type="date" name="" id="mora_fecha" class="form-control" value="{{ date("Y-m-d") }}">
+                                    </div>
                                                 
-                        {{-- <div class="form-group col-xs-4">
-                            <label for="">Dias en mora</label>
-                            <input type="number" name="" id="mora_dias" class="form-control" value="" readonly>
+                                    <div class="col-sm-12 form-group">
+                                        <label for="">Detalle</label>
+                                        <textarea name="" id="mora_detalle"  class="form-control">Pago con mora</textarea>
+                                    </div>
+                                </div>
+                                <a href="#" onclick="mipago_mora()" class="btn btn-dark pull-right">
+                                    Enviar y guardar
+                                </a>                        
                         </div>
+                        <div role="tabpanel" class="tab-pane" id="opt2">   
+                            <div class="row">
 
-                        <div class="form-group col-xs-4">
-                            <label for="">Interes de la mora</label>
-                            <input type="number" name="" id="mora_interes" class="form-control" value="" readonly>
-                        </div>
-                        <div class="form-group col-xs-4">
-                            <label for="">Pago final</label>
-                            <input type="number" name="" id="p_final" class="form-control" value="">
-                        </div> --}}
+                                                         
+                                <div class="form-group col-xs-3">
+                                    <label for="">Dias en mora</label>
+                                    <input type="number" name="" id="mora_dias" class="form-control" value="{{ $dias_mora }}" readonly>
+                                </div>
 
-                        <div class="col-sm-12 form-group">
-                            <label for="">Detalle</label>
-                            <textarea name="" id="mora_detalle"  class="form-control">Pago con mora</textarea>
+                                <div class="col-xs-3 form-group">
+                                    <div style="margin-top: 20px;">                            
+                                        <a href="#" class="btn btn-warning" onclick="">Re-calcular</a>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-xs-3">
+                                    <label for="">Interes por dia</label>
+                                    <input type="number" name="" id="mora_interes" class="form-control" value="0" readonly>
+                                </div>
+                                <div class="form-group col-xs-3">
+                                    <label for="">Monto total</label>
+                                    <input type="number" name="" id="total_mora" class="form-control" value="0">
+                                </div>
+                            </div>    
+                            <a href="#" onclick="mipago_mora_dias()" class="btn btn-dark pull-right">
+                                </i> Enviar y guardar
+                            </a>
                         </div>
                     </div>
                 </div>
+     
                 <div class="modal-footer">
-                    <a href="#" onclick="mipago_mora()" class="btn btn-dark pull-right">
-                        <i class="icon voyager-pen"></i> Pagar con mora
-                    </a>
                 </div>
             </div>
         </div>
@@ -699,7 +721,7 @@
             var nueva_deuda = 0
             var nueva_interes = 0
             var nueva_capital = 0
-            if ($("#mora_pago").val() == {{ $miplan3->interes }}) {
+            if($("#mora_pago").val() == {{ $miplan3->interes }}) {
                 nueva_deuda = {{ $miplan3->monto }}
             } else if($("#mora_pago").val() < {{ $miplan3->interes }} ){
                 nueva_interes = {{ $miplan3->interes }} - $("#mora_pago").val()
@@ -711,6 +733,18 @@
                 nueva_deuda ={{ $miplan3->monto }} + nueva_capital     
             }
             $("#mora_deuda").val(nueva_deuda.toFixed(2))
+
+           
+            //     var mora_update =  await axios.post("/api/plan/mora/dias", {
+            //         fecha: "{{ $miplan3->fecha }}",
+            //         tipo_id: {{ $miplan2->tipo_id }},
+            //         interes_mes: {{ $miplan3->interes }}
+            //     })
+            //     console.log(mora_update.data.dias_mora)
+            //     $("#mora_dias").val(mora_update.data.dias_mora)
+            //     $("#mora_interes").val(mora_update.data.interes_mora)
+            //     $("#total_mora").val(mora_update.data.total_mora)
+      
         }
         function mipago_mora(){
             $('#modal_mora').modal('hide')
@@ -764,24 +798,6 @@
                 }
             );    
         }     
-        async function calcular_mora_dias(id){
-            // console.log(id)
-            $('#modal_mora').modal('show')
-            // var mipago = await axios("/api/plan/"+id)
-            // var mora_update =  await axios.post("/api/plan/mora/dias", {
-            //     fecha: mipago.data.fecha,
-            //     cuota: mipago.data.cuota,
-            //     monto: mipago.data.monto,
-            //     tipo_id: {{ $miplan2->tipo_id }}
-            // })
-            // console.log(mora_update.data)
-            // $("#mora_dias").val(mora_update.data.dias_mora)
-            // $("#mora_interes").val(mora_update.data.interes_mora)
-            // $("#p_final").val(mora_update.data.total_mora)
-            
-            
-        }
-
 
         //pago a capital amortizacion ------------------------------------------------------------------------
         function btn_amort() {
@@ -898,12 +914,20 @@
 
         // whatsapp-------------------------------------------------------------------------------
         async function whatsapp(){ 
+            $('#modal_recibo').modal('hide');
             var misms = $("#recibo_detalle").val()
             var miwhats = $("#recibo_whatsapp").val()
-            window.open(
-                'https://wa.me/'+miwhats+'?text='+misms,
-                '_blank'
-            );
+            var miurl = "{{ env('CB_URL').'/send' }}"
+            var midata = {
+                phone: miwhats,
+                message: misms
+            }
+            var midata = await axios.post(miurl, midata)
+            toastr.info("mensaje enviado...")
+            // window.open(
+            //     'https://wa.me/'+miwhats+'?text='+misms,
+            //     '_blank'
+            // );
         }
     </script>
 @stop

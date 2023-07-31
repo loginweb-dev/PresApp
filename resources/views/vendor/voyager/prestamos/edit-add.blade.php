@@ -32,19 +32,19 @@
                 {{-- <div class="panel panel-bordered"> --}}
                     {{-- <div class="panel-body"> --}}
            
-                        <br>
+                        {{-- <br> --}}
                         <!-- form start -->
-                        <form role="form"
+                        {{-- <form role="form"
                                 class="form-edit-add"
                                 action="{{ $edit ? route('voyager.'.$dataType->slug.'.update', $dataTypeContent->getKey()) : route('prestamo_store') }}"
                                 method="POST" enctype="multipart/form-data" id="miform">
-                            <!-- PUT Method if we are editing -->
+                    
                             @if($edit)
                                 {{ method_field("PUT") }}
                             @endif
 
-                            <!-- CSRF TOKEN -->
-                            {{ csrf_field() }}
+                    
+                            {{ csrf_field() }} --}}
                             {{-- <div class="panel-body"> --}}
 
                                 @if (count($errors) > 0)
@@ -105,10 +105,10 @@
                                 @endforeach
 
                                 <div class="form-group col-xs-12">
-                                    <a href="#" id="btnGuardar"  class="btn btn-dark btn-block"><i class="icon voyager-data"></i> Enviar y Guardar</a>
+                                    <button id="btnGuardar"  class="btn btn-dark btn-block"><i class="icon voyager-data"></i> Enviar y Guardar</button>
                                 </div>
                             {{-- </div> --}}
-                        </form>
+                        {{-- </form> --}}
 
                         <div style="display:none">
                             <input type="hidden" id="upload_url" value="{{ route('voyager.upload') }}">
@@ -184,8 +184,7 @@
         const llenarTabla = document.querySelector('#lista-tabla tbody');
         localStorage.removeItem("miplan")
         localStorage.removeItem("mitipo")
-        $("#interes").prop("readonly", true)
-        
+        $("#btnGuardar").prop("disabled", true)
         $("#fecha_prestamos").val("{{ date('Y-m-d') }}")
         $("#mes_inicio").val("{{ date('Y-m-d') }}")
         var md = window.markdownit();
@@ -260,17 +259,8 @@
 
         $("#tipo_id").change(async function (e) { 
             e.preventDefault();
-            
-            toastr.info("Actualizando datos..")
-            var mitipo = await axios("/api/tipo/"+this.value)
-            // $("#table_detalles").html("<h4>"+mitipo.data.nombre+"</h4>"+md.render(mitipo.data.detalle)+"</p><p>Redondeo: {{ setting('prestamos.redondear') }}</p><p>Requisitos: "+md.render(mitipo.data.requisitos)+"</p>")
-            // eprest = "valido"
 
-            //limpiar table
-            while(llenarTabla.firstChild){
-                llenarTabla.removeChild(llenarTabla.firstChild);
-            }
-      
+            var mitipo = await axios("/api/tipo/"+this.value)
             localStorage.setItem('mitipo', JSON.stringify(mitipo.data))
             $("#plazo").val(mitipo.data.plazo_minimo)   
             simular()
@@ -278,17 +268,12 @@
 
         $("#monto").keyup(function (e) {     
             calularPP()
-            
             simular()
         });
         
         $("#cuota").keyup(function (e) {     
             calularPP()
-            console.log($(this).val().length)
-            // if ($(this).val().lengt >= 3) {
-                simular()
-            // }
-            
+            simular()
         });
 
         $("#plazo").keyup(function (e) {     
@@ -392,9 +377,6 @@
         }
 
         function simular(){
-
-
-
             const cuota = parseFloat(document.getElementById('cuota').value);
             const monto = document.getElementById('monto').value;
             const tiempo = document.getElementById('plazo').value;
@@ -469,7 +451,7 @@
                     <td>${mimonto.toFixed(2)}</td>
                     <td>${miinteres.toFixed(2)}</td>
                     <td>${micapital.toFixed(2)}</td>
-                    <td>${micuota.toFixed(2)}<br>${fecha[i]}</td>
+                    <td>${micuota.toFixed(2)}</td>
                     <td>${mideuda.toFixed(2)}</td>
                 `;
                 llenarTabla.appendChild(row)
@@ -477,7 +459,14 @@
                 miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': micuota, 'deuda': mideuda, 'nro': i})
 
             }
-            localStorage.setItem("miplan", JSON.stringify(miplan))       
+            localStorage.setItem("miplan", JSON.stringify(miplan))     
+            // mivalidar = (mideuda < 0) ? true : false 
+            if (miaxu < 0 || micapital < 0 || micuota > cuota) {
+                toastr.error("Error en el plan")
+                $("#btnGuardar").prop("disabled", true)
+            } else{
+                $("#btnGuardar").prop("disabled", false)
+            }
         }
     </script>
 @stop
