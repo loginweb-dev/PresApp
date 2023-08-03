@@ -114,7 +114,7 @@ Route::post('plan/mora', function (Request $request) {
         $miplan->interes = $miplan->interes - $request->pago_parcial;
         $miplan->capital = 0;
     }else{
-        $miplan->capital = $miplan->capital - ($request->pago_parcial - $miplan->interes);   
+        $miplan->capital = $request->pago_parcial - $miplan->interes;   
     }
     $miplan->save();
 

@@ -1,160 +1,95 @@
 [handleMsg]:  {
   key: {
-    remoteJid: '59172823861@s.whatsapp.net',
+    remoteJid: '59171130523@s.whatsapp.net',
     fromMe: false,
-    id: '3EB0848F8AB512924D09CB',
+    id: '3EB0A84F092856159D8F7E',
     participant: undefined
   },
-  messageTimestamp: 1690837004,
-  pushName: 'Iptv Bolivia',
+  messageTimestamp: 1691031452,
+  pushName: 'percy alvarez 2017',
   broadcast: false,
   message: Message {
-    conversation: 'asdf',
+    conversation: 'hola',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: 'asdf',
-  from: '59172823861'
+  body: 'hola',
+  from: '59171130523'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '59172823861@s.whatsapp.net',
+    remoteJid: '59171130523@s.whatsapp.net',
     fromMe: false,
-    id: '3EB0D5021BABD40691CBEB',
+    id: '3EB003E33BC469AD2C0D77',
     participant: undefined
   },
-  messageTimestamp: 1690837021,
-  pushName: 'Iptv Bolivia',
+  messageTimestamp: 1691031714,
+  pushName: 'percy alvarez 2017',
   broadcast: false,
   message: Message {
-    conversation: '.',
+    extendedTextMessage: ExtendedTextMessage {
+      text: '2',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: '.',
-  from: '59172823861'
+  body: '2',
+  from: '59171130523'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '59172823861@s.whatsapp.net',
+    remoteJid: '59171130523@s.whatsapp.net',
     fromMe: false,
-    id: '3EB04DD7EB6A81682925C0',
+    id: '3EB0155862AB968729774D',
     participant: undefined
   },
-  messageTimestamp: 1690837152,
-  pushName: 'Iptv Bolivia',
+  messageTimestamp: 1691032435,
+  pushName: 'percy alvarez 2017',
   broadcast: false,
   message: Message {
-    conversation: 'ok',
+    extendedTextMessage: ExtendedTextMessage {
+      text: 'hola',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: 'ok',
-  from: '59172823861'
+  body: 'hola',
+  from: '59171130523'
 }
 [handleMsg]:  {
   key: {
-    remoteJid: '59172823861@s.whatsapp.net',
+    remoteJid: '59171130523@s.whatsapp.net',
     fromMe: false,
-    id: '3EB0A2FB3EE2A80F5688E6',
+    id: '3EB02A40917DA529EF0985',
     participant: undefined
   },
-  messageTimestamp: 1690837158,
-  pushName: 'Iptv Bolivia',
+  messageTimestamp: 1691032444,
+  pushName: 'percy alvarez 2017',
   broadcast: false,
   message: Message {
-    conversation: 'ok',
-    messageContextInfo: MessageContextInfo {
-      deviceListMetadata: [DeviceListMetadata],
-      deviceListMetadataVersion: 2
-    }
-  },
-  body: 'ok',
-  from: '59172823861'
-}
-[handleMsg]:  {
-  key: {
-    remoteJid: '59172823861@s.whatsapp.net',
-    fromMe: false,
-    id: '3EB0FF2D1271F57A7F41D5',
-    participant: undefined
-  },
-  messageTimestamp: 1690837170,
-  pushName: 'Iptv Bolivia',
-  broadcast: false,
-  message: Message {
-    conversation: '1',
+    extendedTextMessage: ExtendedTextMessage {
+      text: '1',
+      previewType: 0,
+      contextInfo: [ContextInfo],
+      inviteLinkGroupTypeV2: 0
+    },
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
   body: '1',
-  from: '59172823861'
-}
-[handleMsg]:  {
-  key: {
-    remoteJid: '59172823861@s.whatsapp.net',
-    fromMe: false,
-    id: '3EB0592824FD421B2E43DE',
-    participant: undefined
-  },
-  messageTimestamp: 1690837173,
-  pushName: 'Iptv Bolivia',
-  broadcast: false,
-  message: Message {
-    conversation: '1',
-    messageContextInfo: MessageContextInfo {
-      deviceListMetadata: [DeviceListMetadata],
-      deviceListMetadataVersion: 2
-    }
-  },
-  body: '1',
-  from: '59172823861'
-}
-[handleMsg]:  {
-  key: {
-    remoteJid: '59172823861@s.whatsapp.net',
-    fromMe: false,
-    id: '3EB054BF2B00EC0A2FEC3B',
-    participant: undefined
-  },
-  messageTimestamp: 1690837178,
-  pushName: 'Iptv Bolivia',
-  broadcast: false,
-  message: Message {
-    conversation: '6548',
-    messageContextInfo: MessageContextInfo {
-      deviceListMetadata: [DeviceListMetadata],
-      deviceListMetadataVersion: 2
-    }
-  },
-  body: '6548',
-  from: '59172823861'
-}
-[handleMsg]:  {
-  key: {
-    remoteJid: '59172823861@s.whatsapp.net',
-    fromMe: false,
-    id: '3EB0C5ED0DE2CE23071349',
-    participant: undefined
-  },
-  messageTimestamp: 1690837182,
-  pushName: 'Iptv Bolivia',
-  broadcast: false,
-  message: Message {
-    conversation: 'ok',
-    messageContextInfo: MessageContextInfo {
-      deviceListMetadata: [DeviceListMetadata],
-      deviceListMetadataVersion: 2
-    }
-  },
-  body: 'ok',
-  from: '59172823861'
+  from: '59171130523'
 }
