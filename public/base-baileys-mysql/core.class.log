@@ -2,49 +2,159 @@
   key: {
     remoteJid: '59172823861@s.whatsapp.net',
     fromMe: false,
-    id: '3EB09D580FD2E32A8F16C8',
+    id: '3EB0848F8AB512924D09CB',
     participant: undefined
   },
-  messageTimestamp: 1690770766,
+  messageTimestamp: 1690837004,
   pushName: 'Iptv Bolivia',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: 'hola',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: 'asdf',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: 'hola',
+  body: 'asdf',
   from: '59172823861'
 }
 [handleMsg]:  {
   key: {
     remoteJid: '59172823861@s.whatsapp.net',
     fromMe: false,
-    id: '3EB078748601F2EFDF0E1F',
+    id: '3EB0D5021BABD40691CBEB',
     participant: undefined
   },
-  messageTimestamp: 1690770768,
+  messageTimestamp: 1690837021,
   pushName: 'Iptv Bolivia',
   broadcast: false,
   message: Message {
-    extendedTextMessage: ExtendedTextMessage {
-      text: '3',
-      previewType: 0,
-      contextInfo: [ContextInfo],
-      inviteLinkGroupTypeV2: 0
-    },
+    conversation: '.',
     messageContextInfo: MessageContextInfo {
       deviceListMetadata: [DeviceListMetadata],
       deviceListMetadataVersion: 2
     }
   },
-  body: '3',
+  body: '.',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB04DD7EB6A81682925C0',
+    participant: undefined
+  },
+  messageTimestamp: 1690837152,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: 'ok',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'ok',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB0A2FB3EE2A80F5688E6',
+    participant: undefined
+  },
+  messageTimestamp: 1690837158,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: 'ok',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'ok',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB0FF2D1271F57A7F41D5',
+    participant: undefined
+  },
+  messageTimestamp: 1690837170,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: '1',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: '1',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB0592824FD421B2E43DE',
+    participant: undefined
+  },
+  messageTimestamp: 1690837173,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: '1',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: '1',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB054BF2B00EC0A2FEC3B',
+    participant: undefined
+  },
+  messageTimestamp: 1690837178,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: '6548',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: '6548',
+  from: '59172823861'
+}
+[handleMsg]:  {
+  key: {
+    remoteJid: '59172823861@s.whatsapp.net',
+    fromMe: false,
+    id: '3EB0C5ED0DE2CE23071349',
+    participant: undefined
+  },
+  messageTimestamp: 1690837182,
+  pushName: 'Iptv Bolivia',
+  broadcast: false,
+  message: Message {
+    conversation: 'ok',
+    messageContextInfo: MessageContextInfo {
+      deviceListMetadata: [DeviceListMetadata],
+      deviceListMetadataVersion: 2
+    }
+  },
+  body: 'ok',
   from: '59172823861'
 }

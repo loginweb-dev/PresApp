@@ -1,3 +1,4 @@
+// librearias --------------------------------------
 const { createBot, createProvider, createFlow, addKeyword, EVENTS} = require('@bot-whatsapp/bot')
 const express = require('express');
 const axios = require('axios');
@@ -12,12 +13,23 @@ const MySQLAdapter = require('@bot-whatsapp/database/mysql')
 require('dotenv').config({path: '../../.env'})
 var path = require('path');
 
+
+//db-----------------------------------------
 const MYSQL_DB_HOST = process.env.DB_HOST
 const MYSQL_DB_USER = process.env.DB_USERNAME
 const MYSQL_DB_PASSWORD = process.env.DB_PASSWORD
 const MYSQL_DB_NAME = process.env.DB_DATABASE
 const MYSQL_DB_PORT = process.env.DB_PORT
 
+//midleware cargar datos----------------------
+// const misetting =  async () =>{
+//     var midata = await axios(process.env.APP_URL+"/api/settings")
+//     console.log(midata.data)
+// }
+
+
+
+// flujos ---------------------------------
 const flujoMenu1 = addKeyword('1')
     .addAnswer('Ingresa el codigo asignado de tu prestamo', { capture: true })
     .addAnswer('Resultado de la conulta: ', null, async (ctx, {flowDynamic}) => {
@@ -56,14 +68,29 @@ const flujoMenu3 = addKeyword('3')
         }
     })
 
-// const misetting =  async () =>{
-//     var midata = await axios(process.env.APP_URL+"/api/settings")
-//     console.log(midata.data)
-// }
-const flowPrincipal = addKeyword(['hola', 'Hola','ole', 'alo', 'buenas', 'Buenas', 'alguien', 'precios', 'precios', 'iptv'])
+// const flowPrincipal = addKeyword(['hola', 'Hola','ole', 'alo', 'buenas', 'Buenas', 'alguien', 'precios', 'precios', 'iptv'])
+//     .addAnswer(
+//         [
+//             '🙌 Hola bienvenid@, te saluda el chatbot: '+process.env.APP_NAME+', te puedo ayudar con las opciones de:',
+//             '\n1.- Consultar mi prestamo',
+//             '2.- Todos nuestros servicios',
+//             '3.- Chatear agente de ventas',
+//             '\n*envia un numero para ingresar al menu*',
+//         ],
+//         null,
+//         null,
+//         [flujoMenu1, flujoMenu2, flujoMenu3]
+//     )
+
+const flujoGracias = addKeyword(['gracias', 'muchas gracias', 'ok'])
+        .addAnswer('Estamos para servirle.')
+
+
+// eventos--------------------------------------------------------
+const flujoWelcome = addKeyword(EVENTS.WELCOME)
     .addAnswer(
         [
-            '🙌 Hola bienvenid@, te saluda el chatbot: '+process.env.APP_NAME+', te puedo ayudar con las opciones de:',
+            '🙌 Hola bienvenid@, te saluda el chatbot: '+process.env.APP_NAME+', te puedo ayudar con las opciones:',
             '\n1.- Consultar mi prestamo',
             '2.- Todos nuestros servicios',
             '3.- Chatear agente de ventas',
@@ -74,14 +101,7 @@ const flowPrincipal = addKeyword(['hola', 'Hola','ole', 'alo', 'buenas', 'Buenas
         [flujoMenu1, flujoMenu2, flujoMenu3]
     )
 
-const flujoGracias = addKeyword(['gracias', 'muchas gracias'], )
-        .addAnswer('Estamos para servirle.')
-
-// eventos--------------------------------------------------------
-// const flujoWelcome = addKeyword(EVENTS.WELCOME)
-    // .addAnswer('Bienvenidos al chatbot')
-
-
+// adaptadores----------------------------------------------------
 const adapterDB = new MySQLAdapter({
     host: MYSQL_DB_HOST,
     user: MYSQL_DB_USER,
@@ -89,20 +109,36 @@ const adapterDB = new MySQLAdapter({
     password: MYSQL_DB_PASSWORD,
     port: MYSQL_DB_PORT,
 })
-const adapterFlow = createFlow([flowPrincipal, flujoGracias])
+const adapterFlow = createFlow([flujoGracias, flujoWelcome])
 const adapterProvider = createProvider(BaileysProvider)
 
+
+// main -------------------------------------------------------------
+const main = async () => {
+    createBot({
+        flow: adapterFlow,
+        provider: adapterProvider,
+        database: adapterDB,
+    })
+}
+main()
+
+// api--------------------------------------------------------------------
 const app = express();
 app.use(cors())
 app.use(express.json())
 
+app.listen(process.env.CB_PORT, () => {
+    console.log('CHATBOT ESTA LISTO EN EL PUERTO: '+process.env.CB_PORT);
+});
 
+// rutas
 app.get('/', async (req, res) => {
     res.send('CHATBOT ESTA LISTO EN EL PUERTO:'+process.env.CB_PORT);
 });
 
+//
 app.post('/send', async (req, res) => {
-    // console.log(req.body)
     var phone = req.body.phone
     var message = req.body.message
     try {
@@ -114,7 +150,6 @@ app.post('/send', async (req, res) => {
     res.send('mensaje enviado')
 });
 
-
 //leads
 adapterProvider.on('message', async (ctx) => {
     const {from, body} = ctx
@@ -124,17 +159,3 @@ adapterProvider.on('message', async (ctx) => {
     })
     console.log(midata.data)
 })
-
-
-const main = async () => {
-    createBot({
-        flow: adapterFlow,
-        provider: adapterProvider,
-        database: adapterDB,
-    })
-}
-
-main()
-app.listen(process.env.CB_PORT, () => {
-    console.log('CHATBOT ESTA LISTO EN EL PUERTO: '+process.env.CB_PORT);
-});

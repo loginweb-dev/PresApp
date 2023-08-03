@@ -48,11 +48,12 @@
                             <a href="#" onclick="misend()"  class="btn btn-dark">Enviar mensaje (testing)</a>
                         </div>
                         <div class="col-md-12">
-                            <h2>Historial del bot (envios)</h2>
+                            <h2>Historial del bot</h2>
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <td>#</td>                        
+                                        <td>#</td> 
+                                        <td>Tipo</td>                             
                                         <td>Mensaje</td>
                                     </tr>
                                 </thead>
@@ -63,6 +64,13 @@
                                                 ID: {{ $item->id }}
                                                 <br>
                                                 {{ $item->created_at }}
+                                            </td>
+                                            <td>
+                                                @if ($item->options == "{}")
+                                                    user
+                                                @else
+                                                    bot
+                                                @endif
                                             </td>
                                             <td>
                                                 <strong>Phone: {{ $item->phone }}</strong>
@@ -80,10 +88,13 @@
             </div>
           <div role="tabpanel" class="tab-pane" id="historial">
             <div class="row">                
-
                 <div class="col-xs-12">
-                    <h3>Flujo del Bot</h3>
-                    {{ menu('whatsapp') }}
+                    <h3>Flujo botcenter</h3>
+                    {{ menu('Flujo defecto') }}
+                </div>
+                <div class="col-xs-12">
+                    <h3>Flujo prestamos</h3>
+                    {{ menu('Flujo prestamos') }}
                 </div>
             </div>
 
@@ -139,13 +150,26 @@
 
 <script>
     async function misend() {
-        var miurl = "{{ env('CB_URL').'/send' }}"
-        var midata = {
-            phone: $("#phone").val(),
-            message: $("#message").val()
+        try {            
+            var miurl = "{{ env('CB_URL').'/send' }}"
+            var midata = {
+                phone: $("#phone").val(),
+                message: $("#message").val()
+            }
+            var midata = await axios.post(miurl, midata)
+                .catch(function (error) {
+                    console.log(error.message);
+                    if (error.message) {
+
+                        toastr.error("Error en el chatbot, escanea el QR")
+                    }else{
+                        toastr.info("mensaje enviado...")
+                    }                    
+                })
+
+        } catch (error) {
+            // console.log(error)        
         }
-        var midata = await axios.post(miurl, midata)
-        toastr.info("mensaje enviado...")
     }
 </script>
 @stop

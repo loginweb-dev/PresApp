@@ -33,7 +33,7 @@ Route::get('/reset-db', function () {
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
     Route::get('bot-whatsapp', function () {
-        return view('bot-whatsapp');
+        return view('botcenter');
     });
 
     // Route::get('send', function () {        

@@ -23,7 +23,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 // prestamos -----------------------------------------------
 Route::post('prestamos/store', function (Request $request) {
-    
+    // return $request;
     $new = App\Prestamo::create([
         'cliente_id' => $request->cliente_id,
         'tipo_id' => $request->tipo_id,
@@ -41,6 +41,7 @@ Route::post('prestamos/store', function (Request $request) {
     ]);
 
     $micount =  json_decode($request->miplan);
+    // return $micount;
     for ($i=0; $i < count($micount); $i++) { 
         App\PrestamoPlane::create([
             'mes' => $micount[$i]->mes,
@@ -427,7 +428,8 @@ Route::post('bonos/calular', function (Request $request) {
 
 //Settings --------------------------------------------
 Route::get('settings', function () {
-    return response()->json(['nombre' => setting('chatbot.nombre'), 'bienvenida' => setting('chatbot.bienvenida')]);
+    return menu('whatsapp');
+    // return response()->json(['nombre' => setting('chatbot.nombre'), 'bienvenida' => setting('chatbot.bienvenida')]);
 });
 Route::get('settings', function () {
     $mititle =  setting('chatbot.nombre');

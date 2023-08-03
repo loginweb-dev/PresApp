@@ -120,33 +120,22 @@
             </div>
 
             <div class="col-xs-7">
-                {{-- <div class="panel panel-bordered"> --}}
-                    {{-- <div class="panel-body"> --}}
-                        <div class="table-responsive">
-                            <table class="table table-hover table-bordered table-striped" id="lista-tabla">
-                                <thead>
-                                    <tr>
-                                        {{-- <th>NRO</th> --}}
-                                        <th>MES</th>                                       
-                                        <th>MONTO</th>
-                                        <th>INTERES</th>
-                                        <th>CAPITAL</th>
-                                        <th>CUOTA</th>
-                                        <th>DEUDA</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                            
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-12">                            
-                                <div id="table_detalles"></div>
-                            </div>
-               
-                        </div>
-                    {{-- </div> --}}
-                {{-- </div> --}}
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-striped" id="lista-tabla">
+                        <thead>
+                            <tr>
+                                <th>MES</th>                                       
+                                <th>MONTO</th>
+                                <th>INTERES</th>
+                                <th>CAPITAL</th>
+                                <th>CUOTA</th>
+                                <th>DEUDA</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <div id="miaccion" class="text-right"></div>
+                </div>
             </div>
           
         </div>
@@ -173,6 +162,54 @@
             </div>
         </div>
     </div>
+
+    
+    <div class="modal fade modal-primary" id="modal_plan">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><i class="voyager-warning"></i>Nuevo plan</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <label for="">Ultima fecha</label>
+                            <input type="date" name="" id="plan_fecha" class="form-control">                            
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="">Deuda actual</label>
+                            <input type="number" name="" id="plan_deuda" class="form-control">                            
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="">Nueva cuota</label>
+                            <input type="number" name="" id="plan_nueva_cuota" class="form-control">                            
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="">Interes</label>
+                            <input type="number" name="" id="plan_interes" class="form-control">                            
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="">Capital</label>
+                            <input type="number" name="" id="plan_capital" class="form-control">                            
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="">Nueva deuda</label>
+                            <input type="number" name="" id="plan_nueva_deuda" class="form-control">                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" onclick="store_plan()" class="btn btn-warning">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('javascript')
@@ -182,9 +219,9 @@
         var params = {};
         var $file;
         const llenarTabla = document.querySelector('#lista-tabla tbody');
+        var miplan = []
         localStorage.removeItem("miplan")
         localStorage.removeItem("mitipo")
-        $("#btnGuardar").prop("disabled", true)
         $("#fecha_prestamos").val("{{ date('Y-m-d') }}")
         $("#mes_inicio").val("{{ date('Y-m-d') }}")
         var md = window.markdownit();
@@ -277,7 +314,7 @@
         });
 
         $("#plazo").keyup(function (e) {     
-            simular()
+            // simular()
         });
 
         $("#clase").change(function (e) {     
@@ -293,7 +330,7 @@
             const micliente = $("#cliente_id option:selected").text()
             const miobserv = $("#observacion").val()
             const mimonto = $("#monto").val()
-            const miplan = localStorage.getItem("miplan")
+            // const miplan = localStorage.getItem("miplan")
             const fecha_prestamos = $("#fecha_prestamos").val()
             if(micliente == ''){
                 swal({
@@ -332,8 +369,11 @@
                         case "confir":
                             toastr.info("Enviado datos al servidor, espere por favor...")
                             $("#btnGuardar").hide()
-                            var codigo = (Math.random() + 1).toString(36).substring(7);
+                            var codigo = (Math.random() + 1).toString(36).substring(7)
                             const tipodata = JSON.parse(localStorage.getItem('mitipo'))
+                            localStorage.setItem("miplan", JSON.stringify(miplan))   
+                            // const miplanes = localStorage.getItem("miplan")
+                            // console.log(localStorage.getItem("miplan"))
                             var respt = await axios.post('/api/prestamos/store', {
                                 cliente_id:  $("#cliente_id").val(),
                                 tipo_id:  $("#tipo_id").val(),
@@ -346,7 +386,7 @@
                                 user_id:  "{{ Auth::user()->id }}",
                                 mes_inicio:  $("#mes_inicio").val(),
                                 fecha_prestamos:  $("#fecha_prestamos").val(),
-                                miplan: miplan,
+                                miplan: localStorage.getItem("miplan"),
                                 codigo: codigo,
                                 clase: $("#clase").val()
                             })
@@ -359,9 +399,9 @@
                                     console.log(response.data);
                                 });                                
                             }else{
-                                //toastr.info("Prestamos sin documentos")
+                                
                             }
-
+                            // console.log(respt.data)
                             location.href = "/admin/prestamos"
                         break;
                     }
@@ -370,84 +410,126 @@
         })
 
         function calularPP() { 
-            const mimonto = parseInt($("#monto").val())
-            const micuota = parseInt($("#cuota").val())
-            var miplazo = Math.ceil(mimonto/micuota)
-            $("#plazo").val(parseInt(miplazo)+3) 
+            // const tipodata = JSON.parse(localStorage.getItem('mitipo'))
+            // const mimonto = parseInt($("#monto").val())
+            // const micuota = parseInt($("#cuota").val())
+            // const miinteres = Math.ceil(tipodata.interes * mimonto)
+            // var miplazo = Math.ceil(mimonto/micuota)
+            // $("#plazo").val(parseInt(miplazo)) 
         }
 
         function simular(){
+
             const cuota = parseFloat(document.getElementById('cuota').value);
             const monto = document.getElementById('monto').value;
-            const tiempo = document.getElementById('plazo').value;
             const mitipo = document.getElementById('tipo_id').value;
             const mesinicio = document.getElementById('mes_inicio').value;
             const miclase = document.getElementById('clase').value;
             const tipodata = JSON.parse(localStorage.getItem('mitipo'))
 
-            if (tiempo > tipodata.plazo_maximo) {
-                return true
-            }
-
             //limpiar table
             while(llenarTabla.firstChild){
                 llenarTabla.removeChild(llenarTabla.firstChild);
             }
+            // localStorage.removeItem("miplan")
+            miplan = []
 
             //procesamiento
-            let fechas = [];
-            let fecha = [];
-            var miplan = []
+            let mimes = null;
+            let fecha = null;
             let mes_actual = moment(mesinicio);
-            var mideuda = 0
+            var mideuda = monto
             var mimonto = 0
             var micuota = 0
             var miaxu = 0
-            for(let i = 1; i <= tiempo; i++) {                               
-                fechas[i] = mes_actual.format('MMMM-YY');
-                fecha[i] = mes_actual.format('YYYY-MM-DD');
-                mes_actual.add(1, 'month');
-                mimonto = (i == 1) ? parseFloat(monto) : parseFloat(miaxu)
+            var miplazo = 1
+            var micapital = 0
+            while (cuota <= mideuda && miplazo <= tipodata.plazo_maximo) {
+                $("#plazo").val(miplazo)
+                mimes = mes_actual.format('MMMM-YY')
+                fecha = mes_actual.format('YYYY-MM-DD')
+              
+                mimonto = (miplazo == 1) ? parseFloat(monto) : parseFloat(miaxu)
 
-                if(i == tiempo){      
-                    micuota = miaxu          
-                    if (miclase == 'Fijo') {
-                        miinteres = parseFloat(tipodata.monto_interes * monto)
-                        micapital = parseFloat(micuota-miinteres)
-                        
-                    } else if(miclase == 'Variable'){
-                        miinteres = parseFloat(tipodata.monto_interes * mimonto)
-                        micapital = parseFloat(micuota-miinteres)
-                    }
-                    mideuda = 0              
-                } else {      
-                    micuota = cuota  
-                    if (miclase == 'Fijo') {
-                        miinteres = parseFloat(tipodata.monto_interes * monto)
-                        micapital = parseFloat(cuota-miinteres)
-                        
-                    } else if(miclase == 'Variable'){
-                        miinteres = parseFloat(tipodata.monto_interes * mimonto)
-                        micapital = parseFloat(cuota-miinteres)
-                    }
-                    switch ("{{ setting('prestamos.redondear') }}") {
-                        case 'nor':
-                            mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(micuota))
-                            break;
-                        case 'rmx':
-                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(micuota)))
-                            break;
-                        case 'rmi':
-                            mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(micuota)))                
-                            break;
-                    }
-                    miaxu = parseFloat(mideuda)
+                if (miclase == 'Fijo') {
+                    miinteres = parseFloat(tipodata.monto_interes * monto)
+                    micapital = parseFloat(cuota-miinteres)
+                    
+                } else if(miclase == 'Variable'){
+                    miinteres = parseFloat(tipodata.monto_interes * mimonto)
+                    micapital = parseFloat(cuota-miinteres)
                 }
+                switch ("{{ setting('prestamos.redondear') }}") {
+                    case 'nor':
+                        mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota))
+                        break;
+                    case 'rmx':
+                        mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota)))
+                        break;
+                    case 'rmi':
+                        mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota)))                
+                        break;
+                }
+                miaxu = parseFloat(mideuda)
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
           
-                    <td>NRO:${i}<br>${fechas[i]}</td>                    
+                    <td>NRO:${miplazo}<br>${mimes}</td>                    
+                    <td>${mimonto.toFixed(2)}</td>
+                    <td>${miinteres.toFixed(2)}</td>
+                    <td>${micapital.toFixed(2)}</td>
+                    <td>${cuota.toFixed(2)}</td>
+                    <td>${mideuda.toFixed(2)}</td>
+                `;
+                llenarTabla.appendChild(row)
+                miplan.push({'mes': mimes, 'fecha': fecha, 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': cuota, 'deuda': mideuda, 'nro': miplazo})     
+
+                mes_actual.add(1, 'month')
+                miplazo = miplazo + 1                
+            }
+                
+
+            if( miaxu > 0){
+                var miplan_aux = JSON.stringify({
+                    deuda: miaxu,
+                    cuota: cuota,
+                    interes: miinteres,
+                    capital: micapital,
+                    fecha: fecha
+                })
+                $("#miaccion").html("<a href='#' class='btn btn-warning' onclick='modal_plan("+miplan_aux+")'>Agregar 1 plazo</a>")
+            }
+        }
+
+        function modal_plan(miplan_aux) { 
+            $("#modal_plan").modal()
+            $("#plan_nueva_cuota").val(miplan_aux.cuota)
+            $("#plan_deuda").val(miplan_aux.deuda)
+            $("#plan_interes").val(miplan_aux.interes)
+            $("#plan_capital").val(miplan_aux.capital)
+            $("#plan_nueva_deuda").val(miplan_aux.cuota - miplan_aux.deuda)
+            $("#plan_fecha").val(miplan_aux.fecha)
+         }
+
+        function store_plan(){
+            $("#modal_plan").modal('hide')
+            var mes_actual = moment($("#plan_fecha").val())
+            mes_actual.add(1, 'month')
+
+            var miplazo = parseInt($("#plazo").val()) + 1
+            var mimes = mes_actual.format('MMMM-YY')
+            var fecha = mes_actual.format('YYYY-MM-DD')
+            var micuota = parseFloat($("#plan_nueva_cuota").val())
+            var micapital = parseFloat($("#plan_capital").val())
+            var miinteres = parseFloat($("#plan_interes").val())
+            var mimonto = parseFloat($("#plan_deuda").val())
+            var mideuda = parseFloat($("#plan_nueva_deuda").val())
+
+            const row = document.createElement('tr');
+                row.innerHTML = `
+          
+                    <td>NRO:${miplazo}<br>${mimes}</td>                    
                     <td>${mimonto.toFixed(2)}</td>
                     <td>${miinteres.toFixed(2)}</td>
                     <td>${micapital.toFixed(2)}</td>
@@ -455,18 +537,12 @@
                     <td>${mideuda.toFixed(2)}</td>
                 `;
                 llenarTabla.appendChild(row)
-
-                miplan.push({'mes': fechas[i], 'fecha': fecha[i], 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': micuota, 'deuda': mideuda, 'nro': i})
-
-            }
-            localStorage.setItem("miplan", JSON.stringify(miplan))     
-            // mivalidar = (mideuda < 0) ? true : false 
-            if (miaxu < 0 || micapital < 0 || micuota > cuota) {
-                toastr.error("Error en el plan")
-                $("#btnGuardar").prop("disabled", true)
-            } else{
-                $("#btnGuardar").prop("disabled", false)
-            }
+                
+            miplan.push({'mes': mimes, 'fecha': fecha, 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': micuota, 'deuda': mideuda, 'nro': miplazo})     
+            
+            $("#plazo").val(miplazo)
+            toastr.success("Plan creado..")
+            console.log(miplan)
         }
     </script>
 @stop
