@@ -179,7 +179,8 @@
 
                         <div class="col-sm-4">
                             <label for="">Ultima fecha</label>
-                            <input type="date" name="" id="plan_fecha" class="form-control">                            
+                            <input type="date" name="" id="plan_fecha" class="form-control">         
+                            <div id="idplan"></div>                   
                         </div>
                         <div class="col-sm-4">
                             <label for="">Deuda actual</label>
@@ -304,17 +305,16 @@
         });
 
         $("#monto").keyup(function (e) {     
-            calularPP()
+  
             simular()
         });
         
         $("#cuota").keyup(function (e) {     
-            calularPP()
             simular()
         });
 
         $("#plazo").keyup(function (e) {     
-            // simular()
+            
         });
 
         $("#clase").change(function (e) {     
@@ -409,15 +409,6 @@
             );
         })
 
-        function calularPP() { 
-            // const tipodata = JSON.parse(localStorage.getItem('mitipo'))
-            // const mimonto = parseInt($("#monto").val())
-            // const micuota = parseInt($("#cuota").val())
-            // const miinteres = Math.ceil(tipodata.interes * mimonto)
-            // var miplazo = Math.ceil(mimonto/micuota)
-            // $("#plazo").val(parseInt(miplazo)) 
-        }
-
         function simular(){
 
             const cuota = parseFloat(document.getElementById('cuota').value);
@@ -508,9 +499,10 @@
             $("#plan_deuda").val(miplan_aux.deuda)
             $("#plan_interes").val(miplan_aux.interes)
             $("#plan_capital").val(miplan_aux.capital)
-            $("#plan_nueva_deuda").val(miplan_aux.cuota - miplan_aux.deuda)
+            $("#plan_nueva_deuda").val(0)
             $("#plan_fecha").val(miplan_aux.fecha)
-         }
+            //$("#idplan").html("<small>"+miplan_aux.length+"</small>")
+        }
 
         function store_plan(){
             $("#modal_plan").modal('hide')
@@ -542,7 +534,23 @@
             
             $("#plazo").val(miplazo)
             toastr.success("Plan creado..")
-            console.log(miplan)
+            // console.log(miplan)
         }
+
+        //ultimo pago
+        $("#plan_nueva_cuota").keyup(function (e) { 
+
+            if ($("#plan_deuda").val() == $("#plan_nueva_cuota").val()) {
+                $("#plan_capital").val(0)            
+                $("#plan_nueva_deuda").val(0)
+                $("#plan_interes").val(0)
+            } else {
+                var micapital = $("#plan_nueva_cuota").val() - $("#plan_interes").val()      
+                var mideuda = $("#plan_deuda").val() - micapital
+                $("#plan_capital").val(micapital)            
+                $("#plan_nueva_deuda").val(mideuda)
+            } 
+
+        });
     </script>
 @stop

@@ -373,7 +373,7 @@
                       
                         <div class="form-group col-xs-12">
                             <label for="">Observaciones</label>
-                            <textarea name="" id="mobserv" class="form-control">Sin observación</textarea>
+                            <textarea name="" id="mobserv" class="form-control">Pago normal en fecha: {{ date('Y-m-d') }}</textarea>
                         </div>
                         <input type="hidden" name="" id="plan_id" class="form-control" hidden>
                     </div>                          
@@ -451,7 +451,7 @@
                                                 
                                     <div class="col-sm-12 form-group">
                                         <label for="">Detalle</label>
-                                        <textarea name="" id="mora_detalle"  class="form-control">Pago con mora</textarea>
+                                        <textarea name="" id="mora_detalle"  class="form-control"></textarea>
                                     </div>
                                 </div>
                                 <a href="#" onclick="mipago_mora()" class="btn btn-dark pull-right">
@@ -524,7 +524,7 @@
 
                         <div class="col-sm-12 form-group">
                             <label for="">Detalle</label>
-                            <textarea name="" id="pc_detalle"  class="form-control">pago a capital</textarea>
+                            <textarea name="" id="pc_detalle"  class="form-control"></textarea>
                         </div>
                     </div>
                 </div>
@@ -575,7 +575,7 @@
 
                         <div class="col-sm-12 form-group">
                             <label for="">Observaciones</label>
-                            <textarea name="" id="ref_detalle" class="form-control">Refinanziar prestamo</textarea>
+                            <textarea name="" id="ref_detalle" class="form-control"></textarea>
                         </div>
                     </div>
                 </div>
@@ -721,20 +721,20 @@
             var nueva_deuda = 0
             var nueva_interes = 0
             var nueva_capital = 0
+            var miresta = $("#mora_pago").val() - {{ $miplan3->interes }}
             if($("#mora_pago").val() == {{ $miplan3->interes }}) {
                 nueva_deuda = {{ $miplan3->monto }}
             } else if($("#mora_pago").val() < {{ $miplan3->interes }} ){
                 nueva_interes = {{ $miplan3->interes }} - $("#mora_pago").val()
-                console.log(nueva_interes)
                 nueva_deuda ={{ $miplan3->monto }}  + nueva_interes                
             }else{
                 nueva_interes =  $("#mora_pago").val() - {{ $miplan3->interes }}
                 nueva_capital = {{ $miplan3->capital }} - nueva_interes
-                nueva_deuda ={{ $miplan3->monto }} + nueva_capital     
+                nueva_deuda ={{ $miplan3->monto }} - miresta    
             }
             $("#mora_deuda").val(nueva_deuda.toFixed(2))
+            $("#mora_detalle").val("Pago con mora en fecha: "+$("#mora_fecha").val()+" y un pago de: "+$("#mora_pago").val())
 
-           
             //     var mora_update =  await axios.post("/api/plan/mora/dias", {
             //         fecha: "{{ $miplan3->fecha }}",
             //         tipo_id: {{ $miplan2->tipo_id }},
@@ -789,7 +789,8 @@
                                 plazo: {{ $miplan2->plazo }},
                                 prestamo_id: {{ $miplan2->id }},
                                 tipo_id: {{ $miplan2->tipo_id }},
-                                clase: "{{ $miplan2->clase }}"
+                                clase: "{{ $miplan2->clase }}",
+                                cuota: {{ $miplan2->cuota }}
                             })
                             console.log(midata.data)
                             location.reload()
@@ -804,6 +805,7 @@
             toastr.info("Calculando..")
             var mindeuda = parseFloat({{ $miplan3->monto }}) - parseFloat($("#pc_nmonto").val())
             $("#pc_ndeuda").val(mindeuda)
+            $("#pc_detalle").val("Amortización en fecha: {{ date('Y-m-d') }}, y un monto de: "+$("#pc_nmonto").val())
 
         }
         async function pago_capital(){
@@ -863,6 +865,7 @@
                 return true
             }
             $("#ref_nueva_deuda").val(newmonto)
+            $("#ref_detalle").val("Re financiar préstamo en fecha: {{ date('Y-m-d') }} y un monto de: "+new_monto)            
             toastr.info("Nueva deuda: "+newmonto)
         }
         async function refinanciar(){
