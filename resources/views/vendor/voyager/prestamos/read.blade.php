@@ -5,15 +5,16 @@
     //prestamo
     $miplan2 = App\Prestamo::where("id", $dataTypeContent->getKey())->with("tipo")->first();
     $pasarelas = App\Pasarela::all();
-    $countcsp = 0;
-    $countcnp = 0;
-    $count_mora = 0;
+    // $countcsp = 0;
+    // $countcnp = 0;
+    // $count_mora = 0;
     $dias_mora = 0;
     $mimora = [];
     //pago actual
     $miplan3 = App\PrestamoPlane::where("prestamo_id", $dataTypeContent->getKey())->where("pagado", 0)->first();
     //cliente
     $micliente = App\Cliente::find($miplan2->cliente_id);
+    $miestados = App\PrestamoEstado::all();
 @endphp
 
 @section('page_title', __('voyager::generic.view').' '.$dataType->getTranslatedAttribute('display_name_singular'))
@@ -166,7 +167,7 @@
                     @endforeach
 
                 {{-- </div> --}}
-                <a href="#" class="btn btn-dark btn-block">
+                <a href="#" class="btn btn-dark btn-block" onclick="btn_actualizar()">
                     Actualizar
                 </a>
             </div>
@@ -200,27 +201,27 @@
                                                     @php
                                                         $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
                                                         $dias_mora = $midiff->format("%a");                                                  
-                                                        $interes_mora = 0;
-                                                        $total_mora = $miplan3->cuota;
-                                                        if ($dias_mora >= 0) {
-                                                            if ($miplan2->tipo_id == 1 ) {
-                                                                $interes_mora = $miplan3->monto * 0.03;
-                                                            }else if($miplan2->tipo_id == 2){
-                                                                $interes_mora = $miplan3->monto * 0.05;
-                                                            }                                
-                                                            $total_mora = $interes_mora + $miplan3->cuota;
-                                                            $miseting = setting('prestamos.redondear');
-                                                            if ($miseting == "nor") {
-                                                                $total_mora = number_format($total_mora, 2, '.', '');    
-                                                                $interes_mora = number_format($interes_mora, 2, '.', '');              
-                                                            } else if($miseting == "rmx"){
-                                                                $total_mora = ceil($total_mora);  
-                                                                $interes_mora = ceil($interes_mora);  
-                                                            } else if($miseting == "rmi"){
+                                                        // $interes_mora = 0;
+                                                        // $total_mora = $miplan3->cuota;
+                                                        // if ($dias_mora >= 0) {
+                                                        //     if ($miplan2->clase == "Fijo" ) {
+                                                        //         $interes_mora = $miplan3->monto * $miplan2->tipo->monto_interes;
+                                                        //     }else if($miplan2->clase == "Variable"){
+                                                        //         $interes_mora = $miplan3->monto * $miplan2->tipo->monto_interes;
+                                                        //     }                                
+                                                        //     $total_mora = $interes_mora + $miplan3->cuota;
+                                                        //     $miseting = setting('prestamos.redondear');
+                                                        //     if ($miseting == "nor") {
+                                                        //         $total_mora = number_format($total_mora, 2, '.', '');    
+                                                        //         $interes_mora = number_format($interes_mora, 2, '.', '');              
+                                                        //     } else if($miseting == "rmx"){
+                                                        //         $total_mora = ceil($total_mora);  
+                                                        //         $interes_mora = ceil($interes_mora);  
+                                                        //     } else if($miseting == "rmi"){
                                                                     
-                                                            }
-                                                        }                                                        
-                                                        array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
+                                                        //     }
+                                                        // }                                                        
+                                                        // array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
                                                     @endphp
                                                     <span class="badge badge-pill badge-primary">
                                                         {{ $item->id }} en mora
@@ -286,18 +287,18 @@
                             {{-- <h4>Totales</h4> --}}
                             {{-- <h4>Pagadas:  {{ $countcsp }} | No pagadas: {{ $countcnp }} | En mora: {{ $count_mora }} | Refin: {{ $count_mora }} | Amort: {{ $countcnp }}</h4> --}}
                             @php
-                                $miupdate = App\Prestamo::find($dataTypeContent->getKey());
-                                if ($count_mora > 0) {
-                                    $miupdate->estado_id  = 2; //mora
-                                    $miupdate->save();                                             
-                                }else if($count_mora === 0){
-                                    $miupdate->estado_id  = 1; //activado
-                                    $miupdate->save();  
-                                }else if($countcsp === $miupdate->plazo){
-                                    $miupdate->estado_id  = 4; //completado
-                                    $miupdate->save();  
-                                }
-                                $mimora = json_encode($mimora); 
+                                // $miupdate = App\Prestamo::find($dataTypeContent->getKey());
+                                // if ($count_mora > 0) {
+                                //     $miupdate->estado_id  = 2; //mora
+                                //     $miupdate->save();                                             
+                                // }else if($count_mora === 0){
+                                //     $miupdate->estado_id  = 1; //activado
+                                //     $miupdate->save();  
+                                // }else if($countcsp === $miupdate->plazo){
+                                //     $miupdate->estado_id  = 4; //completado
+                                //     $miupdate->save();  
+                                // }
+                                // $mimora = json_encode($mimora); 
                                 
                             @endphp
                         </div>
@@ -460,7 +461,6 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="opt2">   
                             <div class="row">
-
                                                          
                                 <div class="form-group col-xs-3">
                                     <label for="">Dias en mora</label>
@@ -477,6 +477,7 @@
                                     <label for="">Interes por dia</label>
                                     <input type="number" name="" id="mora_interes" class="form-control" value="0" readonly>
                                 </div>
+
                                 <div class="form-group col-xs-3">
                                     <label for="">Monto total</label>
                                     <input type="number" name="" id="total_mora" class="form-control" value="0">
@@ -636,6 +637,107 @@
                     <a href="#" class="btn btn-dark pull-right" onclick="whatsapp()">
                         <i class="icon voyager-pen"></i> Enviar por whatsapp
                     </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Actualizar  --}}
+    <div class="modal modal-primary fade" tabindex="-1" id="modal_actualizar" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label=""><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="voyager-helm"></i> Actualizar prestamo #{{ $miplan2->id }}</h4>
+                </div>
+
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class=""><a href="#opt11" aria-controls="opt11" role="tab" data-toggle="tab">Actualizar prestamo</a></li>
+                    <li role="presentation" class="active"><a href="#opt22" aria-controls="opt22" role="tab" data-toggle="tab">Finalizar deuda</a></li>
+                </ul>
+                <div class="modal-body">
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane" id="opt11">                            
+                                <div class="row">                                
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Plazo</label>
+                                        <input type="number" name="" id="act_plazo" class="form-control" value="{{ $miplan2->plazo }}">
+                                    </div>
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Monto</label>
+                                        <input type="number" name="" id="act_monto" class="form-control" value="{{ $miplan2->monto }}">
+                                    </div>
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Cuota</label>
+                                        <input type="number" name="" id="act_cuota" class="form-control" value="{{ $miplan2->cuota }}">
+                                    </div>
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Clase</label>
+                                        <select name="" id="act_clase" class="form-control">
+                                            <option value="Fijo" @if($miplan2->clase=='Fijo') selected @endif>Fijo</option>
+                                            <option value="Variable" @if($miplan2->clase=='Variable') selected @endif>Variable</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Detalle</label>
+                                        <textarea name="" id="act_detalle" class="form-control">{{ $miplan2->observacion }}</textarea>
+                                    </div>
+                                    <div class="form-group col-xs-6">
+                                        <label for="">Estado</label>
+                                        <select name="" id="act_estado_id" class="form-control">
+                                           @foreach ($miestados as $item)
+                                               <option value="{{ $item->id }}" @if($miplan2->estado_id==$item->id) selected @endif>{{ $item->nombre }}</option>
+                                           @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <a href="#" onclick="actualizar_prestamo()" class="btn btn-dark pull-right">
+                                    Enviar y guardar
+                                </a>                        
+                        </div>
+                        <div role="tabpanel" class="tab-pane active" id="opt22">   
+                            <div class="row">                                                     
+                                         
+                                <div class="form-group col-xs-4">
+                                    <label for="">Dias en mora</label>
+                                    <input type="number" name="" id="fd_diasmora" class="form-control" value="0" readonly>
+                                </div>
+                                <div class="form-group col-xs-4">
+                                    <label for="">Interes por dia</label>
+                                    <input type="number" name="" id="fd_pordiainteres" class="form-control" value="0" readonly>
+                                </div>
+                                
+                                <div class="form-group col-xs-4">
+                                    <label for="">Monto total</label>
+                                    <input type="number" name="" id="fd_pordiatotal" class="form-control" value="0" readonly>
+                                </div>      
+                                                             
+                                <div class="form-group col-xs-4">
+                                    <label for="">Deuda actual</label>
+                                    <input type="number" name="" id="fd_deuda" class="form-control" value="{{ $miplan3->monto }}" readonly>
+                                </div>
+                                <div class="form-group col-xs-4">
+                                    <label for="">Fecha pago</label>
+                                    <input type="date" name="" id="fd_fecha" class="form-control" value="{{ date('Y-m-d') }}">
+                                </div>
+                                <div class="form-group col-xs-4">
+                                    <label for="">Importe</label>
+                                    <input type="number" name="" id="fd_importe" class="form-control" value="0">
+                                </div>
+                                <div class="form-group col-xs-12">
+                                    <label for="">Detalle</label>
+                                    <textarea name="" id="fd_detalle" class="form-control"></textarea>
+                                </div>
+                         
+                            </div>    
+                            <a href="#" onclick="finalizar_prestamo()" class="btn btn-dark pull-right">
+                                </i> Enviar y guardar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="modal-footer">
                 </div>
             </div>
         </div>
@@ -826,6 +928,7 @@
                             toastr.info("Enviando datos, espere por favor")                        
                             var midata = await axios.post("/api/plan/amort", {
                                 prestamo_id: {{ $miplan2->id }},
+                                nro: {{ $miplan3->nro }},
                                 plan_id: {{ $miplan3->id }},
                                 pago_capital: $("#pc_nmonto").val(),
                                 nueva_deuda: $("#pc_ndeuda").val(),
@@ -887,6 +990,7 @@
                             var midata = await axios.post("/api/plan/refin", {
                                 prestamo_id: {{ $miplan2->id }},
                                 plan_id: {{ $miplan3->id }},
+                                nro: {{ $miplan3->nro }},
                                 ref_nuevo_monto: $("#ref_nuevo_monto").val(),
                                 ref_nueva_deuda: $("#ref_nueva_deuda").val(),
                                 user_id: {{ Auth::user()->id }},    
@@ -917,6 +1021,7 @@
 
         // whatsapp-------------------------------------------------------------------------------
         async function whatsapp(){ 
+            toastr.info("mensaje enviado...")
             $('#modal_recibo').modal('hide');
             var misms = $("#recibo_detalle").val()
             var miwhats = $("#recibo_whatsapp").val()
@@ -925,12 +1030,65 @@
                 phone: miwhats,
                 message: misms
             }
-            var midata = await axios.post(miurl, midata)
+            var midata = await axios.post(miurl, midata)            
+        }
+
+        //actualizar-----------------------------------
+        async function btn_actualizar() {
+            $('#modal_actualizar').modal();
+            var midata = await axios.post("/api/plan/mora/dias", {
+                tipo_id: {{ $miplan2->tipo_id }},
+                clase: "{{ $miplan2->clase }}",
+                prestamo_id: {{ $miplan2->id }},
+                fecha: "{{ $miplan3->fecha }}"
+            })
+            console.log(midata.data)
+            $("#fd_diasmora").val(midata.data.dias_mora)
+            $("#fd_pordiainteres").val(midata.data.interes_mora)
+            $("#fd_pordiatotal").val(midata.data.total_mora)
+            var miimpot = midata.data.total_mora + {{ $miplan3->monto }}
+            $("#fd_importe").val(miimpot)
+            $("#fd_detalle").val("Deuda cancela, con un monto de: "+miimpot)
+            
+
+            
+        }
+        async function actualizar_prestamo() {
             toastr.info("mensaje enviado...")
-            // window.open(
-            //     'https://wa.me/'+miwhats+'?text='+misms,
-            //     '_blank'
-            // );
+            $('#modal_actualizar').modal('hide');
+            await axios.post("/api/prestamo/actualizar", {
+                id: {{ $miplan2->id }},
+                plazo: $("#act_plazo").val(),
+                monto: $("#act_monto").val(),
+                cuota: $("#act_cuota").val(),
+                clase: $("#act_clase").val(),
+                estado_id: $("#act_estado_id").val(),
+                detalle: $("#act_detalle").val()
+            })
+            location.reload()
+        }
+        async function finalizar_prestamo() {
+            $('#modal_actualizar').modal('hide')
+            swal({
+                icon: "warning",
+                title:  "Esta segur@ de finalizar el prestamo ?",                
+                buttons: {
+                    cancel: "Cancelar",
+                    confir: "Confirmar",
+                },
+                }).then(async (value) => {
+                    var midata = await axios.post("/api/prestamo/finalizar", {
+                        tipo_id: {{ $miplan2->tipo_id }},
+                        clase: "{{ $miplan2->clase }}",
+                        prestamo_id: {{ $miplan2->id }},
+                        fecha: $("#fd_fecha").val(),
+                        importe: $("#fd_importe").val(),
+                        detalle: $("#fd_detalle").val(),
+                        nro: {{ $miplan3->nro }}
+
+                    })
+                    console.log(midata.data)
+                })
         }
     </script>
 @stop
