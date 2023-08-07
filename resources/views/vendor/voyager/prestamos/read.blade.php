@@ -5,9 +5,6 @@
     //prestamo
     $miplan2 = App\Prestamo::where("id", $dataTypeContent->getKey())->with("tipo")->first();
     $pasarelas = App\Pasarela::all();
-    // $countcsp = 0;
-    // $countcnp = 0;
-    // $count_mora = 0;
     $dias_mora = 0;
     $mimora = [];
     //pago actual
@@ -40,13 +37,13 @@
             @endif
         @endcan --}}
         @can('browse', $dataTypeContent)
-            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora">
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_mora" id="btn_mora">
                 <i class="icon voyager-refresh"></i> <span class="hidden-xs hidden-sm">Pago con mora</span>
             </a>
-            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar">
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_refinanciar" id="btn_amort">
                 <i class="icon voyager-heart"></i> <span class="hidden-xs hidden-sm">Refinanciar</span>
             </a>
-            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion">
+            <a href="#" class="btn btn-dark" data-toggle="modal" data-target="#modal_amortizacion" id="btn_refin">
                 <i class="icon voyager-lightbulb"></i> <span class="hidden-xs hidden-sm">Amortizacion</span>
             </a>
 
@@ -167,8 +164,8 @@
                     @endforeach
 
                 {{-- </div> --}}
-                <a href="#" class="btn btn-dark btn-block" onclick="btn_actualizar()">
-                    Actualizar
+                <a href="#" class="btn btn-dark btn-block" data-toggle="modal" data-target="#modal_actualizar" id="btn_actua" onclick="btn_actualizar()">
+                    <i class="icon voyager-pen"></i> Actualizar
                 </a>
             </div>
 
@@ -188,7 +185,7 @@
                                         <th>CAPITAL</th>
                                         <th>CUOTA</th>
                                         <th>DEUDA</th>
-                                         <th><i class="icon voyager-refresh"></i></th>
+                                        <th><i class="icon voyager-refresh"></i></th>
                                         <th><i class="icon voyager-heart"></th>
                                         <th><i class="icon voyager-lightbulb"></i></th>
                                     </tr>
@@ -200,28 +197,7 @@
                                                 @if (date("Y-m-d") > $item->fecha && $item->pagado==0)
                                                     @php
                                                         $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
-                                                        $dias_mora = $midiff->format("%a");                                                  
-                                                        // $interes_mora = 0;
-                                                        // $total_mora = $miplan3->cuota;
-                                                        // if ($dias_mora >= 0) {
-                                                        //     if ($miplan2->clase == "Fijo" ) {
-                                                        //         $interes_mora = $miplan3->monto * $miplan2->tipo->monto_interes;
-                                                        //     }else if($miplan2->clase == "Variable"){
-                                                        //         $interes_mora = $miplan3->monto * $miplan2->tipo->monto_interes;
-                                                        //     }                                
-                                                        //     $total_mora = $interes_mora + $miplan3->cuota;
-                                                        //     $miseting = setting('prestamos.redondear');
-                                                        //     if ($miseting == "nor") {
-                                                        //         $total_mora = number_format($total_mora, 2, '.', '');    
-                                                        //         $interes_mora = number_format($interes_mora, 2, '.', '');              
-                                                        //     } else if($miseting == "rmx"){
-                                                        //         $total_mora = ceil($total_mora);  
-                                                        //         $interes_mora = ceil($interes_mora);  
-                                                        //     } else if($miseting == "rmi"){
-                                                                    
-                                                        //     }
-                                                        // }                                                        
-                                                        // array_push($mimora, array('id'=>$item->id, 'dias'=>$dias_mora, 'total'=>$total_mora));
+                                                        $dias_mora = $midiff->format("%a");                                                                                                                                                             
                                                     @endphp
                                                     <span class="badge badge-pill badge-primary">
                                                         {{ $item->id }} en mora
@@ -264,43 +240,19 @@
                                                 @elseif($item->pagado == 4)
                                                     <h2 class="text-center"><i class="icon voyager-lightbulb"></i></h2>
                                                 @endif
-                                            </td>  
-                                    
-                                        
-                                      
+                                            </td>                                                                                                                    
                                             <td>{{ number_format($item->monto, 2, '.', '') }}</td>
                                             <td>{{ number_format($item->interes, 2, '.', '') }}</td>
                                             <td>{{ number_format($item->capital, 2, '.', '') }}</td>
                                             <td>{{ number_format($item->cuota, 2, '.', '') }}</td>
-                                            <td>{{ number_format($item->deuda, 2, '.', '') }}</td>
-                      
+                                            <td>{{ number_format($item->deuda, 2, '.', '') }}</td>                      
                                             <td class="text-center">{{ $item->mora }}</td>
                                             <td class="text-center">{{ $item->refin }}</td>
                                             <td class="text-center">{{ $item->amort }}</td>
                                         </tr>
-                                        @php
-                                            $dias_mora = 0;
-                                        @endphp
                                     @endforeach
                                 </tbody>                               
                             </table>
-                            {{-- <h4>Totales</h4> --}}
-                            {{-- <h4>Pagadas:  {{ $countcsp }} | No pagadas: {{ $countcnp }} | En mora: {{ $count_mora }} | Refin: {{ $count_mora }} | Amort: {{ $countcnp }}</h4> --}}
-                            @php
-                                // $miupdate = App\Prestamo::find($dataTypeContent->getKey());
-                                // if ($count_mora > 0) {
-                                //     $miupdate->estado_id  = 2; //mora
-                                //     $miupdate->save();                                             
-                                // }else if($count_mora === 0){
-                                //     $miupdate->estado_id  = 1; //activado
-                                //     $miupdate->save();  
-                                // }else if($countcsp === $miupdate->plazo){
-                                //     $miupdate->estado_id  = 4; //completado
-                                //     $miupdate->save();  
-                                // }
-                                // $mimora = json_encode($mimora); 
-                                
-                            @endphp
                         </div>
                     {{-- </div> --}}
                 {{-- </div> --}}
@@ -1035,14 +987,13 @@
 
         //actualizar-----------------------------------
         async function btn_actualizar() {
-            $('#modal_actualizar').modal();
+            // $('#modal_actualizar').modal();
             var midata = await axios.post("/api/plan/mora/dias", {
                 tipo_id: {{ $miplan2->tipo_id }},
                 clase: "{{ $miplan2->clase }}",
                 prestamo_id: {{ $miplan2->id }},
                 fecha: "{{ $miplan3->fecha }}"
             })
-            console.log(midata.data)
             $("#fd_diasmora").val(midata.data.dias_mora)
             $("#fd_pordiainteres").val(midata.data.interes_mora)
             $("#fd_pordiatotal").val(midata.data.total_mora)
@@ -1090,5 +1041,22 @@
                     console.log(midata.data)
                 })
         }
+
+  
+        //estados----------------------------
+        @if($miplan2->estado_id == 4 || $miplan2->estado_id == 5)
+            $("#btn_mora").attr("disabled", true)
+            $("#btn_mora").prop('disabled', true)
+
+            $("#btn_amort").attr("disabled", true)
+            $("#btn_amort").prop("disabled", true)
+
+            $("#btn_refin").attr("disabled", true)
+            $("#btn_refin").prop("disabled", true)
+
+            $("#btn_actua").attr("disabled", true)
+            $("#btn_actua").prop('disabled', true)
+        @endif
+       
     </script>
 @stop
