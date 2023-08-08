@@ -951,7 +951,7 @@
                                 clase: "{{ $miplan2->clase }}",
                                 plazo: {{ $miplan2->plazo }}
                             })
-                            console.log(midata.data)
+                            // console.log(midata.data)
                             location.reload()
                         break;
                     }

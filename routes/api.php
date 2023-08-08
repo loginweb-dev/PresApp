@@ -88,14 +88,19 @@ Route::post('prestamo/actualizar', function (Request $request) {
 });
 Route::post('prestamo/finalizar', function (Request $request) {
     // return $request;
-    $miprestamo = App\Prestamo::find($request->prestamo_id);
-    $miprestamo->estado_id = 4; // completado
-    $miprestamo->observacion = $miprestamo->observacion."\n ".$request->detalle."\n Fecha: ".$request->fecha;
+    $delete1=App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->count();
+    $miprestamo=App\Prestamo::find($request->prestamo_id);
+    $miprestamo->estado_id=4; // completado
+    $miprestamo->observacion=$miprestamo->observacion."\n ".$request->detalle."\n Fecha: ".$request->fecha;    
+    $miprestamo->nro=$miprestamo->nro-$delete1;
     $miprestamo->save();
 
     $miplan=App\PrestamoPlane::where("nro", $request->nro-1)->where("prestamo_id", $request->prestamo_id)->first();
     $miplan->observacion=$miplan->observacion."\n ".$request->detalle."\n Fecha: ".$request->fecha;
     $miplan->save();
+
+    App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->delete();
+
     return $miprestamo;
 });
 
@@ -144,13 +149,11 @@ Route::post('plan/mora', function (Request $request) {
 
     // actaulizar todas las planes
     $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
-    $miaux=$request->nueva_deuda; $micount=0;
-    while ($micount < count($miupdate)) {
+    $miaux=$request->nueva_deuda; $micount=0; 
+    while ($miaux >= $miprestamo->cuota) {
         $miitem = App\PrestamoPlane::find($miupdate[$micount]->id);
-       
         $miitem->monto = $miaux;
         $miitem->cuota = $miprestamo->cuota;
-        //  return $miitem;
         if($request->clase == 'Fijo'){
             $miitem->interes = $mitipo->monto_interes * $miprestamo->monto;
             $miitem->capital = $miprestamo->cuota - $miitem->interes;
@@ -162,94 +165,40 @@ Route::post('plan/mora', function (Request $request) {
             $miaux = $miitem->monto - ($miprestamo->cuota - ($miitem->monto * $mitipo->monto_interes));
             $miitem->deuda = $miaux;  
         }         
-        $miitem->save();     
+        
         $micount=$micount+1;   
-    }
-
-    //add row     
-    $ultimoplan = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("nro", $request->plazo)->first();
-    $nuevomes = date("Y-m-d",strtotime($ultimoplan->fecha."+ 1 month"));
-    $nm=$miaux; $ni=0; $nc=0; $nd=0;
-    if($request->clase == 'Fijo'){
-        $ni=$mitipo->monto_interes * $miprestamo->monto; 
-        $nc=$miprestamo->cuota - $ni;
-        $miaux = $nm - ($miprestamo->cuota - $ni);
-        $nd=$miaux;
-    }else if($request->clase == 'Variable'){
-        $ni=$mitipo->monto_interes * $nm; 
-        $nc=$miprestamo->cuota - $ni;
-        $miaux = $nm - ($miprestamo->cuota - $ni);
-        $nd=$miaux;
-    }  
-
-    if ($miaux == $miprestamo->cuota ) {    
-        App\PrestamoPlane::create([
-            'mes' => date("F-Y", strtotime($nuevomes)),
-            'nro' => $request->plazo + 1,
-            'monto' => $nm,
-            'interes' => $ni,
-            'capital' => $nc,
-            'cuota' => $miprestamo->cuota,
-            'deuda' => 0,
-            'pagado' => 0,
-            'prestamo_id' => $request->prestamo_id,
-            'observacion' => null,
-            'pasarela_id' => null,
-            'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
-        ]);            
-        $miprestamo->plazo = $request->plazo + 1;
-        $miprestamo->save();
-    }else if($miaux < $miprestamo->cuota){
-        $micuota2=$nm+$ni;
-        App\PrestamoPlane::create([
-            'mes' => date("F-Y", strtotime($nuevomes)),
-            'nro' => ($request->plazo+1),
-            'monto' => $nm,
-            'interes' => $ni,
-            'capital' => ($micuota2-$ni),
-            'cuota' => $micuota2,
-            'deuda' => 0,
-            'pagado' => 0,
-            'prestamo_id' => $request->prestamo_id,
-            'observacion' => null,
-            'pasarela_id' => null,
-            'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
-        ]);
-        $miprestamo->plazo = $request->plazo + 1;
-        $miprestamo->save();
-    }else{
-        App\PrestamoPlane::create([
-            'mes' => date("F-Y", strtotime($nuevomes)),
-            'nro' => $request->plazo + 1,
-            'monto' => $nm,
-            'interes' => $ni,
-            'capital' => $nc,
-            'cuota' => $miprestamo->cuota,
-            'deuda' => $nd,
-            'pagado' => 0,
-            'prestamo_id' => $request->prestamo_id,
-            'observacion' => null,
-            'pasarela_id' => null,
-            'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
-        ]);
-
-        $nuevomes = date("Y-m-d",strtotime($ultimoplan->fecha."+ 2 month"));
-        App\PrestamoPlane::create([
-            'mes' => date("F-Y", strtotime($nuevomes)),
-            'nro' => $request->plazo + 2,
-            'monto' => $miaux,
-            'interes' => $ni,
-            'capital' => 0,
-            'cuota' => $miaux,
-            'deuda' => 0,
-            'pagado' => 0,
-            'prestamo_id' => $request->prestamo_id,
-            'observacion' => null,
-            'pasarela_id' => null,
-            'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
-        ]);
-        $miprestamo->plazo = $request->plazo + 2;
-        $miprestamo->save();
+        $miitem->save();    
+        if($micount==count($miupdate)){
+            $nuevomes = date("Y-m-d",strtotime($miitem->fecha."+ 1 month"));
+            $nm=$miaux; $ni=0; $nc=0; $nd=0;
+            if($request->clase == 'Fijo'){
+                $ni=$mitipo->monto_interes * $miprestamo->monto; 
+                $nc=$miprestamo->cuota - $ni;
+                $nd=$nm - ($miprestamo->cuota - $ni);;
+            }else if($request->clase == 'Variable'){
+                $ni=$mitipo->monto_interes * $nm; 
+                $nc=$miprestamo->cuota - $ni;
+                $nd= $nm - ($miprestamo->cuota - $ni);
+            }  
+            $micuota2=$nm+$ni;
+            App\PrestamoPlane::create([
+                'mes' => date("F-Y", strtotime($nuevomes)),
+                'nro' => ($miitem->nro+1),
+                'monto' => $nm,
+                'interes' => $ni,
+                'capital' => ($micuota2-$ni),
+                'cuota' => $micuota2,
+                'deuda' => 0,
+                'pagado' => 0,
+                'prestamo_id' => $miprestamo->id,
+                'observacion' => null,
+                'pasarela_id' => null,
+                'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
+            ]);
+            $miprestamo->plazo = $miprestamo->plazo + 1;
+            $miprestamo->save();
+            $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
+        }      
     }
     return true;
 });
@@ -266,113 +215,62 @@ Route::post('plan/refin', function (Request $request) {
     $miplan->deuda=$request->ref_nueva_deuda;
     $miplan->save();
 
-    $miupdate=App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
-    $miaux=0;
-    $milultimo=false;
-    $micount=count($miupdate);
-  
-    for($i=0; $i<$micount; $i++) {
-        $miitem=App\PrestamoPlane::find($miupdate[$i]->id);
-        $miitem->monto=($i==0) ? $request->ref_nueva_deuda : $miaux;
-        if (!$milultimo) {
-            if($request->clase == 'Fijo'){
-                $miitem->interes = $miprestamo->monto*$mitipo->monto_interes;
-                $miitem->capital=$miprestamo->cuota - $miitem->interes;
-                $miaux=$miitem->monto - ($miprestamo->cuota - $miitem->interes);
-                $miitem->deuda=$miaux; 
-            }else if($request->clase == 'Variable'){   
-                $miitem->interes=$miitem->monto * $mitipo->monto_interes;
-                $miitem->capital=$miprestamo->cuota - ($miitem->monto * $mitipo->monto_interes);
-                $miaux=$miitem->monto - ($miprestamo->cuota - ($miitem->monto * $mitipo->monto_interes));
-                $miitem->deuda=$miaux;  
-            }         
-            $miitem->save();      
-        } 
-    }
-    // return $micount;
-    //agregando nuevos meses------------------------------------------------------------
-    $new_count=ceil($miaux / $miprestamo->cuota);
-    // return $new_count;
-    $ultimoplan=App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("nro", $request->plazo)->first();
-    $miplazo=$request->plazo;
-    $nuevomes=$ultimoplan->fecha;
-    $milultimo=false;
-    for($i=0; $i<$new_count; $i++) {
+ // actaulizar todas las planes
+    $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
+    $miaux=$request->ref_nueva_deuda; $micount=0; 
+    while ($miaux >= $miprestamo->cuota) {
+        $miitem = App\PrestamoPlane::find($miupdate[$micount]->id);
+        $miitem->monto = $miaux;
+        $miitem->cuota = $miprestamo->cuota;
+        if($request->clase == 'Fijo'){
+            $miitem->interes = $mitipo->monto_interes * $miprestamo->monto;
+            $miitem->capital = $miprestamo->cuota - $miitem->interes;
+            $miaux = $miitem->monto - ($miprestamo->cuota - $miitem->interes);
+            $miitem->deuda = $miaux;  
+        }else if($request->clase == 'Variable'){                
+            $miitem->interes = $miitem->monto * $mitipo->monto_interes;
+            $miitem->capital = $miprestamo->cuota - ($miitem->monto * $mitipo->monto_interes);
+            $miaux = $miitem->monto - ($miprestamo->cuota - ($miitem->monto * $mitipo->monto_interes));
+            $miitem->deuda = $miaux;  
+        }         
         
-
-        if ($milultimo) {
-            $nuevomes=date("Y-m-d",strtotime($nuevomes."+ 1 month"));
-            $ni=0; $nc=0; $ncu=0;
+        $micount=$micount+1;   
+        $miitem->save();    
+        if($micount==count($miupdate)){
+            $nuevomes = date("Y-m-d",strtotime($miitem->fecha."+ 1 month"));
+            $nm=$miaux; $ni=0; $nc=0; $nd=0;
             if($request->clase == 'Fijo'){
                 $ni=$mitipo->monto_interes * $miprestamo->monto; 
-                $nc=$miaux - ($mitipo->monto_interes * $miprestamo->monto);
+                $nc=$miprestamo->cuota - $ni;
+                $nd=$nm - ($miprestamo->cuota - $ni);;
             }else if($request->clase == 'Variable'){
-                $ni=$mitipo->monto_interes * $miaux;
-                $nc=$miaux - ($miaux * $mitipo->monto_interes); 
-            }
-
-            if ($miaux < $miprestamo->cuota ) {    
-                $nc=$nc+$ni;
-                $ncu =$miaux+$ni;
-            }
-
+                $ni=$mitipo->monto_interes * $nm; 
+                $nc=$miprestamo->cuota - $ni;
+                $nd= $nm - ($miprestamo->cuota - $ni);
+            }  
+            $micuota2=$nm+$ni;
             App\PrestamoPlane::create([
                 'mes' => date("F-Y", strtotime($nuevomes)),
-                'nro' => $miplazo+1,
-                'monto' => $miaux,
+                'nro' => ($miitem->nro+1),
+                'monto' => $nm,
                 'interes' => $ni,
-                'capital' => $nc,
-                'cuota' => $ncu,
+                'capital' => ($micuota2-$ni),
+                'cuota' => $micuota2,
                 'deuda' => 0,
                 'pagado' => 0,
-                'prestamo_id' => $request->prestamo_id,
+                'prestamo_id' => $miprestamo->id,
                 'observacion' => null,
                 'pasarela_id' => null,
                 'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
             ]);
-            $miplazo=$miplazo+1;
-            $miprestamo->plazo=$miplazo;
+            $miprestamo->plazo = $miprestamo->plazo + 1;
             $miprestamo->save();
-            break;
+            $miupdate = App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
         }
-        
-        //registro secuencial
-        $nuevomes=date("Y-m-d",strtotime($nuevomes."+ 1 month"));
-        $ni=0; $nc=0; $n_deuda=0; $mimonto=$miaux;
-        if($request->clase == 'Fijo'){
-            $ni=$mitipo->monto_interes * $miprestamo->monto; 
-            $nc=$miprestamo->cuota - ($mitipo->monto_interes * $miprestamo->monto);
-            $miaux=$mimonto - ($miprestamo->cuota - ($mimonto * $mitipo->monto_interes));
-            $n_deuda=$miaux;
-        }else if($request->clase == 'Variable'){
-            $ni=$mitipo->monto_interes * $mimonto;
-            $nc=$miprestamo->cuota - ($mimonto * $mitipo->monto_interes);
-            $miaux=$mimonto - ($miprestamo->cuota - ($mimonto * $mitipo->monto_interes));
-            $n_deuda=$miaux;  
-        }
-
-        App\PrestamoPlane::create([
-            'mes' => date("F-Y", strtotime($nuevomes)),
-            'nro' => $miplazo+1,
-            'monto' => $mimonto,
-            'interes' => $ni,
-            'capital' => $nc,
-            'cuota' => $miprestamo->cuota,
-            'deuda' => $n_deuda,
-            'pagado' => 0,
-            'prestamo_id' => $request->prestamo_id,
-            'observacion' => null,
-            'pasarela_id' => null,
-            'fecha' =>Carbon::parse($nuevomes)->format('Y-m-d')
-        ]);
-        $miplazo=$miplazo + 1;
-        $miprestamo->plazo=$miplazo;
-        $miprestamo->save();
-        
-        //controlar el ultimo
-        $milultimo = ($miaux<=$miprestamo->cuota) ? true : false;
+  
     }
-    return $request;
+
+    return true;
 });
 Route::post('plan/amort', function (Request $request) {
   
@@ -408,6 +306,7 @@ Route::post('plan/amort', function (Request $request) {
             }         
             $miitem->save();
         }
+
         if ($midelete) {
             $miprestamo->plazo=$miprestamo->plazo - 1;
             $miprestamo->save();
@@ -427,6 +326,7 @@ Route::post('plan/amort', function (Request $request) {
             $midelete = true;
         }
         $milultimo=($miaux<=$miprestamo->cuota) ? true : false;
+        // $milultimo=($index==$miprestamo->plazo+1) ? true : false;
     }
     return $request;
 });
