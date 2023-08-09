@@ -87,12 +87,11 @@ Route::post('prestamo/actualizar', function (Request $request) {
     return $miprestamo;
 });
 Route::post('prestamo/finalizar', function (Request $request) {
-    // return $request;
-    $delete1=App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->count();
+    $delete1=App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->get();
     $miprestamo=App\Prestamo::find($request->prestamo_id);
     $miprestamo->estado_id=4; // completado
     $miprestamo->observacion=$miprestamo->observacion."\n ".$request->detalle."\n Fecha: ".$request->fecha;    
-    $miprestamo->nro=$miprestamo->nro-$delete1;
+    $miprestamo->plazo=$miprestamo->plazo-count($delete1);
     $miprestamo->save();
 
     $miplan=App\PrestamoPlane::where("nro", $request->nro-1)->where("prestamo_id", $request->prestamo_id)->first();
@@ -100,7 +99,6 @@ Route::post('prestamo/finalizar', function (Request $request) {
     $miplan->save();
 
     App\PrestamoPlane::where("prestamo_id", $request->prestamo_id)->where("pagado", 0)->delete();
-
     return $miprestamo;
 });
 
@@ -331,6 +329,7 @@ Route::post('plan/amort', function (Request $request) {
     return $request;
 });
 Route::post('plan/mora/dias', function (Request $request) {
+    // return $request;
     $mitipo = App\PrestamoTipo::find($request->tipo_id);
     $miprestamo=App\Prestamo::find($request->prestamo_id);
     $midiff = date_diff(date_create($request->fecha), date_create(date("Y-m-d")));
