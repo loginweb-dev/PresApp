@@ -425,6 +425,13 @@ Route::post('bonos/calular', function (Request $request) {
     $m_prestamo = $request->m_bono - $interes; 
     return response()->json(['dias' => $dias, 'meses' => $meses, 'interes' => $interes, 'm_prestamo' => $m_prestamo]);
 });
+Route::post('bonos/actualizar', function (Request $request) {    
+    // return $request->id;
+    $midata = App\PrestamoBono::find($request->id);
+    $midata->estado_id = 4;
+    $midata->save();
+    return true;
+});
 
 //Settings --------------------------------------------
 Route::get('settings', function () {
