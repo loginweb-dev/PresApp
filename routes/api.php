@@ -334,7 +334,8 @@ Route::post('plan/mora/dias', function (Request $request) {
     $miprestamo=App\Prestamo::find($request->prestamo_id);
     $midiff = date_diff(date_create($request->fecha), date_create(date("Y-m-d")));
 
-    $dias_mora = $midiff->format("%a");   
+    $dias_mora = $midiff->format("%a")+1;   
+    // return $dias_mora;
     $interes_mora = 0;
     $total_mora = 0;
     $DiasMes= date('t'); 

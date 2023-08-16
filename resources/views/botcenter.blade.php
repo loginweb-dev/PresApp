@@ -18,7 +18,6 @@
 <div class="container-fluid">
 
     <div>
-
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#estado" aria-controls="eastado" role="tab" data-toggle="tab">Inicio</a></li>
@@ -138,8 +137,7 @@
             </div>
           </div>
         </div>
-      
-      </div>
+    </div>
 
 
 </div>

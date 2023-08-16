@@ -190,15 +190,15 @@
                                         @if (date("Y-m-d") > $item->fecha && $item->pagado==0)
                                             @php
                                                 $midiff = date_diff(date_create($item->fecha), date_create(date("Y-m-d")));
-                                                $dias_mora = $midiff->format("%a");                                                                                                                                                             
+                                            $dias_mora = $midiff->format("%a")+1;                        
                                             @endphp
                                             <span class="badge badge-pill badge-primary">
                                                 {{ $item->id }} en mora
                                                 <br>
-                                                {{ $midiff->format("%R%a Dias") }}
+                                                {{ $dias_mora }}
                                             </span>
                                         @else
-                                            NR:{{ $item->nro }}<br>                                               
+                                            NR:{{ $item->nro }} <br>                                               
                                             ID:{{ $item->id }}                                                    
                                         @endif                                                             
                                     </td>
@@ -532,8 +532,6 @@
                 </div>
             </div>
         </div>
-
-
 
         {{-- Actualizar  --}}
         <div class="modal modal-primary fade" tabindex="-1" id="modal_actualizar" role="dialog">

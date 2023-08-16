@@ -1,6 +1,7 @@
 @php
     $edit = !is_null($dataTypeContent->getKey());
     $add  = is_null($dataTypeContent->getKey());
+    $midata = App\PrestamoBono::where("id", $dataTypeContent->getKey())->with("estado")->first();
 @endphp
 
 @extends('voyager::master')
@@ -18,7 +19,11 @@
         
     </h1>
     @if ($edit)
-        <p>El prestamo esta conclido</p>
+        <div class="text-center">                   
+            <h3 >El prestamo en el estado: {{ $midata->estado->nombre }}</h3>
+            <a href="#" onclick="btn_finalizar()" class="btn btn-dark">Finalizar</a>
+        </div>
+        <hr>
     @else
         <p>Presiona enter luego de ingresar la fecha del monto, la fecha del prestamo y el monto del bono, para calular el prestamo</p>
     @endif
@@ -104,10 +109,13 @@
                         </div><!-- panel-body -->
 
                         <div class="panel-footer">
-                            @section('submit-buttons')
-                                <button type="submit" class="btn btn-dark btn-block save">{{ __('voyager::generic.save') }}</button>
-                            @stop
-                            @yield('submit-buttons')
+                            @if (!$edit)
+
+                                @section('submit-buttons')
+                                    <button type="submit" class="btn btn-dark btn-block save">{{ __('voyager::generic.save') }}</button>
+                                @stop
+                                @yield('submit-buttons')
+                            @endif
                         </div>
                     </form>
 
@@ -218,13 +226,15 @@
             $('[data-toggle="tooltip"]').tooltip();
         });
 
-        $("#user_id").prop("readonly", true)
+        // $("#user_id").prop("readonly", true)
         $("#user_id").val("{{ Auth::user()->id }}")
-        $("#plazo").prop("readonly", true)
+        // $("#plazo").prop("readonly", true)
         $("#interes").prop("readonly", true)
         $("#tipo_id").prop("readonly", true)
         $("#estado_id").prop("readonly", true)
         $("#m_prestamo").prop("readonly", true)
+        $("#f_prestamo").val("{{ date('Y-m-d') }}")
+        $("#f_bono").val("{{ date('Y-m-d') }}")
 
         @if($edit)
             $("#estado_id").val(4)
@@ -238,9 +248,10 @@
             // $("#select2-cliente_id-container").prop("readonly", true)
             
         @endif
-        $("#m_bono").change(function (e) { 
-            e.preventDefault();
-            // calcular()
+ 
+        $("#m_bono").keyup(function (e) { 
+            calcular()
+
         });
 
         $("#m_bono").keypress(function (e) { 
@@ -252,20 +263,46 @@
         });
         async function calcular(){     
      
-            toastr.success("Calculando..")
-            var midata = await axios.post("/api/bonos/calular", {
-                // tipo_id: $("#tipo_id").val(),
-                f_bono: $("#f_bono").val(),
-                f_prestamo: $("#f_prestamo").val(),
-                f_bono: $("#f_bono").val(),
-                m_bono: $("#m_bono").val(),                
-                user_id: "{{ Auth::user()->id }}"
-            })
-            $("#plazo").val(midata.data.meses)
-            $("#interes").val(midata.data.interes)
-            $("#m_prestamo").val(midata.data.m_prestamo)
-            console.log(midata.data)
+            // toastr.success("Calculando..")
+            // var midata = await axios.post("/api/bonos/calular", {
+            //     // tipo_id: $("#tipo_id").val(),
+            //     f_bono: $("#f_bono").val(),
+            //     f_prestamo: $("#f_prestamo").val(),
+            //     f_bono: $("#f_bono").val(),
+            //     m_bono: $("#m_bono").val(),                
+            //     user_id: "{{ Auth::user()->id }}"
+            // })
+            // $("#plazo").val(midata.data.meses)
+            // $("#interes").val(midata.data.interes)
+            // $("#m_prestamo").val(midata.data.m_prestamo)
+            // console.log(midata.data)
 
+            var mismsm = "Datos del préstamo de fecha :"+$("#f_prestamo").val()
+            mismsm = mismsm + "\nFecha: "+$("#f_bono").val()
+            mismsm = mismsm + "\nMonto: "+$("#m_bono").val()
+            mismsm = mismsm + "\nCliente: "+$("#cliente_id").text()
+            var a = moment($("#f_prestamo").val());
+            var b = moment($("#f_bono").val());
+            var diff = b.diff(a, 'M'); // Diff in month
+            var mp = $("#m_bono").val() - ($("#interes").val() * $("#m_bono").val())
+            
+            $("#plazo").val(diff)
+            $("#detalle").val(mismsm)
+            $("#m_prestamo").val(mp)
+        }
+
+
+        function btn_finalizar(){ 
+            swal({
+                icon: "warning",
+                title:  "Esta segur@ de finalizar el prestamo ?",                
+                buttons: {
+                    cancel: "Cancelar",
+                    confir: "Confirmar",
+                },
+                }).then(async (value) => {
+                    location.href= "/admin/prestamo-bonos"
+                })
         }
     </script>
 @stop
