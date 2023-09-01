@@ -246,6 +246,22 @@
             $("#doc_respado").prop("disabled", true)
             $("#interes").prop("readonly", true)
             $("#m_prestamo").prop("readonly", true)
+            async function btn_finalizar(){ 
+                swal({
+                    icon: "warning",
+                    title:  "Esta segur@ de finalizar el prestamo ?",                
+                    buttons: {
+                        cancel: "Cancelar",
+                        confir: "Confirmar",
+                    },
+                    }).then(async (value) => {
+                        var midata = await axios.post("/api/bonos/actualizar", {
+                            id: {{ $dataTypeContent->getKey() }}
+                        })
+                        // console.log(midata.data)
+                        location.href= "/admin/prestamo-bonos"
+                    })
+            }
         @endif
  
         $("#m_bono").keyup(function (e) { 
@@ -274,21 +290,6 @@
         }
 
 
-        async function btn_finalizar(){ 
-            swal({
-                icon: "warning",
-                title:  "Esta segur@ de finalizar el prestamo ?",                
-                buttons: {
-                    cancel: "Cancelar",
-                    confir: "Confirmar",
-                },
-                }).then(async (value) => {
-                    var midata = await axios.post("/api/bonos/actualizar", {
-                        id: {{ $dataTypeContent->getKey() }}
-                    })
-                    // console.log(midata.data)
-                    location.href= "/admin/prestamo-bonos"
-                })
-        }
+
     </script>
 @stop

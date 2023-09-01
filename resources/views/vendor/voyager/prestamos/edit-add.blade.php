@@ -440,32 +440,41 @@
                 mimes = mes_actual.format('MMMM-YY')
                 fecha = mes_actual.format('YYYY-MM-DD')
               
-                mimonto = (miplazo == 1) ? parseFloat(monto) : parseFloat(miaxu)
+                // mimonto = (miplazo == 1) ? parseFloat(monto) : parseFloat(miaxu)
 
-                if (miclase == 'Fijo') {
-                    miinteres = parseFloat(tipodata.monto_interes * monto)
-                    micapital = parseFloat(cuota-miinteres)
+                // if (miclase == 'Fijo') {
+                //     miinteres = parseFloat(tipodata.monto_interes * monto)
+                //     micapital = parseFloat(cuota-miinteres)
                     
-                } else if(miclase == 'Variable'){
-                    miinteres = parseFloat(tipodata.monto_interes * mimonto)
-                    micapital = parseFloat(cuota-miinteres)
-                }
-                switch ("{{ setting('prestamos.redondear') }}") {
-                    case 'nor':
-                        mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota))
-                        break;
-                    case 'rmx':
-                        mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota)))
-                        break;
-                    case 'rmi':
-                        mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota)))                
-                        break;
-                }
+                // } else if(miclase == 'Variable'){
+                //     miinteres = parseFloat(tipodata.monto_interes * mimonto)
+                //     micapital = parseFloat(cuota-miinteres)
+                // }
+                // switch ("{{ setting('prestamos.redondear') }}") {
+                //     case 'nor':
+                //         mimonto = (miplazo == 1) ? parseFloat(monto) : parseFloat(miaxu)
+                //         mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota))
+                //         break;
+                //     case 'rmx': //redondear al maximo
+                        mimonto = (miplazo == 1) ? parseFloat(monto) : Math.ceil(parseFloat(miaxu))
+                        if (miclase == 'Fijo') {
+                            miinteres = Math.ceil(parseFloat(tipodata.monto_interes * monto))
+                            micapital = Math.ceil(parseFloat(cuota-miinteres))                     
+                        } else if(miclase == 'Variable'){
+                            miinteres = Math.ceil(parseFloat(tipodata.monto_interes * mimonto))
+                            micapital =Math.ceil( parseFloat(cuota-miinteres))
+                        }
+                        mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota)))                        
+                //         break;
+                //     case 'rmi':
+                //         mimonto = (miplazo == 1) ? parseFloat(monto) : parseFloat(miaxu)
+                //         mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota))            
+                //         break;
+                // }
                 miaxu = parseFloat(mideuda)
 
                 const row = document.createElement('tr');
-                row.innerHTML = `
-          
+                row.innerHTML = `          
                     <td>NRO:${miplazo}<br>${mimes}</td>                    
                     <td>${mimonto.toFixed(2)}</td>
                     <td>${miinteres.toFixed(2)}</td>
@@ -482,27 +491,39 @@
                 
 
             if( miaxu > 0){
-                var miplan_aux = JSON.stringify({
-                    deuda: miaxu,
-                    cuota: cuota,
-                    interes: miinteres,
-                    capital: micapital,
-                    fecha: fecha
-                })
-                $("#miaccion").html("<a href='#' class='btn btn-warning' onclick='modal_plan("+miplan_aux+")'>Agregar 1 plazo</a>")
+                mimes = mes_actual.format('MMMM-YY')
+                fecha = mes_actual.format('YYYY-MM-DD')
+                mimonto = Math.ceil(parseFloat(miaxu))
+                miinteres = Math.ceil(parseFloat(tipodata.monto_interes * mimonto))
+                micapital = Math.ceil( parseFloat(cuota-miinteres))
+                micuota = Math.ceil(parseFloat(miaxu + miinteres))
+                mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(micuota))) 
+                
+                const row = document.createElement('tr')
+                row.innerHTML = `          
+                    <td>NRO:${miplazo}<br>${mimes}</td>                    
+                    <td>${mimonto.toFixed(2)}</td>
+                    <td>${miinteres.toFixed(2)}</td>
+                    <td>${micapital.toFixed(2)}</td>
+                    <td>${micuota.toFixed(2)}</td>
+                    <td>${mideuda.toFixed(2)}</td>
+                `;
+                llenarTabla.appendChild(row)
+                $("#plazo").val(miplazo)
+                miplan.push({'mes': mimes, 'fecha': fecha, 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': cuota, 'deuda': mideuda, 'nro': miplazo})  
             }
         }
 
-        function modal_plan(miplan_aux) { 
-            $("#modal_plan").modal()
-            $("#plan_nueva_cuota").val(miplan_aux.cuota)
-            $("#plan_deuda").val(miplan_aux.deuda)
-            $("#plan_interes").val(miplan_aux.interes)
-            $("#plan_capital").val(miplan_aux.capital)
-            $("#plan_nueva_deuda").val(0)
-            $("#plan_fecha").val(miplan_aux.fecha)
-            //$("#idplan").html("<small>"+miplan_aux.length+"</small>")
-        }
+        // function modal_plan(miplan_aux) { 
+        //     $("#modal_plan").modal()
+        //     $("#plan_nueva_cuota").val(miplan_aux.cuota)
+        //     $("#plan_deuda").val(miplan_aux.deuda)
+        //     $("#plan_interes").val(miplan_aux.interes)
+        //     $("#plan_capital").val(miplan_aux.capital)
+        //     $("#plan_nueva_deuda").val(0)
+        //     $("#plan_fecha").val(miplan_aux.fecha)
+        //     //$("#idplan").html("<small>"+miplan_aux.length+"</small>")
+        // }
 
         function store_plan(){
             $("#modal_plan").modal('hide')
