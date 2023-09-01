@@ -456,15 +456,15 @@
                 //         mideuda =  parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota))
                 //         break;
                 //     case 'rmx': //redondear al maximo
-                        mimonto = (miplazo == 1) ? parseFloat(monto) : Math.ceil(parseFloat(miaxu))
+                        mimonto = (miplazo == 1) ? parseFloat(monto) : Math.round(parseFloat(miaxu))
                         if (miclase == 'Fijo') {
-                            miinteres = Math.ceil(parseFloat(tipodata.monto_interes * monto))
-                            micapital = Math.ceil(parseFloat(cuota-miinteres))                     
+                            miinteres = Math.round(parseFloat(tipodata.monto_interes * monto))
+                            micapital = Math.round(parseFloat(cuota-miinteres))                     
                         } else if(miclase == 'Variable'){
-                            miinteres = Math.ceil(parseFloat(tipodata.monto_interes * mimonto))
-                            micapital =Math.ceil( parseFloat(cuota-miinteres))
+                            miinteres = Math.round(parseFloat(tipodata.monto_interes * mimonto))
+                            micapital = Math.round( parseFloat(cuota-miinteres))
                         }
-                        mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota)))                        
+                        mideuda =  Math.round(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(cuota)))                        
                 //         break;
                 //     case 'rmi':
                 //         mimonto = (miplazo == 1) ? parseFloat(monto) : parseFloat(miaxu)
@@ -476,11 +476,11 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `          
                     <td>NRO:${miplazo}<br>${mimes}</td>                    
-                    <td>${mimonto.toFixed(2)}</td>
-                    <td>${miinteres.toFixed(2)}</td>
-                    <td>${micapital.toFixed(2)}</td>
-                    <td>${cuota.toFixed(2)}</td>
-                    <td>${mideuda.toFixed(2)}</td>
+                    <td>${mimonto.toFixed(0)}</td>
+                    <td>${miinteres.toFixed(0)}</td>
+                    <td>${micapital.toFixed(0)}</td>
+                    <td>${cuota.toFixed(0)}</td>
+                    <td>${mideuda.toFixed(0)}</td>
                 `;
                 llenarTabla.appendChild(row)
                 miplan.push({'mes': mimes, 'fecha': fecha, 'monto': mimonto, 'interes': miinteres, 'capital': micapital, 'cuota': cuota, 'deuda': mideuda, 'nro': miplazo})     
@@ -493,20 +493,22 @@
             if( miaxu > 0){
                 mimes = mes_actual.format('MMMM-YY')
                 fecha = mes_actual.format('YYYY-MM-DD')
-                mimonto = Math.ceil(parseFloat(miaxu))
-                miinteres = Math.ceil(parseFloat(tipodata.monto_interes * mimonto))
-                micapital = Math.ceil( parseFloat(cuota-miinteres))
-                micuota = Math.ceil(parseFloat(miaxu + miinteres))
-                mideuda =  Math.ceil(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(micuota))) 
+                mimonto = Math.round(parseFloat(miaxu))
+                
+                miinteres = Math.round(parseFloat(tipodata.monto_interes * mimonto))
+                micuota = Math.round(parseFloat(miaxu + miinteres))
+                micapital = Math.round( parseFloat(micuota-miinteres))
+                
+                mideuda =  Math.round(parseFloat((parseFloat(mimonto)+parseFloat(miinteres)) - parseFloat(micuota))) 
                 
                 const row = document.createElement('tr')
                 row.innerHTML = `          
                     <td>NRO:${miplazo}<br>${mimes}</td>                    
-                    <td>${mimonto.toFixed(2)}</td>
-                    <td>${miinteres.toFixed(2)}</td>
-                    <td>${micapital.toFixed(2)}</td>
-                    <td>${micuota.toFixed(2)}</td>
-                    <td>${mideuda.toFixed(2)}</td>
+                    <td>${mimonto.toFixed(0)}</td>
+                    <td>${miinteres.toFixed(0)}</td>
+                    <td>${micapital.toFixed(0)}</td>
+                    <td>${micuota.toFixed(0)}</td>
+                    <td>${mideuda.toFixed(0)}</td>
                 `;
                 llenarTabla.appendChild(row)
                 $("#plazo").val(miplazo)
