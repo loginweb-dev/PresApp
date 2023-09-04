@@ -234,11 +234,11 @@
                                             <h2 class="text-center"><i class="icon voyager-lightbulb"></i></h2>
                                         @endif
                                     </td>                                                                                                                    
-                                    <td>{{ number_format($item->monto, 2, '.', '') }}</td>
-                                    <td>{{ number_format($item->interes, 2, '.', '') }}</td>
-                                    <td>{{ number_format($item->capital, 2, '.', '') }}</td>
-                                    <td>{{ number_format($item->cuota, 2, '.', '') }}</td>
-                                    <td>{{ number_format($item->deuda, 2, '.', '') }}</td>                      
+                                    <td>{{ round($item->monto) }}</td>
+                                    <td>{{ round($item->interes) }}</td>
+                                    <td>{{ round($item->capital) }}</td>
+                                    <td>{{ round($item->cuota) }}</td>
+                                    <td>{{ round($item->deuda) }}</td>                      
                                     <td class="text-center">{{ $item->mora }}</td>
                                     <td class="text-center">{{ $item->refin }}</td>
                                     <td class="text-center">{{ $item->amort }}</td>
@@ -965,10 +965,7 @@
                 $("#fd_pordiatotal").val(midata.data.total_mora)
                 var miimpot = midata.data.total_mora + {{ $miplan3->monto }}
                 $("#fd_importe").val(miimpot)
-                $("#fd_detalle").val("Deuda cancela, con un monto de: "+miimpot)
-                
-
-                
+                $("#fd_detalle").val("Deuda cancela, con un monto de: "+miimpot)                            
             }
             async function actualizar_prestamo() {
                 toastr.info("mensaje enviado...")
